@@ -11,6 +11,7 @@ type Station =
   | "ppf"
   | "comparative"
   | "posnorm"
+  | "flash"
   | "quiz"
   | "results"
   | "not-yet";
@@ -100,7 +101,7 @@ function SummaryModal({ onClose }: { onClose: () => void }) {
               rel="noopener noreferrer"
               className="underline text-primary"
             >
-              https://openstax.org/books/principles-macroeconomics-3e/pages/1-introduction
+              https://openstax.org/books/principles-microeconomics-3e/pages/1-introduction
             </a>
           </p>
         </div>
@@ -120,7 +121,7 @@ function SummaryModal({ onClose }: { onClose: () => void }) {
 // ─────────────────────────────────────────────
 // Station 1 — Budget Constraint Explorer
 // ─────────────────────────────────────────────
-function BudgetStation({ onComplete }: { onComplete: () => void }) {
+function BudgetStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
   const BUDGET = 10;
   const BURGER_PRICE = 2;
   const TICKET_PRICE = 0.5;
@@ -149,6 +150,9 @@ function BudgetStation({ onComplete }: { onComplete: () => void }) {
           Alphonso has <strong>$10/week</strong> to spend on burgers ($2 each)
           and bus tickets ($0.50 each). Every dollar spent on burgers is a
           dollar not spent on bus tickets — that's the trade-off.
+        </p>
+        <p className="text-muted-foreground text-xs mt-2">
+          <strong className="text-foreground">Why a straight line?</strong> Prices are fixed. The slope of the budget line equals the relative price of one good in terms of the other — it tells you the opportunity cost of each choice.
         </p>
       </div>
 
@@ -352,7 +356,10 @@ function BudgetStation({ onComplete }: { onComplete: () => void }) {
       {allDone && (
         <button
           type="button"
-          onClick={onComplete}
+          onClick={() => {
+            const budgetScore = (q1 === 1 ? 1 : 0) + (q2 === 2 ? 1 : 0) + (q3 === 3 ? 1 : 0);
+            onComplete(budgetScore, 3);
+          }}
           className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
         >
           Mark Complete ✓
@@ -398,24 +405,24 @@ const OPP_SCENARIOS = [
   },
   {
     id: 3,
-    title: "The Airport Delay",
+    title: "The Airport Security Line",
     scenario:
-      "U.S. airport delays cost passengers an estimated $8 billion per year in lost time. This estimate counts the value of hours passengers spend waiting.",
+      "Enhanced airport security screening adds about 30 minutes to each passenger's travel time. With approximately 895 million U.S. airline passengers per year, economists estimate this costs roughly $8 billion per year in lost time.",
     question: "What economic concept does the $8 billion figure represent?",
     options: [
-      "Nominal GDP cost of delays",
-      "The direct ticket price increases caused by delays",
-      "The opportunity cost of time — what passengers could have done instead",
+      "Nominal GDP cost of security spending",
+      "The direct ticket price increases caused by security",
+      "The opportunity cost of time — what 895 million passengers could have done with those 30 minutes",
       "The fiscal policy cost to the government",
     ],
     correct: 2,
-    exp: "The $8 billion is the opportunity cost of time — the value of what passengers could have been doing (working, spending time with family, etc.) instead of waiting. Time has economic value even when no money changes hands.",
+    exp: "The $8 billion is the opportunity cost of time — the value of what 895 million passengers could have been doing (working, with family, etc.) instead of waiting in security. Time has economic value even when no money changes hands. Every choice has both visible and hidden costs.",
   },
   {
     id: 4,
     title: "The Daily Lunch",
     scenario:
-      "You spend $8 on lunch every workday (250 days/year). A friend points out this costs $2,000/year — money that could fund a vacation.",
+      "You spend $8 on lunch every workday. Over an academic year (about 156 days), a friend points out this adds up to roughly $1,250 — about the price of a vacation.",
     question: "Your friend is making an argument based on which economic concept?",
     options: [
       "Sunk cost — the money is already spent",
@@ -424,11 +431,11 @@ const OPP_SCENARIOS = [
       "Comparative advantage — restaurants make lunch more efficiently",
     ],
     correct: 1,
-    exp: "Your friend is highlighting the opportunity cost: by choosing to buy $8 lunches daily, you forgo $2,000/year that could fund a vacation. The same dollars could have been used differently — that foregone alternative is the opportunity cost.",
+    exp: "Your friend is highlighting the opportunity cost: by choosing to buy $8 lunches each workday, you forgo roughly $1,250/year that could fund a vacation. The same dollars could have been used differently — that foregone alternative is the opportunity cost. Every choice has both visible and hidden costs.",
   },
 ];
 
-function OppCostStation({ onComplete }: { onComplete: () => void }) {
+function OppCostStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
   const [idx, setIdx] = useState(0);
   const [sel, setSel] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
@@ -467,7 +474,7 @@ function OppCostStation({ onComplete }: { onComplete: () => void }) {
         </div>
         <button
           type="button"
-          onClick={onComplete}
+          onClick={() => onComplete(score, OPP_SCENARIOS.length)}
           className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
         >
           Mark Complete ✓
@@ -639,7 +646,7 @@ const MARGIN_DECISIONS = [
   },
 ];
 
-function MarginStation({ onComplete }: { onComplete: () => void }) {
+function MarginStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
   const [idx, setIdx] = useState(0);
   const [sel, setSel] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
@@ -679,7 +686,7 @@ function MarginStation({ onComplete }: { onComplete: () => void }) {
         </div>
         <button
           type="button"
-          onClick={onComplete}
+          onClick={() => onComplete(score, MARGIN_DECISIONS.length)}
           className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
         >
           Mark Complete ✓
@@ -806,25 +813,25 @@ const PPF_POINTS = [
   { id: "D", x: 100,y: 0,   type: "on",      label: "D (100, 0)" },
   { id: "E", x: 40, y: 50,  type: "inside",  label: "E (40, 50)" },
   { id: "F", x: 70, y: 80,  type: "outside", label: "F (70, 80)" },
-  { id: "G", x: 30, y: 95,  type: "outside", label: "G (30, 95)" },
+  { id: "G", x: 60, y: 90,  type: "outside", label: "G (60, 90)" },
   { id: "H", x: 60, y: 40,  type: "inside",  label: "H (60, 40)" },
 ];
 
 const PPF_QUESTIONS = [
   {
-    q: "Which point(s) represent PRODUCTIVE EFFICIENCY — the economy is using all resources fully?",
+    q: "Which point(s) could the economy actually be producing right now, with all workers employed and all resources in use?",
     correct: ["A", "B", "C", "D"],
     multi: true,
     exp: "Points A, B, C, and D all lie ON the PPF curve. Any point on the PPF represents productive efficiency — the economy cannot produce more of one good without producing less of the other.",
   },
   {
-    q: "Which point(s) are INSIDE the PPF — representing inefficiency or unused resources?",
+    q: "Which point(s) might describe an economy in recession, with idle factories and unemployed workers?",
     correct: ["E", "H"],
     multi: true,
     exp: "Points E and H are inside the PPF. These represent productive inefficiency — the economy has idle resources or is using them poorly. During a recession, for example, the economy operates inside its PPF.",
   },
   {
-    q: "Which point(s) are OUTSIDE the PPF — currently unattainable with existing resources and technology?",
+    q: "Which point(s) could only be reached if the economy gained new technology or additional resources?",
     correct: ["F", "G"],
     multi: true,
     exp: "Points F and G are outside the PPF — they are unattainable given current resources and technology. Only technological improvement or resource growth can shift the PPF outward to make these points reachable.",
@@ -837,7 +844,7 @@ const PPF_QUESTIONS = [
   },
 ];
 
-function PPFStation({ onComplete }: { onComplete: () => void }) {
+function PPFStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
   const [qIdx, setQIdx] = useState(0);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [checked, setChecked] = useState(false);
@@ -917,7 +924,7 @@ function PPFStation({ onComplete }: { onComplete: () => void }) {
         </div>
         <button
           type="button"
-          onClick={onComplete}
+          onClick={() => onComplete(score, PPF_QUESTIONS.length)}
           className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
         >
           Mark Complete ✓
@@ -939,8 +946,9 @@ function PPFStation({ onComplete }: { onComplete: () => void }) {
         <p className="text-muted-foreground text-xs">
           Society must choose how to allocate limited resources between two
           goods — here, <strong>Healthcare</strong> and{" "}
-          <strong>Education</strong>. The curved frontier shows all efficient
-          combinations.
+          <strong>Education</strong>. Each labeled point represents a
+          different production combination. Use the diagram to answer the
+          questions below.
         </p>
       </div>
 
@@ -1076,82 +1084,64 @@ function PPFStation({ onComplete }: { onComplete: () => void }) {
 }
 
 // ─────────────────────────────────────────────
-// Station 5 — Comparative Advantage
 // ─────────────────────────────────────────────
-// US and Brazil production data (hours to produce 1 unit)
-// US: 1 unit wheat = 1 hr, 1 unit sugar = 4 hrs
-// Brazil: 1 unit wheat = 5 hrs, 1 unit sugar = 2 hrs
-// US OC of wheat = 1/4 sugar; US OC of sugar = 4 wheat
-// Brazil OC of wheat = 5/2 sugar; Brazil OC of sugar = 2/5 wheat
-// → US has comparative advantage in wheat (lower OC: 1/4 < 5/2)
-// → Brazil has comparative advantage in sugar (lower OC: 2/5 < 4)
-
-const COMP_ADV_STEPS = [
+// Station 5 — Comparative Advantage (Conceptual)
+// ─────────────────────────────────────────────
+const COMP_ADV_QS = [
   {
-    step: 1,
-    title: "Read the Production Data",
-    desc: "The table shows how many hours each country needs to produce 1 unit of each good.",
-    question: "Which country is MORE efficient at producing wheat (takes fewer hours)?",
-    options: ["United States (1 hour)", "Brazil (5 hours)", "Both are equally efficient", "Neither — they should both produce sugar"],
-    correct: 0,
-    exp: "The US produces wheat in 1 hour vs. Brazil's 5 hours — so the US has an absolute advantage in wheat. But absolute advantage doesn't determine comparative advantage. We need to look at opportunity costs.",
-  },
-  {
-    step: 2,
-    title: "Calculate US Opportunity Costs",
-    desc: "The US spends 1 hour on wheat OR 4 hours on sugar. So the US can produce: 1 unit of wheat OR (1/4) of a unit of sugar in 1 hour.",
-    question: "What is the opportunity cost of 1 unit of WHEAT for the United States?",
-    options: ["4 units of sugar", "1/4 unit of sugar", "1 unit of sugar", "5 units of sugar"],
+    q: "Brazil has a climate ideal for growing sugar cane. The United States has soil and conditions well-suited for wheat. Even if the U.S. could grow sugar cane, why should it focus on wheat instead?",
+    options: [
+      "Because the U.S. has more workers available for farming",
+      "Because focusing on wheat means the U.S. gives up less of what it is good at producing",
+      "Because sugar cane is not profitable",
+      "Because international law requires countries to specialize",
+    ],
     correct: 1,
-    exp: "To produce 1 unit of wheat takes the US 1 hour. In that same 1 hour, the US could produce 1/4 unit of sugar (since sugar takes 4 hours). So the opportunity cost of 1 wheat = 1/4 sugar. The US gives up very little sugar to make wheat.",
+    exp: "Comparative advantage is about opportunity cost. By focusing on wheat, the U.S. gives up less than it would if it tried to produce sugar cane. Each country should produce the good it sacrifices the least to make — that is where its comparative advantage lies.",
   },
   {
-    step: 3,
-    title: "Calculate Brazil's Opportunity Costs",
-    desc: "Brazil spends 5 hours on wheat OR 2 hours on sugar. So to produce 1 wheat, Brazil gives up 5/2 = 2.5 units of sugar.",
-    question: "What is the opportunity cost of 1 unit of WHEAT for Brazil?",
-    options: ["2 units of sugar", "1/2 unit of sugar", "2.5 units of sugar", "5 units of sugar"],
-    correct: 2,
-    exp: "Brazil takes 5 hours for wheat. In 5 hours, Brazil could make 5/2 = 2.5 units of sugar (since sugar takes 2 hours each). So the opportunity cost of 1 wheat in Brazil = 2.5 sugar — much higher than the US (1/4 sugar).",
-  },
-  {
-    step: 4,
-    title: "Determine Comparative Advantage",
-    desc: "US wheat OC: 1/4 sugar. Brazil wheat OC: 2.5 sugar. US sugar OC: 4 wheat. Brazil sugar OC: 2/5 wheat.",
-    question: "Which country has comparative advantage in each good?",
+    q: "A country can produce both cars and computers more efficiently than any other country in the world. Should it try to produce both entirely on its own?",
     options: [
-      "US in both wheat and sugar",
-      "Brazil in both wheat and sugar",
-      "US in wheat, Brazil in sugar",
-      "US in sugar, Brazil in wheat",
+      "Yes — if you are better at everything, there is no reason to trade",
+      "No — even if you are better at everything, every hour spent on cars is an hour not spent on computers; specializing and trading still raises total output",
+      "Yes — self-sufficiency protects against trade disruptions",
+      "No — international law prohibits producing both goods",
     ],
-    correct: 2,
-    exp: "The US has a lower opportunity cost for wheat (1/4 sugar vs. Brazil's 2.5 sugar) → US has comparative advantage in wheat. Brazil has a lower opportunity cost for sugar (2/5 wheat vs. US's 4 wheat) → Brazil has comparative advantage in sugar. Each should specialize in what they give up LEAST to produce.",
+    correct: 1,
+    exp: "This is the key insight of comparative advantage: even a country with absolute advantage in every good still benefits from specializing. Resources — including time — are scarce. Every hour spent on the less-favored good is an hour not spent on the one where the advantage is greatest. Trade lets both countries consume more than they could alone.",
   },
   {
-    step: 5,
-    title: "The Gains from Trade",
-    desc: "If the US specializes in wheat and Brazil in sugar, they can trade and BOTH end up with more of both goods than if each tried to produce everything.",
-    question: "What is the key insight of comparative advantage?",
+    q: "What does it mean to say a country has a comparative advantage in producing a good?",
     options: [
-      "Only the most productive country benefits from trade",
-      "Countries should be self-sufficient and avoid trade",
-      "Even if one country is better at everything, both benefit by specializing in their comparative advantage",
-      "Trade only works if opportunity costs are equal",
+      "It can produce more of that good than any other country",
+      "It gives up less of other goods to produce that good than its trading partners do",
+      "It has the most advanced technology for making that good",
+      "It produces that good at zero cost",
     ],
-    correct: 2,
-    exp: "This is the core insight: even if the US is more efficient at BOTH goods (absolute advantage in both), BOTH countries benefit from trade by specializing in their comparative advantage. The gains from trade come from differences in opportunity costs, not absolute productivity.",
+    correct: 1,
+    exp: "Comparative advantage is defined by opportunity cost, not raw output. A country has comparative advantage when it sacrifices less of other goods to produce one more unit of this good. That is what makes specialization and trade mutually beneficial — it is not about who is faster, but about what each country gives up.",
+  },
+  {
+    q: "Two countries can both produce wheat and sugar. Country A gives up 2 units of sugar for every unit of wheat it produces. Country B gives up 5 units of sugar for every unit of wheat. Which country has the comparative advantage in wheat?",
+    options: [
+      "Country B — it produces more sugar overall",
+      "Country A — it gives up fewer units of sugar to produce wheat",
+      "Neither — both should produce wheat and sugar equally",
+      "Whichever country has more farmland",
+    ],
+    correct: 1,
+    exp: "Country A gives up only 2 units of sugar per unit of wheat, while Country B gives up 5. Lower opportunity cost means comparative advantage. Country A should specialize in wheat; Country B — which gives up less wheat to produce sugar — should specialize in sugar. Both gain by trading.",
   },
 ];
 
-function ComparativeStation({ onComplete }: { onComplete: () => void }) {
+function ComparativeStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
   const [idx, setIdx] = useState(0);
   const [sel, setSel] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
 
-  const q = COMP_ADV_STEPS[idx];
+  const q = COMP_ADV_QS[idx];
+  const isLast = idx === COMP_ADV_QS.length - 1;
 
   function check() {
     setChecked(true);
@@ -1159,105 +1149,47 @@ function ComparativeStation({ onComplete }: { onComplete: () => void }) {
   }
 
   function next() {
-    if (idx + 1 < COMP_ADV_STEPS.length) {
+    if (!isLast) {
       setIdx(idx + 1);
       setSel(null);
       setChecked(false);
     } else {
-      setDone(true);
+      onComplete(score + (sel === q.correct ? 1 : 0), COMP_ADV_QS.length);
     }
   }
-
-  if (done)
-    return (
-      <div className="max-w-lg mx-auto space-y-4">
-        <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-          <p className="text-lg font-bold text-green-800">
-            {score}/{COMP_ADV_STEPS.length} correct
-          </p>
-          <p className="text-sm text-green-700 mt-1">
-            Comparative advantage — not absolute advantage — drives the gains
-            from specialization and trade. The country with the lower
-            opportunity cost for a good should produce it.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onComplete}
-          className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-        >
-          Mark Complete ✓
-        </button>
-      </div>
-    );
 
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm text-foreground">
         <p className="font-semibold mb-1">Comparative Advantage</p>
         <p className="text-muted-foreground text-xs">
-          A country has comparative advantage in a good when it can produce it
-          at a <strong>lower opportunity cost</strong> than another country.
-          This determines who should specialize — and both countries gain from
-          trade.
+          Countries — and individuals — benefit from focusing on what they
+          sacrifice the least to produce. Read each scenario and choose the
+          best answer.
         </p>
-      </div>
-
-      {/* Production data table — always visible */}
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
-        <p className="text-xs font-semibold text-foreground px-3 py-2 bg-muted border-b border-border">
-          Hours to Produce 1 Unit
-        </p>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-muted/50">
-              <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Country</th>
-              <th className="text-center px-3 py-2 text-xs font-semibold text-muted-foreground">🌾 Wheat</th>
-              <th className="text-center px-3 py-2 text-xs font-semibold text-muted-foreground">🍬 Sugar</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-t border-border">
-              <td className="px-3 py-2 text-xs font-medium text-foreground">🇺🇸 United States</td>
-              <td className="px-3 py-2 text-xs text-center text-foreground font-bold">1 hr</td>
-              <td className="px-3 py-2 text-xs text-center text-foreground font-bold">4 hrs</td>
-            </tr>
-            <tr className="border-t border-border">
-              <td className="px-3 py-2 text-xs font-medium text-foreground">🇧🇷 Brazil</td>
-              <td className="px-3 py-2 text-xs text-center text-foreground font-bold">5 hrs</td>
-              <td className="px-3 py-2 text-xs text-center text-foreground font-bold">2 hrs</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
 
       <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span aria-live="polite" aria-atomic="true">Step {q.step} of {COMP_ADV_STEPS.length}</span>
+        <span>Question {idx + 1} of {COMP_ADV_QS.length}</span>
         <div className="flex gap-1">
-          {COMP_ADV_STEPS.map((_, i) => (
-            <div
-              key={i}
-              className={`w-2.5 h-2.5 rounded-full ${i < idx ? "bg-green-500" : i === idx ? "bg-primary" : "bg-muted"}`}
-            />
+          {COMP_ADV_QS.map((_, i) => (
+            <div key={i} className={`w-2.5 h-2.5 rounded-full ${
+              i < idx ? "bg-green-500" : i === idx ? "bg-primary" : "bg-muted"
+            }`} />
           ))}
         </div>
       </div>
 
-      <div className="bg-card border-2 border-border rounded-xl p-4">
-        <p className="text-xs font-semibold text-primary mb-1">{q.title}</p>
-        <p className="text-xs text-muted-foreground italic mb-3">{q.desc}</p>
-        <p className="text-sm font-semibold text-foreground mb-3">{q.question}</p>
+      <div className="bg-card border-2 border-border rounded-xl p-4 space-y-3">
+        <p className="text-sm font-semibold text-foreground">{q.q}</p>
         <div className="space-y-2">
           {q.options.map((opt, oi) => {
             let cls = "border-border text-foreground";
             if (checked) {
-              if (oi === q.correct)
-                cls = "border-green-500 bg-green-50 text-green-800 font-semibold";
-              else if (oi === sel)
-                cls = "border-red-400 bg-red-50 text-red-700";
+              if (oi === q.correct) cls = "border-green-500 bg-green-50 text-green-800 font-semibold";
+              else if (oi === sel) cls = "border-red-400 bg-red-50 text-red-700";
               else cls = "border-border text-muted-foreground opacity-50";
-            } else if (sel === oi)
-              cls = "border-primary bg-primary/10 text-primary font-semibold";
+            } else if (sel === oi) cls = "border-primary bg-primary/10 text-primary font-semibold";
             return (
               <button
                 key={oi}
@@ -1265,25 +1197,26 @@ function ComparativeStation({ onComplete }: { onComplete: () => void }) {
                 onClick={() => setSel(oi)}
                 className={`w-full text-left rounded-xl border-2 px-4 py-2.5 text-sm transition ${cls} ${!checked ? "hover:border-primary/40" : ""}`}
               >
-                <span className="font-bold mr-2">{String.fromCharCode(65 + oi)}.</span>
                 {opt}
               </button>
             );
           })}
         </div>
         {checked && (
-          <p className={`mt-3 text-xs font-medium ${sel === q.correct ? "text-green-700" : "text-amber-700"}`}>
-            {sel === q.correct ? "✓ Correct! " : "✗ Not quite. "}
-            {q.exp}
+          <p className={`text-xs font-medium mt-2 ${
+            sel === q.correct ? "text-green-700" : "text-amber-700"
+          }`}>
+            {sel === q.correct ? "✓ Correct — " : "✗ Not quite — "}{q.exp}
           </p>
         )}
       </div>
+
       {!checked ? (
         <button
           type="button"
           onClick={check}
           disabled={sel === null}
-          className="w-full py-3 bg-primary hover:opacity-90 disabled:opacity-40 text-primary-foreground rounded-xl font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+          className="w-full py-3 bg-primary hover:opacity-90 disabled:opacity-40 text-primary-foreground rounded-xl font-semibold transition"
         >
           Check Answer
         </button>
@@ -1291,9 +1224,9 @@ function ComparativeStation({ onComplete }: { onComplete: () => void }) {
         <button
           type="button"
           onClick={next}
-          className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+          className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition"
         >
-          {idx + 1 < COMP_ADV_STEPS.length ? "Next Step →" : "See Results"}
+          {isLast ? "Mark Complete ✓" : "Next Question →"}
         </button>
       )}
     </div>
@@ -1314,7 +1247,7 @@ const PN_STATEMENTS = [
   { id: 8, text: "The rich should pay higher tax rates because they can afford it.", correct: "normative", exp: "Normative — 'should' and 'can afford it' embed value judgments about fairness. This is an opinion about what tax policy ought to be." },
 ];
 
-function PosNormStation({ onComplete }: { onComplete: () => void }) {
+function PosNormStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
   const [placements, setPlacements] = useState<Record<number, "positive" | "normative">>({});
   const [checked, setChecked] = useState(false);
 
@@ -1422,12 +1355,295 @@ function PosNormStation({ onComplete }: { onComplete: () => void }) {
             </p>
           </div>
           <button
-            onClick={onComplete}
+            onClick={() => onComplete(correctCount, PN_STATEMENTS.length)}
             className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition"
           >
             Mark Complete ✓
           </button>
         </div>
+      )}
+    </div>
+  );
+}
+
+
+// ─────────────────────────────────────────────
+// Flashcard Station
+// ─────────────────────────────────────────────
+
+type CardType = "basic" | "cloze" | "scenario";
+
+interface Flashcard {
+  id: number;
+  type: CardType;
+  front: string;
+  back: string;
+  clozeText?: string;  // text with {{blank}} markers
+  hint?: string;
+}
+
+const CH2_CARDS: Flashcard[] = [
+  // ── Basic flip cards ──────────────────────────────────────
+  {
+    id: 1, type: "basic",
+    front: "What is opportunity cost?",
+    back: "The value of the next-best alternative you give up when making a choice.\n\nKey: It includes BOTH direct costs AND foregone alternatives.",
+  },
+  {
+    id: 2, type: "basic",
+    front: "What is a sunk cost — and how should it affect your decisions?",
+    back: "A sunk cost is a past cost that cannot be recovered.\n\nRule: Ignore it. Make decisions based on future costs and benefits only.",
+  },
+  {
+    id: 3, type: "basic",
+    front: "What is the marginal analysis decision rule?",
+    back: "Do one more unit only if Marginal Benefit ≥ Marginal Cost.\n\nStop when MC > MB.",
+  },
+  {
+    id: 4, type: "basic",
+    front: "What does a point ON the PPF represent?",
+    back: "Productive efficiency — the economy is using all resources fully. You cannot produce more of one good without producing less of the other.",
+  },
+  {
+    id: 5, type: "basic",
+    front: "What is the difference between productive efficiency and allocative efficiency?",
+    back: "Productive efficiency = producing ON the PPF (no wasted resources).\n\nAllocative efficiency = producing the RIGHT combination on the PPF — the mix society most wants.",
+  },
+  {
+    id: 6, type: "basic",
+    front: "What is the Law of Diminishing Marginal Utility?",
+    back: "Each additional unit of a good consumed provides less additional satisfaction than the previous unit.\n\nExample: The 1st pizza slice > the 6th pizza slice.",
+  },
+  // ── Cloze cards ──────────────────────────────────────────
+  {
+    id: 7, type: "cloze",
+    front: "Complete: The true opportunity cost of attending college = _______ + _______.",
+    back: "Tuition (direct cost) + Foregone wages from not working (indirect cost).\n\nBoth are real sacrifices — economists count both. For many students, the foregone earnings are the larger cost.",
+    hint: "Think: what do you pay AND what do you give up? (Often the forgone earnings exceed tuition.)",
+  },
+  {
+    id: 8, type: "cloze",
+    front: "Complete: The PPF curves outward (is concave) due to the Law of _______ Opportunity Cost.",
+    back: "Increasing Opportunity Cost.\n\nAs you shift more resources to one good, those resources become increasingly less suited to that production — each extra unit costs more and more.",
+    hint: "Think: teachers well-suited to medicine shift first (big gain, small loss); best teachers shift last (small gain, huge loss).",
+  },
+  {
+    id: 9, type: "cloze",
+    front: "Alphonso has $10/week. Burgers cost $2, bus tickets $0.50. The opportunity cost of 1 burger = _______ bus tickets.",
+    back: "4 bus tickets.\n\n$2 ÷ $0.50 = 4. For every burger Alphonso buys, he gives up 4 bus rides.",
+    hint: "Divide the price of a burger by the price of a bus ticket.",
+  },
+  {
+    id: 10, type: "cloze",
+    front: "Complete: A country has _______ advantage in a good when it can produce it at a lower _______ cost than another country.",
+    back: "Comparative advantage / opportunity cost.\n\nKey: It's about opportunity cost — NOT about who is more productive overall.",
+    hint: "Comparative _____ / opportunity _____",
+  },
+  {
+    id: 11, type: "cloze",
+    front: "Complete: A point _______ the PPF is productively efficient. A point _______ the PPF represents wasted resources.",
+    back: "ON the PPF = productively efficient.\nINSIDE the PPF = inefficient (idle resources, waste, recession).\nOUTSIDE the PPF = currently unattainable.",
+    hint: "On / Inside / Outside — three zones.",
+  },
+  // ── Scenario / Diagram cards ──────────────────────────────
+  {
+    id: 12, type: "scenario",
+    front: "Selena paid $8 for a movie ticket. Thirty minutes in, the movie is terrible and she is miserable.\n\nShould the $8 factor into her decision to stay or leave?",
+    back: "No. The $8 is a sunk cost — it is gone whether she stays or leaves.\n\nRational decision: compare only the future cost (90 more minutes of misery) vs. the future benefit of leaving (doing something enjoyable). The $8 is irrelevant.",
+    hint: "Sunk cost rule: focus on future, not the past.",
+  },
+  {
+    id: 13, type: "scenario",
+    front: "US: 1 hour to make wheat, 4 hours to make sugar.\nBrazil: 5 hours to make wheat, 2 hours to make sugar.\n\nWho has comparative advantage in sugar — and why?",
+    back: "Brazil has comparative advantage in sugar.\n\nBrazil's opportunity cost of sugar = 2/5 wheat. US opportunity cost of sugar = 4 wheat.\n\nBrazil gives up far less wheat to produce sugar → lower opportunity cost → comparative advantage.",
+    hint: "Calculate opportunity cost for each country, then compare.",
+  },
+  {
+    id: 14, type: "scenario",
+    front: "You are deciding whether to take one more work shift for $60. You value the free evening at $45.\n\nAccording to marginal analysis, what should you do?",
+    back: "Take the shift.\n\nMarginal Benefit ($60) > Marginal Cost ($45 value of free time).\n\nThe extra benefit of working exceeds the extra cost — do it.",
+    hint: "Compare MB vs MC.",
+  },
+  {
+    id: 15, type: "scenario",
+    front: "A society produces only Healthcare and Education. Currently all resources go to Education.\n\nAs it shifts some resources toward Healthcare, what happens to the opportunity cost of each additional unit of Healthcare?",
+    back: "The opportunity cost INCREASES.\n\nThe first resources shifted (teachers who can easily train as nurses) provide big healthcare gains for small education losses.\n\nBut the last resources shifted (specialized surgeons becoming teachers) provide small healthcare gains at huge education cost.\n\nThis is the Law of Increasing Opportunity Cost — why the PPF curves outward.",
+    hint: "Think about which resources get shifted first vs. last.",
+  },
+];
+
+function FlashcardStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
+  const [deck, setDeck] = useState<Flashcard[]>(() => {
+    // Start with all cards in order
+    return [...CH2_CARDS];
+  });
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [mastered, setMastered] = useState<Set<number>>(new Set());
+  const [reviewAgain, setReviewAgain] = useState<Set<number>>(new Set());
+  const [done, setDone] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+
+  const total = CH2_CARDS.length;
+  const masteredCount = mastered.size;
+  const current = deck[currentIdx];
+
+  function handleGotIt() {
+    const newMastered = new Set(mastered);
+    newMastered.add(current.id);
+    const newReview = new Set(reviewAgain);
+    newReview.delete(current.id);
+    setMastered(newMastered);
+    setReviewAgain(newReview);
+    advance(newMastered, deck);
+  }
+
+  function handleReviewAgain() {
+    const newReview = new Set(reviewAgain);
+    newReview.add(current.id);
+    // Move this card to end of deck
+    const newDeck = deck.filter((_, i) => i !== currentIdx);
+    newDeck.push(current);
+    setDeck(newDeck);
+    setFlipped(false);
+    setShowHint(false);
+    // Stay at same index (next card is now here) or wrap
+    if (currentIdx >= newDeck.length) setCurrentIdx(0);
+  }
+
+  function advance(newMastered: Set<number>, currentDeck: Flashcard[]) {
+    setFlipped(false);
+    setShowHint(false);
+    // Remove mastered cards from deck
+    const remaining = currentDeck.filter(c => !newMastered.has(c.id));
+    if (remaining.length === 0) {
+      setDone(true);
+      return;
+    }
+    setDeck(remaining);
+    setCurrentIdx(0);
+  }
+
+  const cardTypeLabel: Record<CardType, string> = {
+    basic: "Flip Card",
+    cloze: "Fill in the Blank",
+    scenario: "Apply It",
+  };
+  const cardTypeColor: Record<CardType, string> = {
+    basic: "bg-blue-50 border-blue-200 text-blue-700",
+    cloze: "bg-amber-50 border-amber-200 text-amber-700",
+    scenario: "bg-purple-50 border-purple-200 text-purple-700",
+  };
+
+  if (done) return (
+    <div className="max-w-lg mx-auto space-y-4">
+      <div className="bg-green-50 border border-green-200 rounded-2xl p-6 text-center">
+        <p className="text-3xl mb-2">🎴</p>
+        <p className="text-lg font-bold text-green-800">All {total} cards mastered!</p>
+        <p className="text-sm text-green-700 mt-1">
+          You cleared the full Ch2 deck. The quiz is now unlocked.
+        </p>
+      </div>
+      <button type="button" onClick={() => onComplete(masteredCount, total)}
+        className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary">
+        Mark Complete ✓
+      </button>
+    </div>
+  );
+
+  return (
+    <div className="max-w-lg mx-auto space-y-4">
+      {/* Concept banner */}
+      <div className="bg-primary/10 border border-primary/20 rounded-xl p-4">
+        <p className="font-semibold text-sm text-foreground mb-1">Flashcard Review — Chapter 2</p>
+        <p className="text-xs text-muted-foreground">
+          Read the front of each card, think of your answer, then flip. Rate yourself honestly.
+          Cards you mark "Review Again" come back until you've mastered them all.
+        </p>
+      </div>
+
+      {/* Progress */}
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <span aria-live="polite">{masteredCount}/{total} mastered</span>
+        <div className="flex gap-1" role="img" aria-label={`Progress: ${masteredCount} of ${total} cards mastered`}>
+          {CH2_CARDS.map((c) => (
+            <div key={c.id} aria-hidden="true"
+              className={`w-2 h-2 rounded-full transition-colors ${
+                mastered.has(c.id) ? "bg-green-500" :
+                reviewAgain.has(c.id) ? "bg-amber-400" : "bg-muted"
+              }`} />
+          ))}
+        </div>
+        <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${cardTypeColor[current.type]}`}>
+          {cardTypeLabel[current.type]}
+        </span>
+      </div>
+
+      {/* Card */}
+      <div
+        className={`bg-card border-2 rounded-2xl p-6 min-h-48 flex flex-col transition-all cursor-pointer select-none ${
+          flipped ? "border-primary/40 bg-primary/5" : "border-border hover:border-primary/30"
+        }`}
+        onClick={() => { if (!flipped) { setFlipped(true); setShowHint(false); } }}
+        role="button"
+        tabIndex={0}
+        aria-label={flipped ? "Card answer — rate yourself below" : "Tap to flip card"}
+        onKeyDown={(e) => { if ((e.key === " " || e.key === "Enter") && !flipped) { setFlipped(true); setShowHint(false); } }}
+      >
+        {!flipped ? (
+          <div className="flex flex-col h-full">
+            <p className="text-sm font-semibold text-foreground leading-relaxed flex-1 whitespace-pre-line">
+              {current.front}
+            </p>
+            <div className="mt-4 space-y-2">
+              {current.hint && !showHint && (
+                <button type="button"
+                  onClick={(e) => { e.stopPropagation(); setShowHint(true); }}
+                  className="text-xs text-primary hover:underline focus-visible:outline-none">
+                  Show hint
+                </button>
+              )}
+              {showHint && current.hint && (
+                <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5 italic">
+                  💡 {current.hint}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground text-center">Tap to reveal answer →</p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col h-full">
+            <p className="text-xs font-bold text-primary mb-2 uppercase tracking-wide">Answer</p>
+            <p className="text-sm text-foreground leading-relaxed flex-1 whitespace-pre-line">
+              {current.back}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Rating buttons — only show after flip */}
+      {flipped ? (
+        <div className="grid grid-cols-2 gap-3">
+          <button type="button" onClick={handleReviewAgain}
+            className="py-3 rounded-xl border-2 border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 font-semibold text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400">
+            🔄 Review Again
+          </button>
+          <button type="button" onClick={handleGotIt}
+            className="py-3 rounded-xl border-2 border-green-300 bg-green-50 hover:bg-green-100 text-green-800 font-semibold text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400">
+            ✓ Got It!
+          </button>
+        </div>
+      ) : (
+        <div className="h-12 flex items-center justify-center">
+          <p className="text-xs text-muted-foreground">Flip the card first, then rate yourself</p>
+        </div>
+      )}
+
+      {/* Remaining count */}
+      {deck.length > 1 && (
+        <p className="text-xs text-center text-muted-foreground">
+          {deck.length - 1} card{deck.length - 1 !== 1 ? "s" : ""} remaining in this pass
+        </p>
       )}
     </div>
   );
@@ -1547,6 +1763,42 @@ const ALL_QUESTIONS = [
     ],
     correct: 1,
     exp: "This is a positive statement. It makes a specific, measurable claim about the effect of a policy that can be tested with data. Whether the policy is good or bad is a separate normative question.",
+  },
+  // Additional pool questions — Scarcity & Three Universal Limits
+  {
+    q: "Lionel Robbins defined economics as the study of human behavior given scarce resources and unlimited wants. Which of the following best illustrates the THREE universal limits that define scarcity?",
+    options: [
+      "Money, time, and preferences",
+      "Time, income, and resources",
+      "Labor, capital, and technology",
+      "Prices, wages, and interest rates",
+    ],
+    correct: 1,
+    exp: "The three universal limits are Time (everyone has 24 hours), Income (finite budgets), and Resources (only so much labor, land, and capital). These three constraints force every individual and society to make trade-offs.",
+  },
+  // Sunk Cost — extended
+  {
+    q: "You paid $8 to see a movie. After 20 minutes, it is terrible. A rational person should:",
+    options: [
+      "Stay, because leaving wastes the $8",
+      "Leave if the value of doing something else exceeds the cost of staying, since the $8 is already gone",
+      "Stay for at least another 20 minutes to give the film a fair chance",
+      "Ask for a refund since the movie is poor quality",
+    ],
+    correct: 1,
+    exp: "The $8 ticket is a sunk cost — it is spent and unrecoverable no matter what you do. Rational decision-making ignores sunk costs and focuses only on future costs and benefits. If leaving provides more value than staying, you should leave.",
+  },
+  // Budget constraint slope
+  {
+    q: "Why does the budget constraint graph for Alphonso (burgers vs. bus tickets) form a straight line rather than a curved one?",
+    options: [
+      "Because Alphonso prefers burgers over bus tickets",
+      "Because prices are fixed — the trade-off rate between the two goods does not change",
+      "Because income increases as he buys more",
+      "Because the law of diminishing marginal utility applies",
+    ],
+    correct: 1,
+    exp: "The budget constraint is a straight line because prices are fixed. The slope equals the relative price ratio ($2 ÷ $0.50 = 4), which is the constant opportunity cost of one burger in terms of bus tickets. If prices changed as you bought more, the line would curve.",
   },
 ];
 
@@ -1701,31 +1953,58 @@ function NotYetScreen({ onRetry }: { onRetry: () => void }) {
 // ─────────────────────────────────────────────
 // Results Screen
 // ─────────────────────────────────────────────
+const STATION_LABELS: Record<string, string> = {
+  budget: "Budget Constraint",
+  oppcost: "Opportunity & Sunk Cost",
+  margin: "Thinking at the Margin",
+  ppf: "Production Possibilities Frontier",
+  comparative: "Comparative Advantage",
+  posnorm: "Positive vs. Normative",
+  flash: "Flashcard Mastery",
+};
+
 function ResultsScreen({
   score,
   results,
+  sectionScores,
   onRestart,
   courseTitle,
 }: {
   score: number;
   results: { correct: boolean; exp: string }[];
+  sectionScores: Record<string, { score: number; total: number }>;
   onRestart: () => void;
   courseTitle: string;
 }) {
   const [name, setName] = useState("");
   const [exitTicket, setExitTicket] = useState("");
 
+  const stationRows = Object.entries(STATION_LABELS)
+    .filter(([id]) => sectionScores[id])
+    .map(([id, label]) => ({ label, ...sectionScores[id] }));
+
   function printPDF() {
     const win = window.open("", "_blank");
     if (!win) return;
+    const stationTableRows = stationRows
+      .map(
+        (r) =>
+          `<tr><td>${r.label}</td><td style="text-align:center">${r.score}/${r.total}</td><td style="text-align:center">${r.score === r.total ? "\u2713" : r.score >= r.total * 0.7 ? "Good" : "Review"}</td></tr>`
+      )
+      .join("");
     win.document.write(`
-      <html><head><title>ECO 210 Ch2 Results</title>
+      <html><head><title>ECO 211 Ch2 Results</title>
       <style>
         body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;color:#1e293b;padding:20px}
         h1{color:hsl(222,42%,19%);font-size:1.4rem;margin-bottom:4px}
         h2{font-size:1rem;color:#475569;font-weight:normal;margin-top:0}
+        h3{font-size:0.9rem;color:#1e293b;margin:20px 0 8px}
         .score{background:#f0fdf4;border:2px solid #86efac;border-radius:12px;padding:16px;text-align:center;margin:20px 0}
         .score p{margin:0;color:#166534;font-size:1.1rem;font-weight:bold}
+        table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:0.85rem}
+        th{background:hsl(222,42%,19%);color:#fff;padding:8px 10px;text-align:left}
+        td{padding:7px 10px;border-bottom:1px solid #e2e8f0}
+        tr:nth-child(even) td{background:#f8fafc}
         .q{border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:10px}
         .correct{border-left:4px solid #22c55e}.wrong{border-left:4px solid #f87171}
         .label{font-size:0.7rem;font-weight:bold;text-transform:uppercase;color:#64748b}
@@ -1735,8 +2014,12 @@ function ResultsScreen({
       </style></head><body>
       <h1>${courseTitle}</h1>
       <h2>Chapter 2 — Choice In A World Of Scarcity</h2>
-      <p style="font-size:0.9rem;color:#475569">Student: <strong>${name}</strong></p>
-      <div class="score"><p>Score: ${score}/10 — ${score >= 9 ? "PASSED ✓" : "Not Yet"}</p></div>
+      <p style="font-size:0.9rem;color:#475569">Student: <strong>${name}</strong> &nbsp;&nbsp; Date: <strong>${new Date().toLocaleDateString()}</strong></p>
+      <div class="score"><p>Quiz Score: ${score}/10 — ${score >= 9 ? "PASSED ✓" : "Not Yet"}</p></div>
+      ${stationTableRows ? `
+        <h3>Station Scores</h3>
+        <table><thead><tr><th>Station</th><th>Score</th><th>Status</th></tr></thead><tbody>${stationTableRows}</tbody></table>` : ""}
+      <h3>Quiz Question Review</h3>
       ${results
         .map(
           (r, i) => `
@@ -1767,6 +2050,23 @@ function ResultsScreen({
           {score >= 9 ? "Excellent — Chapter 2 Complete! ✓" : "Keep Reviewing — You Need 9/10"}
         </p>
       </div>
+
+      {/* Station Scores */}
+      {stationRows.length > 0 && (
+        <div className="bg-card border border-border rounded-xl p-4">
+          <p className="text-sm font-semibold text-foreground mb-3">Station Scores</p>
+          <div className="space-y-2">
+            {stationRows.map((r) => (
+              <div key={r.label} className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">{r.label}</span>
+                <span className={`font-bold ${
+                  r.score === r.total ? "text-green-700" : r.score >= r.total * 0.7 ? "text-amber-700" : "text-red-600"
+                }`}>{r.score}/{r.total}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Name field */}
       <div className="bg-card border border-border rounded-xl p-4 space-y-2">
@@ -1845,8 +2145,9 @@ const STATIONS_LIST = [
   { id: "oppcost" as Station, label: "Opportunity & Sunk Cost", desc: "Apply real-world opportunity cost and sunk cost scenarios", icon: "💡" },
   { id: "margin" as Station, label: "Thinking at the Margin", desc: "Compare marginal benefit vs. marginal cost decisions", icon: "📊" },
   { id: "ppf" as Station, label: "PPF Builder", desc: "Identify efficiency, inefficiency, and increasing opportunity cost", icon: "📈" },
-  { id: "comparative" as Station, label: "Comparative Advantage", desc: "Calculate opportunity costs and find gains from trade", icon: "🌎" },
+  { id: "comparative" as Station, label: "Comparative Advantage", desc: "Explore why countries specialize in what they give up the least to produce", icon: "🌎" },
   { id: "posnorm" as Station, label: "Positive vs. Normative", desc: "Sort economic statements into facts vs. value judgments", icon: "⚖️" },
+  { id: "flash" as Station, label: "Flashcard Review", desc: "Master all 15 key concepts before the quiz", icon: "🎴" },
 ];
 
 function Dashboard({
@@ -1947,11 +2248,12 @@ const NAV_STATIONS: { id: Station; label: string }[] = [
   { id: "ppf", label: "PPF" },
   { id: "comparative", label: "Comp. Adv." },
   { id: "posnorm", label: "Pos/Norm" },
+  { id: "flash", label: "Flashcards" },
   { id: "quiz", label: "Quiz" },
 ];
 
 const STATION_ORDER: Station[] = [
-  "intro", "budget", "oppcost", "margin", "ppf", "comparative", "posnorm", "quiz", "results", "not-yet",
+  "intro", "budget", "oppcost", "margin", "ppf", "comparative", "posnorm", "flash", "quiz", "results", "not-yet",
 ];
 
 function Header({
@@ -2087,11 +2389,15 @@ export default function EconLab({
   const [showSummary, setShowSummary] = useState(false);
   const [quizResults, setQuizResults] = useState<{ correct: boolean; exp: string }[]>([]);
   const [quizScore, setQuizScore] = useState(0);
+  const [sectionScores, setSectionScores] = useState<Record<string, { score: number; total: number }>>({});
 
-  function markDone(s: Station) {
+  function markDone(s: Station, score?: number, total?: number) {
     const next = new Set(completed);
     next.add(s);
     setCompleted(next);
+    if (score !== undefined && total !== undefined) {
+      setSectionScores((prev) => ({ ...prev, [s]: { score, total } }));
+    }
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify([...next]));
     } catch {}
@@ -2124,29 +2430,32 @@ export default function EconLab({
               />
             )}
             {station === "budget" && (
-              <BudgetStation onComplete={() => markDone("budget")} />
+              <BudgetStation onComplete={(score, total) => markDone("budget", score, total)} />
             )}
             {station === "oppcost" && (
-              <OppCostStation onComplete={() => markDone("oppcost")} />
+              <OppCostStation onComplete={(score, total) => markDone("oppcost", score, total)} />
             )}
             {station === "margin" && (
-              <MarginStation onComplete={() => markDone("margin")} />
+              <MarginStation onComplete={(score, total) => markDone("margin", score, total)} />
             )}
             {station === "ppf" && (
-              <PPFStation onComplete={() => markDone("ppf")} />
+              <PPFStation onComplete={(score, total) => markDone("ppf", score, total)} />
             )}
             {station === "comparative" && (
-              <ComparativeStation onComplete={() => markDone("comparative")} />
+              <ComparativeStation onComplete={(score, total) => markDone("comparative", score, total)} />
             )}
             {station === "posnorm" && (
-              <PosNormStation onComplete={() => markDone("posnorm")} />
+              <PosNormStation onComplete={(score, total) => markDone("posnorm", score, total)} />
+            )}
+            {station === "flash" && (
+              <FlashcardStation onComplete={(score, total) => markDone("flash", score, total)} />
             )}
             {station === "quiz" && (
               <QuizStation
                 onPass={(score, results) => {
                   setQuizScore(score);
                   setQuizResults(results);
-                  markDone("quiz");
+                  markDone("quiz", score, 10);
                   setStation("results");
                 }}
                 onFail={() => setStation("not-yet")}
@@ -2162,6 +2471,7 @@ export default function EconLab({
         <ResultsScreen
           score={quizScore}
           results={quizResults}
+          sectionScores={sectionScores}
           onRestart={() => setStation("intro")}
           courseTitle={courseTitle}
         />

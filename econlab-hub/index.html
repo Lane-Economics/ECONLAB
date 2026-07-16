@@ -110,6 +110,16 @@
         </div>
       </div></a>
 
+    <a class="lab-card" role="listitem" href="https://www.perplexity.ai/computer/a/eco210-lab-ch2-dist-public-KRbtDsODQ8.eEfMihpMb7A" target="_blank" data-lab="ch2">
+      <div class="lab-card-top">
+        <span class="lab-chapter-badge">Ch 2</span>
+        <div>
+          <div class="lab-title">Choice in a World of Scarcity</div>
+          <div class="lab-desc">Budget constraints, opportunity cost, thinking at the margin, PPF, comparative advantage, and positive vs. normative analysis.</div>
+          <div class="lab-done-badge">✓ Completed</div>
+        </div>
+      </div></a>
+
     <a class="lab-card" role="listitem" href="https://www.perplexity.ai/computer/a/econ-lab-chapter-6-gdp-b4YmobDPSmyijNq5ssJ.wA" target="_blank" data-lab="ch6">
       <div class="lab-card-top">
         <span class="lab-chapter-badge">Ch 6</span>
@@ -230,16 +240,25 @@
 
 <script>
   // Labs that can be marked complete (in order)
-  const LABS = ['ch6','ch7','ch8','ch9','review69','ch11','ch1213','ch14','ch15','ch17','review1117'];
+  const LABS = ['ch1','ch2','ch6','ch7','ch8','ch9','review69','ch11','ch1213','ch14','ch15','ch17','review1117'];
   const TOTAL = LABS.length;
+
+  // Labs that store completion as a JSON array of station IDs (Ch1, Ch2, Ch20)
+  const ARRAY_LABS = new Set(['ch1','ch2','ch20']);
 
   // Auto-detect completion from lab localStorage flags
   function getCompleted() {
     const done = [];
     LABS.forEach(lab => {
       try {
-        if (localStorage.getItem(`econlab_done_${lab}`) === 'true') {
-          done.push(lab);
+        const val = localStorage.getItem(`econlab_done_${lab}`);
+        if (!val) return;
+        if (ARRAY_LABS.has(lab)) {
+          // These labs store an array of completed station IDs; done when 'quiz' is present
+          const arr = JSON.parse(val);
+          if (Array.isArray(arr) && arr.includes('quiz')) done.push(lab);
+        } else {
+          if (val === 'true') done.push(lab);
         }
       } catch(e) {}
     });

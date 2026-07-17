@@ -1144,8 +1144,10 @@ function ComparativeStation({ onComplete }: { onComplete: (score: number, total:
   const isLast = idx === COMP_ADV_QS.length - 1;
 
   function check() {
+    const newScore = score + (sel === q.correct ? 1 : 0);
+    setScore(newScore);
     setChecked(true);
-    if (sel === q.correct) setScore((s) => s + 1);
+    if (isLast) onComplete(newScore, COMP_ADV_QS.length);
   }
 
   function next() {
@@ -1153,8 +1155,6 @@ function ComparativeStation({ onComplete }: { onComplete: (score: number, total:
       setIdx(idx + 1);
       setSel(null);
       setChecked(false);
-    } else {
-      onComplete(score + (sel === q.correct ? 1 : 0), COMP_ADV_QS.length);
     }
   }
 

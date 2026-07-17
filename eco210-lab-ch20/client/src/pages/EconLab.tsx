@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 // ─────────────────────────────────────────────
 // Types
@@ -15,8 +15,6 @@ type Station =
   | "results"
   | "not-yet";
 
-const STORAGE_KEY = "econlab_done_ch20";
-
 // ─────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────
@@ -27,62 +25,6 @@ function shuffle<T>(arr: T[]): T[] {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
-}
-
-// ─────────────────────────────────────────────
-// Chapter Summary Modal
-// ─────────────────────────────────────────────
-function SummaryModal({ onClose, courseTitle }: { onClose: () => void; courseTitle: string }) {
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-card border border-border rounded-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto shadow-xl">
-        <div className="p-5 border-b border-border">
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{courseTitle}</p>
-          <h2 className="text-xl font-bold text-foreground mt-1">Chapter 20 — International Trade</h2>
-          <p className="text-sm text-muted-foreground mt-1">Comparative advantage, opportunity cost, and the gains from specialization</p>
-        </div>
-        <div className="p-5 space-y-4 text-sm">
-          {[
-            { n: "01", t: "The Big Idea", d: "Trade lets both sides consume beyond what they could produce alone. Specialize → Trade → Gain." },
-            { n: "02", t: "Two Ways to Be 'Better'", d: "Absolute advantage = more output from same inputs. Comparative advantage = lower opportunity cost. Comparative advantage drives trade." },
-            { n: "03", t: "How to Find Comparative Advantage", d: "Compute opportunity cost for each good in each country. The country with the lower OC for a good has comparative advantage in it." },
-            { n: "04", t: "U.S. & Mexico — Worked Example", d: "U.S. (40 workers): 10,000 shoes OR 40,000 refrigerators. Mexico: 8,000 shoes OR 10,000 refrigerators. U.S. has lower OC for refrigerators (0.25 shoes); Mexico has lower OC for shoes (1.25 refrig). Each specializes accordingly." },
-            { n: "05", t: "Gains from Specialization", d: "Before trade (split workers 50/50): World gets 9,000 shoes + 25,000 refrigerators. After specialization: 8,000 shoes + 40,000 refrigerators — same workers, more of everything." },
-            { n: "06", t: "Terms of Trade", d: "The mutually beneficial range: any price between 0.25 and 0.8 shoes per refrigerator benefits both countries. The actual price is set by world supply and demand." },
-            { n: "07", t: "The Camping Analogy", d: "Jethro is faster at everything. But he can't do it all — every minute on firewood is a minute not cooking. He should focus where his advantage is greatest. Same logic for nations." },
-            { n: "08", t: "Common Objection", d: "'If they win, we lose.' But trade is positive-sum at the national level — both countries consume more. The gains are real; the politics of distribution is a separate question." },
-          ].map((item) => (
-            <div key={item.n} className="flex gap-3">
-              <span className="text-primary font-bold text-base w-6 shrink-0">{item.n}</span>
-              <div>
-                <p className="font-semibold text-foreground">{item.t}</p>
-                <p className="text-muted-foreground text-xs mt-0.5">{item.d}</p>
-              </div>
-            </div>
-          ))}
-          <p className="text-xs text-muted-foreground pt-2">
-            Access for free at{" "}
-            <a
-              href="https://openstax.org/books/principles-macroeconomics-3e/pages/1-introduction"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline text-primary"
-            >
-              https://openstax.org/books/principles-macroeconomics-3e/pages/1-introduction
-            </a>
-          </p>
-        </div>
-        <div className="p-4 border-t border-border">
-          <button
-            onClick={onClose}
-            className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 // ─────────────────────────────────────────────
@@ -235,8 +177,10 @@ function OCCalcStation({ onComplete }: { onComplete: (score: number, total: numb
 
   function handleCheck() {
     if (sel === null) return;
-    if (sel === step.correct) setScore((s) => s + 1);
+    const newScore = score + (sel === step.correct ? 1 : 0);
+    setScore(newScore);
     setChecked(true);
+    if (isLast) onComplete(newScore, OC_STEPS.length);
   }
 
   function handleNext() {
@@ -322,7 +266,7 @@ function OCCalcStation({ onComplete }: { onComplete: (score: number, total: numb
           </button>
         )}
         {checked && isLast && (
-          <button onClick={() => onComplete(score + (sel === step.correct ? 1 : 0), OC_STEPS.length)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+          <button onClick={() => onComplete(score, OC_STEPS.length)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
             Mark Complete ✓
           </button>
         )}
@@ -397,8 +341,10 @@ function USMexicoStation({ onComplete }: { onComplete: (score: number, total: nu
 
   function handleCheck() {
     if (sel === null) return;
-    if (sel === step.correct) setScore((s) => s + 1);
+    const newScore = score + (sel === step.correct ? 1 : 0);
+    setScore(newScore);
     setChecked(true);
+    if (isLast) onComplete(newScore, US_MEX_STEPS.length);
   }
 
   function handleNext() {
@@ -481,7 +427,7 @@ function USMexicoStation({ onComplete }: { onComplete: (score: number, total: nu
           </button>
         )}
         {checked && isLast && (
-          <button onClick={() => onComplete(score + (sel === step.correct ? 1 : 0), US_MEX_STEPS.length)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+          <button onClick={() => onComplete(score, US_MEX_STEPS.length)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
             Mark Complete ✓
           </button>
         )}
@@ -561,8 +507,10 @@ function GainsStation({ onComplete }: { onComplete: (score: number, total: numbe
 
   function handleCheck() {
     if (sel === null) return;
-    if (sel === step.correct) setScore((s) => s + 1);
+    const newScore = score + (sel === step.correct ? 1 : 0);
+    setScore(newScore);
     setChecked(true);
+    if (isLast) onComplete(newScore, GAINS_STEPS.length);
   }
 
   function handleNext() {
@@ -624,7 +572,7 @@ function GainsStation({ onComplete }: { onComplete: (score: number, total: numbe
           </button>
         )}
         {checked && isLast && (
-          <button onClick={() => onComplete(score + (sel === step.correct ? 1 : 0), GAINS_STEPS.length)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+          <button onClick={() => onComplete(score, GAINS_STEPS.length)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
             Mark Complete ✓
           </button>
         )}
@@ -698,8 +646,10 @@ function TermsStation({ onComplete }: { onComplete: (score: number, total: numbe
 
   function handleCheck() {
     if (sel === null) return;
-    if (sel === step.correct) setScore((s) => s + 1);
+    const newScore = score + (sel === step.correct ? 1 : 0);
+    setScore(newScore);
     setChecked(true);
+    if (isLast) onComplete(newScore, TERMS_STEPS.length);
   }
 
   function handleNext() {
@@ -766,7 +716,7 @@ function TermsStation({ onComplete }: { onComplete: (score: number, total: numbe
           </button>
         )}
         {checked && isLast && (
-          <button onClick={() => onComplete(score + (sel === step.correct ? 1 : 0), TERMS_STEPS.length)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+          <button onClick={() => onComplete(score, TERMS_STEPS.length)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
             Mark Complete ✓
           </button>
         )}
@@ -1394,155 +1344,221 @@ function ResultsScreen({
   );
 }
 
+
 // ─────────────────────────────────────────────
-// Intro / Dashboard
+// Stations list, Nav, and Order
 // ─────────────────────────────────────────────
-const STATION_ORDER: Station[] = ["abscomp", "occalc", "usmexico", "gains", "terms", "flash"];
+const STATIONS = [
+  { id: "abscomp" as Station, label: "Absolute vs. Comparative", desc: "Classify examples by type of advantage", icon: "⚖️" },
+  { id: "occalc"  as Station, label: "OC Calculator",            desc: "Compute opportunity costs from a production table", icon: "🔢" },
+  { id: "usmexico"as Station, label: "U.S. & Mexico",            desc: "Work through the shoes & refrigerators example", icon: "🌎" },
+  { id: "gains"   as Station, label: "Gains from Trade",         desc: "Trace how specialization raises world output", icon: "📈" },
+  { id: "terms"   as Station, label: "Terms of Trade",           desc: "Identify the mutually beneficial price range", icon: "🤝" },
+  { id: "flash"   as Station, label: "Flashcard Review",         desc: "Master all 12 key Ch20 concepts before the quiz", icon: "🃏" },
+];
 
-const STATION_META: Record<Station, { label: string; icon: string; description: string }> = {
-  intro: { label: "Intro", icon: "🏠", description: "" },
-  abscomp: { label: "Absolute vs. Comparative", icon: "⚖️", description: "Classify examples by type of advantage" },
-  occalc: { label: "OC Calculator", icon: "🔢", description: "Compute opportunity costs from a production table" },
-  usmexico: { label: "U.S. & Mexico", icon: "🌎", description: "Work through the shoes & refrigerators example" },
-  gains: { label: "Gains from Trade", icon: "📈", description: "Trace how specialization raises world output" },
-  terms: { label: "Terms of Trade", icon: "🤝", description: "Identify the mutually beneficial price range" },
-  flash: { label: "Flashcards", icon: "🃏", description: "Master all key Ch20 concepts" },
-  quiz: { label: "Quiz", icon: "📝", description: "10 questions — score 9/10 to pass" },
-  results: { label: "Results", icon: "🏆", description: "" },
-  "not-yet": { label: "Not Yet", icon: "⏳", description: "" },
-};
+const NAV_STATIONS: { id: Station; label: string }[] = [
+  { id: "intro",    label: "Dashboard" },
+  { id: "abscomp",  label: "Abs/Comp" },
+  { id: "occalc",   label: "OC Calc" },
+  { id: "usmexico", label: "US/Mexico" },
+  { id: "gains",    label: "Gains" },
+  { id: "terms",    label: "Terms" },
+  { id: "flash",    label: "Flashcards" },
+  { id: "quiz",     label: "Quiz" },
+];
 
-function IntroScreen({
-  completed,
-  sectionScores,
-  onStart,
-  onSummary,
-  courseTitle,
-  courseSubtitle,
-  hubUrl,
-}: {
-  completed: Set<Station>;
-  sectionScores: Record<string, { score: number; total: number }>;
-  onStart: (s: Station) => void;
-  onSummary: () => void;
-  courseTitle: string;
-  courseSubtitle: string;
-  hubUrl: string;
-}) {
-  const allStationsDone = STATION_ORDER.every((s) => completed.has(s));
+const STATION_ORDER: Station[] = ["intro","abscomp","occalc","usmexico","gains","terms","flash","quiz","results","not-yet"];
 
+// ─────────────────────────────────────────────
+// Summary Modal
+// ─────────────────────────────────────────────
+const CH20_SUMMARY = [
+  { heading: "20.1 Absolute and Comparative Advantage", body: "A country has an absolute advantage in those products in which it has a productivity edge over other countries; it can produce more of a product. A country has a comparative advantage when it can produce a good at a lower cost in terms of other goods. Countries that specialize based on comparative advantage gain from trade." },
+  { heading: "20.2 What Happens When a Country Has an Absolute Advantage in All Goods", body: "Even when a country has high levels of productivity in all goods, it can still benefit from trade. Gains from trade come about as a result of comparative advantage. By specializing in a good that it gives up the least to produce, a country can produce more and offer that additional output for sale. If other countries specialize in the area of their comparative advantage as well and trade, the highly productive country is able to benefit from a lower opportunity cost of production in other countries." },
+];
+
+function SummaryModal({ onClose, courseTitle }: { onClose: () => void; courseTitle: string }) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    closeRef.current?.focus();
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
   return (
-    <div className="max-w-lg mx-auto space-y-4">
-      <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{courseTitle}</p>
-          <h1 className="text-2xl font-bold text-foreground mt-1">Chapter 20</h1>
-          <p className="text-base text-muted-foreground">International Trade</p>
-          <p className="text-xs text-muted-foreground mt-1">Comparative advantage, opportunity cost, and the gains from specialization</p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-labelledby="summary-title">
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+        <div className="flex items-center justify-between p-5 border-b border-border">
+          <h2 id="summary-title" className="font-display font-bold text-base text-foreground">Chapter 20 Summary — International Trade</h2>
+          <button ref={closeRef} onClick={onClose} type="button" className="text-muted-foreground hover:text-foreground text-2xl leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded" aria-label="Close summary dialog">&times;</button>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <button
-            onClick={onSummary}
-            className="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-sm font-semibold transition"
-          >
-            Chapter Summary
-          </button>
-          <a
-            href={hubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 border border-border hover:bg-muted/30 text-muted-foreground rounded-lg text-sm font-semibold transition"
-          >
-            ← Back to Hub
-          </a>
+        <div className="overflow-y-auto p-5 space-y-4 flex-1">
+          {CH20_SUMMARY.map((s, i) => (
+            <div key={i} className="rounded-xl border border-border bg-card p-4">
+              <p className="text-sm font-semibold text-foreground mb-1">{s.heading}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">{s.body}</p>
+            </div>
+          ))}
+          <p className="text-xs text-muted-foreground pt-2">
+            Access for free at{" "}
+            <a href="https://openstax.org/books/principles-macroeconomics-3e/pages/1-introduction" target="_blank" rel="noopener noreferrer" className="underline text-primary">https://openstax.org/books/principles-macroeconomics-3e/pages/1-introduction</a>
+          </p>
         </div>
+        <div className="p-4 border-t border-border">
+          <button onClick={onClose} type="button" className="w-full py-2 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary">Close &amp; Return to Lab</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Not Yet Screen
+// ─────────────────────────────────────────────
+function NotYetScreen({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="max-w-lg mx-auto space-y-4 text-center">
+      <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-6">
+        <p className="text-2xl mb-2">📚</p>
+        <p className="text-lg font-bold text-amber-800">Not quite there yet</p>
+        <p className="text-sm text-amber-700 mt-2">You need 9 out of 10 correct to complete the quiz. This screen cannot be submitted. Only the final Results screen counts.</p>
+      </div>
+      <button type="button" onClick={onRetry} className="w-full py-3 bg-amber-500 hover:opacity-90 text-white rounded-xl font-semibold transition">← Try the Quiz Again</button>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Dashboard
+// ─────────────────────────────────────────────
+function Dashboard({ completed, onSelect, quizUnlocked, onStartQuiz, onSummary, courseTitle }: {
+  completed: Set<Station>; onSelect: (s: Station) => void; quizUnlocked: boolean; onStartQuiz: () => void; onSummary: () => void; courseTitle: string;
+}) {
+  const progress = STATIONS.filter(s => completed.has(s.id)).length;
+  return (
+    <div className="space-y-4 max-w-lg mx-auto">
+      <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm text-foreground">
+        <p className="font-semibold mb-1">Chapter 20 — International Trade</p>
+        <p className="text-muted-foreground text-xs">Complete all stations and the Flashcard review to unlock the Quiz. Your progress is saved automatically.</p>
+        <div className="mt-3 h-2 bg-primary/20 rounded-full overflow-hidden">
+          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(progress / STATIONS.length) * 100}%` }} />
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">{progress}/{STATIONS.length} stations complete</p>
+      </div>
+      {/* Chapter Summary link */}
+      <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-muted border border-border">
+        <div className="flex items-center gap-2">
+          <span className="text-base">📄</span>
+          <span className="text-sm text-foreground">Need a refresher? View the chapter summary.</span>
+        </div>
+        <button onClick={onSummary}
+          className="text-xs px-3 py-1.5 rounded-lg bg-card border border-border text-primary font-semibold hover:bg-accent transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+          Open Summary
+        </button>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        {STATION_ORDER.map((s) => {
-          const meta = STATION_META[s];
-          const done = completed.has(s);
-          const sc = sectionScores[s];
+        {STATIONS.map(s => {
+          const done = completed.has(s.id);
           return (
-            <button
-              key={s}
-              onClick={() => onStart(s)}
-              className={`rounded-xl border-2 p-3 text-left transition space-y-1 ${
-                done
-                  ? "border-green-400 bg-green-50"
-                  : "border-border bg-card hover:border-primary"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-lg">{meta.icon}</span>
-                {done && sc && (
-                  <span className="text-xs font-bold text-green-700">{sc.score}/{sc.total} ✓</span>
-                )}
-                {done && !sc && (
-                  <span className="text-xs font-bold text-green-700">✓</span>
-                )}
-              </div>
-              <p className={`text-xs font-semibold ${done ? "text-green-800" : "text-foreground"}`}>{meta.label}</p>
-              <p className="text-xs text-muted-foreground leading-tight">{meta.description}</p>
+            <button key={s.id} type="button" onClick={() => onSelect(s.id)}
+              className={`rounded-xl border-2 p-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${done ? "border-green-400 bg-green-50" : "border-border bg-card hover:border-primary/40"}`}>
+              <span className="text-lg">{done ? "✅" : s.icon}</span>
+              <p className="text-sm font-semibold text-foreground mt-1">{s.label}</p>
+              <p className="text-xs text-muted-foreground">{s.desc}</p>
             </button>
           );
         })}
       </div>
-
-      <div className={`border-2 rounded-xl p-4 transition ${
-        allStationsDone
-          ? "border-primary bg-primary/5"
-          : "border-border bg-muted/20 opacity-60"
-      }`}>
-        <div className="flex items-center justify-between mb-1">
-          <p className="text-sm font-semibold text-foreground">📝 Chapter Quiz</p>
-          {!allStationsDone && <span className="text-xs text-muted-foreground">Complete all stations to unlock</span>}
-          {allStationsDone && <span className="text-xs text-green-700 font-semibold">Unlocked ✓</span>}
-        </div>
-        <p className="text-xs text-muted-foreground mb-3">10 questions drawn from a pool — score 9/10 to pass</p>
-        <button
-          disabled={!allStationsDone}
-          onClick={() => onStart("quiz")}
-          className="w-full py-2.5 bg-primary hover:opacity-90 disabled:opacity-40 text-primary-foreground rounded-xl font-semibold text-sm transition"
-        >
-          {allStationsDone ? "Start Quiz →" : "Locked"}
-        </button>
-      </div>
-
-      <p className="text-xs text-muted-foreground text-center">
-        {completed.size} of {STATION_ORDER.length} stations complete
-      </p>
-
-      <p className="text-xs text-muted-foreground text-center">
-        Based on <a href="https://openstax.org/books/principles-macroeconomics-3e/pages/1-introduction" target="_blank" rel="noopener noreferrer" className="underline text-primary">OpenStax Macroeconomics 3e</a>
-      </p>
-
-      <p className="text-xs text-muted-foreground text-center">
-        <span className="italic">{courseSubtitle}</span>
-      </p>
+      <button type="button" onClick={onStartQuiz} disabled={!quizUnlocked}
+        className={`w-full py-3 rounded-xl font-semibold text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary ${quizUnlocked ? "bg-primary hover:opacity-90 text-primary-foreground" : "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"}`}>
+        {quizUnlocked ? "🎯 Take the Quiz" : "🔒 Complete all stations to unlock the Quiz"}
+      </button>
     </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Header
+// ─────────────────────────────────────────────
+function Header({ station, completed, onNav, courseTitle, courseSubtitle, hubUrl }:
+  { station: Station; completed: Set<Station>; onNav: (s: Station) => void; courseTitle: string; courseSubtitle: string; hubUrl: string }) {
+  const currentIdx = STATION_ORDER.indexOf(station);
+  const allStationsDone = STATIONS.every(s => completed.has(s.id));
+
+  return (
+    <header role="banner" className="bg-secondary text-secondary-foreground shadow-md sticky top-0 z-50">
+      <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        {/* Logo */}
+        <div className="flex items-center gap-2 shrink-0">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-label="Econ Lab logo">
+            <rect width="32" height="32" rx="8" fill="hsl(38 95% 50%)"/>
+            <path d="M8 22 L12 14 L16 18 L20 10 L24 16" stroke="hsl(222 30% 10%)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="24" cy="16" r="2" fill="hsl(222 30% 10%)"/>
+          </svg>
+          <div>
+            <div className="font-display font-semibold text-sm leading-none text-sidebar-foreground">{courseTitle}</div>
+            <div className="text-xs text-sidebar-foreground/80 leading-none mt-0.5">{courseSubtitle}</div>
+          </div>
+        </div>
+
+        {/* Back to Hub */}
+        <a href={hubUrl} target="_blank" rel="noopener noreferrer"
+          className="hidden sm:flex items-center gap-1.5 text-xs text-sidebar-foreground/80 hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-sidebar-accent shrink-0">
+          ← Course Hub <span className="sr-only">(opens in new tab)</span>
+        </a>
+
+        {/* Nav pills */}
+        <div className="hidden sm:flex items-center gap-1 flex-wrap">
+          {NAV_STATIONS.map(s => {
+            const idx = STATION_ORDER.indexOf(s.id);
+            const done = idx < currentIdx || completed.has(s.id);
+            const active = s.id === station || (station === "not-yet" && s.id === "quiz") || (station === "results" && s.id === "quiz");
+            if (s.id === "quiz" && !allStationsDone) {
+              return <span key={s.id} title="Complete all stations first" className="px-3 py-1.5 rounded-full text-xs font-medium text-sidebar-foreground/35 cursor-not-allowed select-none">🔒 Quiz</span>;
+            }
+            return (
+              <button key={s.id} onClick={() => onNav(s.id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                  active ? "bg-primary text-primary-foreground" :
+                  done   ? "bg-sidebar-accent text-sidebar-foreground/90" :
+                           "text-sidebar-foreground/75 hover:text-white"
+                }`}>
+                {done && !active ? "✓ " : ""}{s.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Mobile label */}
+        <div className="sm:hidden text-sm font-medium text-sidebar-foreground/80">
+          {currentIdx + 1} / {NAV_STATIONS.length}
+        </div>
+
+        {/* Progress bar */}
+        <div className="w-24 hidden md:block shrink-0">
+          <div className="h-1.5 bg-sidebar-accent rounded-full overflow-hidden">
+            <div className="h-full bg-primary rounded-full transition-all duration-500"
+              style={{ width: `${(currentIdx / (NAV_STATIONS.length - 1)) * 100}%` }} />
+          </div>
+        </div>
+      </div>
+    </header>
   );
 }
 
 // ─────────────────────────────────────────────
 // Main EconLab
 // ─────────────────────────────────────────────
-export default function EconLab({
-  courseTitle,
-  courseSubtitle,
-  hubUrl,
-}: {
-  courseTitle: string;
-  courseSubtitle: string;
-  hubUrl: string;
+const STORAGE_KEY = "econlab_done_ch20";
+
+export default function EconLab({ courseTitle, courseSubtitle, hubUrl }: {
+  courseTitle: string; courseSubtitle: string; hubUrl: string;
 }) {
   const [station, setStation] = useState<Station>("intro");
   const [completed, setCompleted] = useState<Set<Station>>(() => {
-    try {
-      return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") as Station[]);
-    } catch {
-      return new Set();
-    }
+    try { return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") as Station[]); } catch { return new Set(); }
   });
   const [showSummary, setShowSummary] = useState(false);
   const [quizResults, setQuizResults] = useState<{ correct: boolean; exp: string }[]>([]);
@@ -1554,101 +1570,35 @@ export default function EconLab({
     next.add(s);
     setCompleted(next);
     if (score !== undefined && total !== undefined) {
-      setSectionScores((prev) => ({ ...prev, [s]: { score, total } }));
+      setSectionScores(prev => ({ ...prev, [s]: { score, total } }));
     }
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([...next]));
-    } catch {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...next])); } catch {}
     setStation("intro");
   }
 
+  const quizUnlocked = STATIONS.every(s => completed.has(s.id));
+
   return (
-    <div className="min-h-screen bg-background">
-      <header style={{ background: "hsl(222,42%,19%)" }} className="text-white px-4 py-3 flex items-center justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest opacity-70">{courseTitle}</p>
-          <p className="font-bold text-sm">ECONLAB · Chapter 20 — International Trade</p>
-        </div>
-        {station !== "intro" && (
-          <button
-            onClick={() => setStation("intro")}
-            className="text-xs border border-white/30 px-3 py-1.5 rounded-lg hover:bg-white/10 transition"
-          >
-            ← Dashboard
-          </button>
-        )}
-      </header>
-
-      {showSummary && (
-        <SummaryModal onClose={() => setShowSummary(false)} courseTitle={courseTitle} />
-      )}
-
-      <main className="px-4 py-6">
-        {station === "intro" && (
-          <IntroScreen
-            completed={completed}
-            sectionScores={sectionScores}
-            onStart={setStation}
-            onSummary={() => setShowSummary(true)}
-            courseTitle={courseTitle}
-            courseSubtitle={courseSubtitle}
-            hubUrl={hubUrl}
-          />
-        )}
-        {station === "abscomp" && (
-          <AbsCompStation onComplete={(score, total) => markDone("abscomp", score, total)} />
-        )}
-        {station === "occalc" && (
-          <OCCalcStation onComplete={(score, total) => markDone("occalc", score, total)} />
-        )}
-        {station === "usmexico" && (
-          <USMexicoStation onComplete={(score, total) => markDone("usmexico", score, total)} />
-        )}
-        {station === "gains" && (
-          <GainsStation onComplete={(score, total) => markDone("gains", score, total)} />
-        )}
-        {station === "terms" && (
-          <TermsStation onComplete={(score, total) => markDone("terms", score, total)} />
-        )}
-        {station === "flash" && (
-          <FlashcardStation onComplete={(score, total) => markDone("flash", score, total)} />
-        )}
+    <div className="min-h-screen bg-background text-foreground">
+      {showSummary && <SummaryModal onClose={() => setShowSummary(false)} courseTitle={courseTitle} />}
+      <Header station={station} completed={completed} onNav={setStation}
+        courseTitle={courseTitle} courseSubtitle={courseSubtitle} hubUrl={hubUrl} />
+      <main className="max-w-2xl mx-auto px-4 py-6">
+        {station === "intro" && <Dashboard completed={completed} onSelect={setStation} quizUnlocked={quizUnlocked} onStartQuiz={() => setStation("quiz")} onSummary={() => setShowSummary(true)} courseTitle={courseTitle} />}
+        {station === "abscomp"  && <AbsCompStation  onComplete={(sc, t) => markDone("abscomp",  sc, t)} />}
+        {station === "occalc"   && <OCCalcStation   onComplete={(sc, t) => markDone("occalc",   sc, t)} />}
+        {station === "usmexico" && <USMexicoStation onComplete={(sc, t) => markDone("usmexico", sc, t)} />}
+        {station === "gains"    && <GainsStation    onComplete={(sc, t) => markDone("gains",    sc, t)} />}
+        {station === "terms"    && <TermsStation    onComplete={(sc, t) => markDone("terms",    sc, t)} />}
+        {station === "flash"    && <FlashcardStation onComplete={(sc, t) => markDone("flash",   sc, t)} />}
         {station === "quiz" && (
           <QuizStation
-            onPass={(score, results) => {
-              setQuizScore(score);
-              setQuizResults(results);
-              markDone("quiz", score, 10);
-              setStation("results");
-            }}
+            onPass={(score, results) => { setQuizScore(score); setQuizResults(results); markDone("quiz", score, 10); setStation("results"); }}
             onFail={() => setStation("not-yet")}
           />
         )}
-        {station === "not-yet" && (
-          <div className="max-w-lg mx-auto">
-            <div className="rounded-2xl p-8 text-center space-y-4" style={{ background: "#FEF3C7" }}>
-              <p className="text-4xl">📚</p>
-              <h2 className="text-xl font-bold text-amber-900">Not Yet</h2>
-              <p className="text-amber-800 text-sm">You need 9 out of 10 to pass. Review the stations and try again.</p>
-              <p className="text-amber-700 text-xs font-semibold">This screen cannot be submitted. Only the final Results screen counts.</p>
-              <button
-                onClick={() => setStation("intro")}
-                className="w-full py-3 bg-amber-700 text-white rounded-xl font-semibold hover:bg-amber-800 transition"
-              >
-                Back to Dashboard
-              </button>
-            </div>
-          </div>
-        )}
-        {station === "results" && (
-          <ResultsScreen
-            score={quizScore}
-            results={quizResults}
-            sectionScores={sectionScores}
-            onRestart={() => setStation("intro")}
-            courseTitle={courseTitle}
-          />
-        )}
+        {station === "not-yet" && <NotYetScreen onRetry={() => setStation("quiz")} />}
+        {station === "results" && <ResultsScreen score={quizScore} results={quizResults} sectionScores={sectionScores} onRestart={() => setStation("intro")} courseTitle={courseTitle} />}
       </main>
     </div>
   );

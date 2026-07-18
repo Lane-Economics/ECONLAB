@@ -1147,7 +1147,6 @@ function ComparativeStation({ onComplete }: { onComplete: (score: number, total:
     const newScore = score + (sel === q.correct ? 1 : 0);
     setScore(newScore);
     setChecked(true);
-    if (isLast) onComplete(newScore, COMP_ADV_QS.length);
   }
 
   function next() {
@@ -1155,6 +1154,8 @@ function ComparativeStation({ onComplete }: { onComplete: (score: number, total:
       setIdx(idx + 1);
       setSel(null);
       setChecked(false);
+    } else {
+      onComplete(score + (sel === q.correct ? 1 : 0), COMP_ADV_QS.length);
     }
   }
 
@@ -1656,19 +1657,24 @@ const ALL_QUESTIONS = [
   // Budget Constraint
   {
     q: "Alphonso has $10/week. Burgers cost $2 and bus tickets cost $0.50. What is the opportunity cost of 1 burger in terms of bus tickets?",
-    options: ["1 bus ticket", "2 bus tickets", "4 bus tickets", "8 bus tickets"],
-    correct: 2,
+    options: [
+      "1 bus ticket",
+      "4 bus tickets",
+      "2 bus tickets",
+      "8 bus tickets",
+    ],
+    correct: 1,
     exp: "$2 burger ÷ $0.50 per ticket = 4 bus tickets. For every burger Alphonso buys, he gives up 4 bus rides.",
   },
   {
     q: "A budget constraint for an individual shows:",
     options: [
       "The maximum amount of one good that can be produced",
-      "All combinations of two goods that exactly use up available income",
       "The optimal combination of goods the consumer should buy",
+      "All combinations of two goods that exactly use up available income",
       "The total cost of all goods purchased",
     ],
-    correct: 1,
+    correct: 2,
     exp: "The budget constraint shows all affordable combinations given income and prices — not the optimal choice (that requires preferences), just the frontier of what's possible.",
   },
   // Opportunity Cost
@@ -1677,21 +1683,21 @@ const ALL_QUESTIONS = [
     options: [
       "$20,000 (tuition only)",
       "$40,000 (lost wages only)",
-      "$60,000 (tuition + lost wages)",
       "$0 — education is an investment",
+      "$60,000 (tuition + lost wages)",
     ],
-    correct: 2,
+    correct: 3,
     exp: "Full opportunity cost = direct cost ($20,000 tuition) + forgone alternative ($40,000 wages) = $60,000. Economists count both because both represent real sacrifices.",
   },
   {
     q: "You spent $50 on a concert ticket but find out the day-of that you're exhausted and the show sounds less appealing. The $50 is:",
     options: [
-      "A marginal cost that should influence your decision to go",
       "A sunk cost — already spent and should NOT affect your decision",
+      "A marginal cost that should influence your decision to go",
       "An opportunity cost of staying home",
       "A variable cost that changes with your decision",
     ],
-    correct: 1,
+    correct: 0,
     exp: "The $50 is a sunk cost — it's spent and non-refundable regardless of what you do now. Rational decision-making ignores sunk costs and evaluates only future costs and benefits.",
   },
   // Marginal Analysis
@@ -1710,11 +1716,11 @@ const ALL_QUESTIONS = [
     q: "The law of diminishing marginal utility states that:",
     options: [
       "As price rises, consumers buy less",
-      "Each additional unit of a good consumed provides less additional satisfaction than the previous unit",
       "Producers supply more as price increases",
       "Resources become scarcer as consumption increases",
+      "Each additional unit of a good consumed provides less additional satisfaction than the previous unit",
     ],
-    correct: 1,
+    correct: 3,
     exp: "Diminishing marginal utility: the 1st slice of pizza is amazing; the 6th, less so. Each additional unit adds less satisfaction. This is why consumers buy variety instead of only one good.",
   },
   // PPF
@@ -1722,22 +1728,22 @@ const ALL_QUESTIONS = [
     q: "A point INSIDE the Production Possibilities Frontier represents:",
     options: [
       "Allocative efficiency",
-      "Productive efficiency",
       "Productive inefficiency — resources are idle or misallocated",
+      "Productive efficiency",
       "A point that requires new technology to reach",
     ],
-    correct: 2,
+    correct: 1,
     exp: "A point inside the PPF means the economy is not using all its resources effectively — some are idle (like during a recession) or misallocated. Moving to the PPF curve would mean producing more of both goods.",
   },
   {
     q: "The PPF curves outward (is concave to the origin) because of the:",
     options: [
-      "Law of demand",
       "Law of increasing opportunity cost",
+      "Law of demand",
       "Law of diminishing marginal utility",
       "Budget constraint",
     ],
-    correct: 1,
+    correct: 0,
     exp: "As a society shifts more resources to one good, the resources being transferred are increasingly less suited to that production — requiring ever-larger sacrifices of the other good. This increasing opportunity cost creates the outward curve.",
   },
   // Comparative Advantage
@@ -1745,11 +1751,11 @@ const ALL_QUESTIONS = [
     q: "The United States takes 1 hour to produce a unit of wheat and 4 hours for sugar. Brazil takes 5 hours for wheat and 2 hours for sugar. Which country has comparative advantage in sugar?",
     options: [
       "United States — it has absolute advantage in both",
-      "Brazil — its opportunity cost of sugar (2/5 wheat) is lower than the US's (4 wheat)",
       "Neither — they should each produce both goods",
       "United States — 4 hours is less than 5 hours",
+      "Brazil — its opportunity cost of sugar (2/5 wheat) is lower than the US's (4 wheat)",
     ],
-    correct: 1,
+    correct: 3,
     exp: "Brazil's opportunity cost of 1 unit of sugar = 2/5 unit of wheat. The US's opportunity cost of 1 unit of sugar = 4 units of wheat. Since Brazil gives up far less wheat to produce sugar, Brazil has comparative advantage in sugar.",
   },
   // Positive vs. Normative
@@ -1757,11 +1763,11 @@ const ALL_QUESTIONS = [
     q: "\"An increase in the federal minimum wage to $15/hour would reduce teen employment by approximately 1–3%.\" This statement is:",
     options: [
       "Normative — it advocates for a specific policy",
-      "Positive — it is a testable, empirical claim about the relationship between wages and employment",
       "Neither — it is just an opinion",
+      "Positive — it is a testable, empirical claim about the relationship between wages and employment",
       "Normative — because it involves government policy",
     ],
-    correct: 1,
+    correct: 2,
     exp: "This is a positive statement. It makes a specific, measurable claim about the effect of a policy that can be tested with data. Whether the policy is good or bad is a separate normative question.",
   },
   // Additional pool questions — Scarcity & Three Universal Limits
@@ -1780,12 +1786,12 @@ const ALL_QUESTIONS = [
   {
     q: "You paid $8 to see a movie. After 20 minutes, it is terrible. A rational person should:",
     options: [
-      "Stay, because leaving wastes the $8",
       "Leave if the value of doing something else exceeds the cost of staying, since the $8 is already gone",
+      "Stay, because leaving wastes the $8",
       "Stay for at least another 20 minutes to give the film a fair chance",
       "Ask for a refund since the movie is poor quality",
     ],
-    correct: 1,
+    correct: 0,
     exp: "The $8 ticket is a sunk cost — it is spent and unrecoverable no matter what you do. Rational decision-making ignores sunk costs and focuses only on future costs and benefits. If leaving provides more value than staying, you should leave.",
   },
   // Budget constraint slope
@@ -1793,11 +1799,11 @@ const ALL_QUESTIONS = [
     q: "Why does the budget constraint graph for Alphonso (burgers vs. bus tickets) form a straight line rather than a curved one?",
     options: [
       "Because Alphonso prefers burgers over bus tickets",
-      "Because prices are fixed — the trade-off rate between the two goods does not change",
       "Because income increases as he buys more",
+      "Because prices are fixed — the trade-off rate between the two goods does not change",
       "Because the law of diminishing marginal utility applies",
     ],
-    correct: 1,
+    correct: 2,
     exp: "The budget constraint is a straight line because prices are fixed. The slope equals the relative price ratio ($2 ÷ $0.50 = 4), which is the constant opportunity cost of one burger in terms of bus tickets. If prices changed as you bought more, the line would curve.",
   },
 ];

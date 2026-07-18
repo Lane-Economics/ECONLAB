@@ -80,7 +80,6 @@ function PriceMechStation({ onComplete }: { onComplete: (score: number, total: n
     const newScore = score + (sel === q.correct ? 1 : 0);
     setScore(newScore);
     setChecked(true);
-    if (isLast) onComplete(newScore, PRICE_MECH_QS.length);
   }
 
   function handleNext() {
@@ -97,7 +96,7 @@ function PriceMechStation({ onComplete }: { onComplete: (score: number, total: n
           A price is a <strong className="text-foreground">signal wrapped in an incentive</strong> — it tells you what is scarce and simultaneously rewards you for responding. No central coordinator needed.
         </p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={PRICE_MECH_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} />
+      <SteppedQuiz q={q} idx={idx} total={PRICE_MECH_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
     </div>
   );
 }
@@ -166,7 +165,6 @@ function LawsStation({ onComplete }: { onComplete: (score: number, total: number
     const newScore = score + (sel === q.correct ? 1 : 0);
     setScore(newScore);
     setChecked(true);
-    if (isLast) onComplete(newScore, LAWS_QS.length);
   }
 
   function handleNext() {
@@ -196,7 +194,7 @@ function LawsStation({ onComplete }: { onComplete: (score: number, total: number
           </table>
         </div>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={LAWS_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} />
+      <SteppedQuiz q={q} idx={idx} total={LAWS_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
     </div>
   );
 }
@@ -265,7 +263,6 @@ function EquilibriumStation({ onComplete }: { onComplete: (score: number, total:
     const newScore = score + (sel === q.correct ? 1 : 0);
     setScore(newScore);
     setChecked(true);
-    if (isLast) onComplete(newScore, EQUIL_QS.length);
   }
 
   function handleNext() {
@@ -292,7 +289,7 @@ function EquilibriumStation({ onComplete }: { onComplete: (score: number, total:
           </div>
         </div>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={EQUIL_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} />
+      <SteppedQuiz q={q} idx={idx} total={EQUIL_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
     </div>
   );
 }
@@ -373,7 +370,6 @@ function ShiftersStation({ onComplete }: { onComplete: (score: number, total: nu
     const newScore = score + pts;
     setScore(newScore);
     setChecked(true);
-    if (isLast) onComplete(newScore, SHIFTER_SCENARIOS.length * 2);
   }
 
   function handleNext() {
@@ -529,7 +525,6 @@ function FourStepStation({ onComplete }: { onComplete: (score: number, total: nu
     const newScore = score + (sel === q.correct ? 1 : 0);
     setScore(newScore);
     setChecked(true);
-    if (isLast) onComplete(newScore, FOURSTEP_QS.length);
   }
 
   function handleNext() {
@@ -556,7 +551,7 @@ function FourStepStation({ onComplete }: { onComplete: (score: number, total: nu
           ))}
         </div>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={FOURSTEP_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} />
+      <SteppedQuiz q={q} idx={idx} total={FOURSTEP_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
     </div>
   );
 }
@@ -625,7 +620,6 @@ function ControlsStation({ onComplete }: { onComplete: (score: number, total: nu
     const newScore = score + (sel === q.correct ? 1 : 0);
     setScore(newScore);
     setChecked(true);
-    if (isLast) onComplete(newScore, CONTROLS_QS.length);
   }
 
   function handleNext() {
@@ -650,7 +644,7 @@ function ControlsStation({ onComplete }: { onComplete: (score: number, total: nu
         </div>
         <p className="text-xs text-muted-foreground italic mt-2">"There's no free lunch — every policy has opportunity costs."</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={CONTROLS_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} />
+      <SteppedQuiz q={q} idx={idx} total={CONTROLS_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
     </div>
   );
 }
@@ -658,10 +652,11 @@ function ControlsStation({ onComplete }: { onComplete: (score: number, total: nu
 // ─────────────────────────────────────────────
 // Shared Stepped Quiz Component
 // ─────────────────────────────────────────────
-function SteppedQuiz({ q, idx, total, sel, setSel, checked, onCheck, onNext, isLast, score }: {
+function SteppedQuiz({ q, idx, total, sel, setSel, checked, onCheck, onNext, isLast, score, onComplete }: {
   q: { q: string; options: string[]; correct: number; exp: string };
   idx: number; total: number; sel: number | null; setSel: (n: number) => void;
   checked: boolean; onCheck: () => void; onNext: () => void; isLast: boolean; score: number;
+  onComplete: (score: number, total: number) => void;
 }) {
   return (
     <div className="bg-card border-2 border-border rounded-xl p-4 space-y-3">
@@ -701,7 +696,7 @@ function SteppedQuiz({ q, idx, total, sel, setSel, checked, onCheck, onNext, isL
         </button>
       )}
       {checked && isLast && (
-        <button onClick={onNext} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+        <button onClick={() => onComplete(score, total)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
           Mark Complete ✓
         </button>
       )}
@@ -820,32 +815,57 @@ const ALL_QUESTIONS = [
   },
   {
     q: "The law of demand states that, ceteris paribus:",
-    options: ["As price rises, demand increases", "As price rises, quantity demanded falls", "As price rises, quantity demanded rises", "Price and quantity demanded move in the same direction"],
-    correct: 1,
+    options: [
+      "As price rises, demand increases",
+      "As price rises, quantity demanded rises",
+      "As price rises, quantity demanded falls",
+      "Price and quantity demanded move in the same direction",
+    ],
+    correct: 2,
     exp: "The law of demand describes an inverse relationship between price and quantity demanded along a fixed curve. This is a movement ALONG the curve — the curve itself does not shift when price changes.",
   },
   {
     q: "Movie ticket prices fall from $15 to $10. Consumers attend more movies. Economists call this:",
-    options: ["An increase in demand", "An increase in quantity demanded", "A rightward shift of the demand curve", "A change in consumer tastes"],
-    correct: 1,
+    options: [
+      "An increase in demand",
+      "A rightward shift of the demand curve",
+      "A change in consumer tastes",
+      "An increase in quantity demanded",
+    ],
+    correct: 3,
     exp: "A change in the good's own price moves us ALONG the existing demand curve — that is a change in quantity demanded, not a shift of demand. The demand curve stays in place; only the position along it changes.",
   },
   {
     q: "The law of supply states that, ceteris paribus, as price rises:",
-    options: ["Quantity supplied falls", "Quantity supplied rises", "The supply curve shifts left", "Producers exit the market"],
-    correct: 1,
+    options: [
+      "Quantity supplied rises",
+      "Quantity supplied falls",
+      "The supply curve shifts left",
+      "Producers exit the market",
+    ],
+    correct: 0,
     exp: "Law of supply: higher prices reward production. As price rises, quantity supplied rises — producers drill more, hire more, open new plants. Price and quantity supplied move in the SAME direction.",
   },
   {
     q: "In a free market, the equilibrium price is determined by:",
-    options: ["The largest firm setting a price that covers its costs", "The intersection of the market demand curve and the market supply curve", "The government agency responsible for price stability", "Producers calculating cost plus a standard profit margin"],
-    correct: 1,
+    options: [
+      "The largest firm setting a price that covers its costs",
+      "The government agency responsible for price stability",
+      "The intersection of the market demand curve and the market supply curve",
+      "Producers calculating cost plus a standard profit margin",
+    ],
+    correct: 2,
     exp: "Market equilibrium occurs where Qd = Qs — graphically where demand and supply curves intersect. No single buyer or seller sets this price; it emerges from the interaction of all market participants.",
   },
   {
     q: "At a price BELOW market equilibrium, what occurs?",
-    options: ["Quantity supplied exceeds quantity demanded — a surplus", "Quantity demanded exceeds quantity supplied — a shortage", "The market is in equilibrium", "Producers increase output to take advantage of rising prices"],
-    correct: 1,
+    options: [
+      "Quantity supplied exceeds quantity demanded — a surplus",
+      "The market is in equilibrium",
+      "Producers increase output to take advantage of rising prices",
+      "Quantity demanded exceeds quantity supplied — a shortage",
+    ],
+    correct: 3,
     exp: "Below equilibrium, the low price attracts more buyers (Qd rises) and discourages sellers (Qs falls). The resulting shortage puts upward pressure on price until the market clears at equilibrium.",
   },
   {
@@ -856,20 +876,35 @@ const ALL_QUESTIONS = [
   },
   {
     q: "Peanut butter and jelly are complements. If the price of peanut butter rises sharply, what happens in the market for jelly?",
-    options: ["Demand for jelly increases (shifts right)", "Demand for jelly decreases (shifts left)", "The quantity demanded of jelly falls along the existing curve", "No change — jelly and peanut butter are independent goods"],
-    correct: 1,
+    options: [
+      "Demand for jelly decreases (shifts left)",
+      "Demand for jelly increases (shifts right)",
+      "The quantity demanded of jelly falls along the existing curve",
+      "No change — jelly and peanut butter are independent goods",
+    ],
+    correct: 0,
     exp: "Complements are used together. When peanut butter becomes more expensive, people buy less of it — and therefore less jelly. Demand for jelly shifts LEFT (decreases at every price). This is a demand shift, not a movement along the curve.",
   },
   {
     q: "A drought devastates the corn crop. Using the four-step method, what happens to equilibrium price and quantity of corn?",
-    options: ["Price falls, quantity rises", "Price rises, quantity rises", "Price rises, quantity falls", "Price falls, quantity falls"],
-    correct: 2,
+    options: [
+      "Price falls, quantity rises",
+      "Price rises, quantity rises",
+      "Price falls, quantity falls",
+      "Price rises, quantity falls",
+    ],
+    correct: 3,
     exp: "Step 2: natural conditions → supply. Step 3: less corn at every price → supply shifts LEFT. Step 4: new equilibrium has higher price and lower quantity. Pattern: supply shifts → P and Q move oppositely.",
   },
   {
     q: "Consumer incomes rise and the good is a normal good. What happens to equilibrium price and quantity?",
-    options: ["Price falls, quantity falls", "Price rises, quantity rises", "Price rises, quantity falls", "Price falls, quantity rises"],
-    correct: 1,
+    options: [
+      "Price falls, quantity falls",
+      "Price rises, quantity falls",
+      "Price rises, quantity rises",
+      "Price falls, quantity rises",
+    ],
+    correct: 2,
     exp: "Income is a demand shifter. For a normal good, rising income → demand shifts RIGHT. New equilibrium: both price and quantity rise. Pattern: demand shifts → P and Q move together.",
   },
   {
@@ -880,26 +915,46 @@ const ALL_QUESTIONS = [
   },
   {
     q: "Demand for electric vehicles rises (due to higher gasoline prices) AND supply rises (due to a new battery factory opening) simultaneously. What can you conclude?",
-    options: ["Price definitely rises; quantity is ambiguous", "Quantity definitely rises; price change is ambiguous", "Both price and quantity definitely rise", "Both price and quantity are ambiguous"],
-    correct: 1,
+    options: [
+      "Quantity definitely rises; price change is ambiguous",
+      "Price definitely rises; quantity is ambiguous",
+      "Both price and quantity definitely rise",
+      "Both price and quantity are ambiguous",
+    ],
+    correct: 0,
     exp: "Both shifts push quantity UP (demand-right → Q up; supply-right → Q up). On price: demand-right pushes P up, supply-right pushes P down — these work against each other. Which dominates depends on the relative size of the shifts, so price is ambiguous.",
   },
   {
     q: "A price ceiling is most accurately defined as:",
-    options: ["A legal minimum price set above market equilibrium", "A legal maximum price, typically set below market equilibrium to be binding", "The highest price sellers are willing to accept", "A price set by the largest firm in the market"],
-    correct: 1,
+    options: [
+      "A legal minimum price set above market equilibrium",
+      "The highest price sellers are willing to accept",
+      "A legal maximum price, typically set below market equilibrium to be binding",
+      "A price set by the largest firm in the market",
+    ],
+    correct: 2,
     exp: "A price ceiling is a legal CAP — sellers cannot charge above it. To be binding (have any real effect), it must be set BELOW equilibrium. If set above equilibrium, the market clears below the ceiling and it has no effect.",
   },
   {
     q: "A city sets rent control at $900/month when market equilibrium is $1,400/month. The predictable result is:",
-    options: ["A surplus of apartments as landlords rush to rent them out", "A shortage of apartments as Qd exceeds Qs at the controlled price", "No effect — landlords will continue supplying apartments at any price", "Improved apartment quality as landlords compete for tenants"],
-    correct: 1,
+    options: [
+      "A surplus of apartments as landlords rush to rent them out",
+      "No effect — landlords will continue supplying apartments at any price",
+      "Improved apartment quality as landlords compete for tenants",
+      "A shortage of apartments as Qd exceeds Qs at the controlled price",
+    ],
+    correct: 3,
     exp: "At $900 (below equilibrium $1,400), Qd is high (cheap apartments attract many renters) while Qs is low (less profitable for landlords). The gap is a shortage. Landlords also reduce maintenance and convert units — 'the ceiling helps a few and hurts many more.'",
   },
   {
     q: "A government sets a price floor for sugar above the market equilibrium. The most predictable result is:",
-    options: ["A shortage — consumers demand more sugar at the lower price", "A surplus — Qs exceeds Qd at the above-equilibrium floor price", "No effect — markets always clear at equilibrium regardless of floors", "Lower prices for consumers as producers compete for buyers"],
-    correct: 1,
+    options: [
+      "A surplus — Qs exceeds Qd at the above-equilibrium floor price",
+      "A shortage — consumers demand more sugar at the lower price",
+      "No effect — markets always clear at equilibrium regardless of floors",
+      "Lower prices for consumers as producers compete for buyers",
+    ],
+    correct: 0,
     exp: "A floor above equilibrium is binding. The high guaranteed price encourages Qs (producers supply more) while discouraging Qd (consumers buy less). The gap is a surplus. Governments often purchase the surplus to maintain the floor — funded by taxpayers.",
   },
 ];

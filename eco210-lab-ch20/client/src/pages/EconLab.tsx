@@ -180,7 +180,6 @@ function OCCalcStation({ onComplete }: { onComplete: (score: number, total: numb
     const newScore = score + (sel === step.correct ? 1 : 0);
     setScore(newScore);
     setChecked(true);
-    if (isLast) onComplete(newScore, OC_STEPS.length);
   }
 
   function handleNext() {
@@ -344,7 +343,6 @@ function USMexicoStation({ onComplete }: { onComplete: (score: number, total: nu
     const newScore = score + (sel === step.correct ? 1 : 0);
     setScore(newScore);
     setChecked(true);
-    if (isLast) onComplete(newScore, US_MEX_STEPS.length);
   }
 
   function handleNext() {
@@ -510,7 +508,6 @@ function GainsStation({ onComplete }: { onComplete: (score: number, total: numbe
     const newScore = score + (sel === step.correct ? 1 : 0);
     setScore(newScore);
     setChecked(true);
-    if (isLast) onComplete(newScore, GAINS_STEPS.length);
   }
 
   function handleNext() {
@@ -649,7 +646,6 @@ function TermsStation({ onComplete }: { onComplete: (score: number, total: numbe
     const newScore = score + (sel === step.correct ? 1 : 0);
     setScore(newScore);
     setChecked(true);
-    if (isLast) onComplete(newScore, TERMS_STEPS.length);
   }
 
   function handleNext() {
@@ -928,11 +924,11 @@ const ALL_QUESTIONS = [
     q: "A country has comparative advantage in a good when it:",
     options: [
       "Makes more of that good than any other country",
-      "Has the lowest opportunity cost for producing that good",
       "Has absolute advantage in all goods",
+      "Has the lowest opportunity cost for producing that good",
       "Exports that good to every trading partner",
     ],
-    correct: 1,
+    correct: 2,
     exp: "Comparative advantage means lower opportunity cost — giving up less of other goods to produce one more unit. This is the concept that actually drives the gains from trade.",
   },
   {
@@ -940,34 +936,44 @@ const ALL_QUESTIONS = [
     options: [
       "Wine only",
       "Cloth only",
-      "Both wine and cloth",
       "Neither — Country B has absolute advantage",
+      "Both wine and cloth",
     ],
-    correct: 2,
+    correct: 3,
     exp: "Country A makes more of both goods per worker (8 > 4 wine; 16 > 12 cloth). That is absolute advantage in both goods — more output from the same inputs.",
   },
   {
     q: "Using the same Country A (8 wine, 16 cloth) and Country B (4 wine, 12 cloth) example: who has comparative advantage in cloth?",
     options: [
-      "Country A — it makes more cloth (16 vs. 12)",
       "Country B — its OC of cloth is 0.33 wine vs. Country A's 0.5 wine",
+      "Country A — it makes more cloth (16 vs. 12)",
       "Country A — it has absolute advantage in cloth",
       "Neither — OC is the same for both",
     ],
-    correct: 1,
+    correct: 0,
     exp: "Country B OC of cloth = 4 ÷ 12 ≈ 0.33 wine per yard. Country A OC of cloth = 8 ÷ 16 = 0.5 wine per yard. Country B gives up less wine to make cloth — comparative advantage in cloth.",
   },
   // US-Mexico numbers
   {
     q: "The U.S. can produce 10,000 shoes OR 40,000 refrigerators (40 workers). What is the U.S. opportunity cost of 1 shoe?",
-    options: ["0.25 refrigerators", "4 refrigerators", "10 refrigerators", "1.25 refrigerators"],
-    correct: 1,
+    options: [
+      "0.25 refrigerators",
+      "10 refrigerators",
+      "4 refrigerators",
+      "1.25 refrigerators",
+    ],
+    correct: 2,
     exp: "40,000 refrigerators ÷ 10,000 shoes = 4 refrigerators per shoe. Each U.S. shoe costs 4 refrigerators in foregone production.",
   },
   {
     q: "Mexico can produce 8,000 shoes OR 10,000 refrigerators (40 workers). What is Mexico's opportunity cost of 1 refrigerator?",
-    options: ["1.25 shoes", "0.8 shoes", "4 shoes", "0.25 shoes"],
-    correct: 1,
+    options: [
+      "1.25 shoes",
+      "4 shoes",
+      "0.25 shoes",
+      "0.8 shoes",
+    ],
+    correct: 3,
     exp: "8,000 shoes ÷ 10,000 refrigerators = 0.8 shoes per refrigerator. Mexico gives up 0.8 shoes for every refrigerator it makes.",
   },
   {
@@ -985,34 +991,34 @@ const ALL_QUESTIONS = [
   {
     q: "Before trade, the U.S. and Mexico each split workers 50/50 between shoes and refrigerators. The U.S. produces 5,000 shoes + 20,000 refrigerators; Mexico produces 4,000 shoes + 5,000 refrigerators. What is world output?",
     options: [
-      "5,000 shoes + 20,000 refrigerators",
       "9,000 shoes + 25,000 refrigerators",
+      "5,000 shoes + 20,000 refrigerators",
       "8,000 shoes + 40,000 refrigerators",
       "13,000 shoes + 45,000 refrigerators",
     ],
-    correct: 1,
+    correct: 0,
     exp: "5,000 + 4,000 = 9,000 shoes; 20,000 + 5,000 = 25,000 refrigerators. This is the pre-specialization world output baseline.",
   },
   {
     q: "After full specialization (U.S. → all refrigerators; Mexico → all shoes), world output is 8,000 shoes + 40,000 refrigerators. Compared to the pre-specialization baseline of 9,000 shoes + 25,000 refrigerators, what happened?",
     options: [
       "Both goods increased",
-      "Refrigerators rose by 15,000 but shoes fell by 1,000 — more of the important good",
       "Both goods fell — specialization reduces total output",
       "Output is unchanged — the same workers produced the same total",
+      "Refrigerators rose by 15,000 but shoes fell by 1,000 — more of the important good",
     ],
-    correct: 1,
+    correct: 3,
     exp: "With full specialization: shoes fall 1,000 (9,000→8,000) but refrigerators surge 15,000 (25,000→40,000). Same labor force, dramatically more refrigerators. The world consumes more overall.",
   },
   {
     q: "Trade lets each country consume beyond its own PPF. This means:",
     options: [
       "Countries consume less of one good to get more of the other",
-      "Countries can consume combinations of goods impossible to produce alone",
       "Only the larger economy benefits from moving beyond its PPF",
+      "Countries can consume combinations of goods impossible to produce alone",
       "Production possibilities expand only for developing countries",
     ],
-    correct: 1,
+    correct: 2,
     exp: "After trade: the U.S. ends up with 5,300 shoes and 22,000 refrigerators — more of BOTH than it produced alone (5,000 + 20,000). That combination is outside the U.S. PPF. Trade makes it achievable.",
   },
   // Terms of trade
@@ -1020,22 +1026,22 @@ const ALL_QUESTIONS = [
     q: "The mutually beneficial range for trade between the U.S. and Mexico is 0.25 < price < 0.8 shoes per refrigerator. If the actual terms of trade are 0.5 shoes per refrigerator, which of the following is true?",
     options: [
       "Only the U.S. benefits — 0.5 is closer to 0.25",
-      "Only Mexico benefits — 0.5 is less than 0.8",
       "Both countries benefit — 0.5 is above the U.S. minimum and below Mexico's maximum",
+      "Only Mexico benefits — 0.5 is less than 0.8",
       "Neither benefits — the price must equal one country's domestic OC exactly",
     ],
-    correct: 2,
+    correct: 1,
     exp: "0.5 > 0.25 (U.S. gets more shoes per refrigerator than its domestic OC → U.S. gains). 0.5 < 0.8 (Mexico pays fewer shoes per refrigerator than its domestic cost of making them → Mexico gains). Both gain.",
   },
   {
     q: "What determines the actual terms of trade within the mutually beneficial range?",
     options: [
+      "World supply and demand, plus bargaining power",
       "The country with absolute advantage sets the price",
       "The WTO mandates a fixed global price",
-      "World supply and demand, plus bargaining power",
       "The domestic opportunity cost of the importing country",
     ],
-    correct: 2,
+    correct: 0,
     exp: "Economics defines the mutually beneficial range (0.25 to 0.8). Where in that range the price actually falls is determined by world supply and demand and the relative bargaining power of the trading partners.",
   },
   // Camping analogy / objections
@@ -1043,33 +1049,33 @@ const ALL_QUESTIONS = [
     q: "In the camping analogy, Jethro is faster at carrying gear, building fires, cooking, AND setting up tents. Why should he still specialize?",
     options: [
       "Because his friends will refuse to work otherwise",
-      "Because he has only 24 hours and two hands — every minute on one task is a minute not on his best task",
       "Because the law requires equal division of labor",
+      "Because he has only 24 hours and two hands — every minute on one task is a minute not on his best task",
       "Because he has absolute advantage only in cooking",
     ],
-    correct: 1,
+    correct: 2,
     exp: "Jethro should focus where his relative advantage is greatest. Even if he is better at everything, time is scarce — every minute on firewood is a minute not cooking. The others handle tasks where their disadvantage is smallest. Same logic applies to nations.",
   },
   {
     q: "Politicians often say trade is a contest where 'if they win, we lose.' What does economics say about this at the national level?",
     options: [
       "It's correct — trade is zero-sum; one country's gain is another's loss",
-      "Trade is positive-sum at the national level — both countries consume more after specialization",
       "It depends on which country has absolute advantage",
       "Trade only benefits the country that runs a trade surplus",
+      "Trade is positive-sum at the national level — both countries consume more after specialization",
     ],
-    correct: 1,
+    correct: 3,
     exp: "Trade is exchange, not competition. At the national level it is positive-sum — we proved it: both countries consume more. No one forces a trade; if both sides agree, both expect to gain. The distributional effects within a country are a separate (real) political question.",
   },
   {
     q: "David Ricardo's 1817 proof of comparative advantage is described as 'the most counterintuitive result in economics.' Why is it counterintuitive?",
     options: [
-      "Because it shows that protectionism always raises wages",
       "Because it shows that even a country with absolute advantage in EVERYTHING still gains from specializing and trading",
+      "Because it shows that protectionism always raises wages",
       "Because it proves that free trade always eliminates unemployment",
       "Because it shows that larger countries always benefit more from trade than smaller ones",
     ],
-    correct: 1,
+    correct: 0,
     exp: "The counterintuitive insight: even if the U.S. (or any country) is more productive at making EVERY good, it still gains from specializing in its comparative advantage and trading. Absolute advantage doesn't determine trade — opportunity cost does. Two centuries later, this still surprises students.",
   },
 ];

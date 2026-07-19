@@ -331,7 +331,7 @@ const ACCOUNTING_QS = [
       "Technology is important but labor hours are still the biggest single factor",
       "Technology only matters for rich countries — poor countries need capital and labor first",
     ],
-    correct: 0,
+    correct: 1,
     exp: "Growth accounting finding: Total factor productivity (TFP) — the 'A' in GDP = f(L,K,H,A) — is consistently the #1 driver of growth rate differences across countries in long-run cross-country studies. Capital and labor together explain ~50% of differences. The residual 'A' — ideas, institutions, organization — is what economists can't measure directly but always find dominating the data.",
   },
   {
@@ -454,7 +454,7 @@ function Rule70Station({ onComplete }: { onComplete: (score: number, total: numb
         <p className="font-semibold text-foreground mb-2">The Rule of 70 — Years to double ≈ 70 ÷ growth rate (%)</p>
         <div className="rounded-lg overflow-hidden border border-border text-xs">
           <table className="w-full">
-            <thead><tr className="bg-primary text-primary-foreground"><th className="text-left px-2 py-1.5">Growth</th><th className="text-center px-2 py-1.5">Yrs to double</th><th className="text-center px-2 py-1.5">×(50 yrs)</th><th className="text-left px-2 py-1.5">Example</th></tr></thead>
+            <thead><tr className="bg-primary text-primary-foreground"><th className="text-left px-2 py-1.5">Growth</th><th className="text-center px-2 py-1.5">Yrs to double</th><th className="text-center px-2 py-1.5">50-yr multiplier</th><th className="text-left px-2 py-1.5">Example</th></tr></thead>
             <tbody>
               {[["1%","70 yrs","×1.6","Slow Europe, late 1800s"],
                 ["3%","23 yrs","×4.4","Solid U.S. trend"],
@@ -471,7 +471,8 @@ function Rule70Station({ onComplete }: { onComplete: (score: number, total: numb
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-muted-foreground italic mt-2">3% vs. 1% doesn't sound like much — but over a lifetime it's the difference between living modestly and living well.</p>
+        <p className="text-xs text-muted-foreground mt-2"><span className="font-semibold">50-yr multiplier</span> = how many times larger the economy is after 50 years at that growth rate (e.g., ×47 means 47× bigger). Calculated as (1 + rate)<sup>50</sup>.</p>
+        <p className="text-xs text-muted-foreground italic mt-1">3% vs. 1% doesn't sound like much — but over a lifetime it's the difference between living modestly and living well.</p>
       </div>
       <SteppedQuiz q={q} idx={idx} total={RULE70_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
     </div>

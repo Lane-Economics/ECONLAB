@@ -7,7 +7,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <EconLab
       courseTitle="ECO 210 ECONLAB"
-      courseSubtitle="Chapter 7 — Economic Growth"
+      courseSubtitle="Chapter 8 — Unemployment"
       hubUrl="https://www.perplexity.ai/computer/a/econlab-hub-JgrfOPjHQ5iSYovw19FfIg"
     />
   </StrictMode>

@@ -1114,13 +1114,6 @@ function Header({ station, completed, onNav, courseTitle, courseSubtitle, hubUrl
           {currentIdx + 1} / {NAV_STATIONS.length}
         </div>
 
-        {/* Progress bar */}
-        <div className="w-24 hidden md:block shrink-0">
-          <div className="h-1.5 bg-sidebar-accent rounded-full overflow-hidden">
-            <div className="h-full bg-primary rounded-full transition-all duration-500"
-              style={{ width: `${(currentIdx / (NAV_STATIONS.length - 1)) * 100}%` }} />
-          </div>
-        </div>
       </div>
     </header>
   );

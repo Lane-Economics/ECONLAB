@@ -927,7 +927,7 @@ function Header({ station, completed, onNav, courseTitle, courseSubtitle, hubUrl
         <div className="hidden sm:flex items-center gap-1 flex-wrap">
           {NAV_STATIONS.map(s => {
             const idx = STATION_ORDER.indexOf(s.id);
-            const done = idx < currentIdx || completed.has(s.id);
+            const done = completed.has(s.id);
             const active = s.id === station || (station==="not-yet"&&s.id==="quiz") || (station==="results"&&s.id==="quiz");
             if (s.id==="quiz"&&!allStationsDone) return <span key={s.id} title="Complete all stations first" className="px-3 py-1.5 rounded-full text-xs font-medium text-sidebar-foreground/35 cursor-not-allowed select-none">🔒 Quiz</span>;
             return (

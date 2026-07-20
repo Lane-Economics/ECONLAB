@@ -2314,7 +2314,7 @@ function Header({
         <div className="hidden sm:flex items-center gap-1 flex-wrap">
           {NAV_STATIONS.map((s) => {
             const idx = STATION_ORDER.indexOf(s.id);
-            const done = idx < currentIdx || completed.has(s.id);
+            const done = completed.has(s.id);
             const active =
               s.id === station ||
               (station === "not-yet" && s.id === "quiz") ||

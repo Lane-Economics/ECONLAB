@@ -564,75 +564,64 @@ function PersonalFinanceStation({ onComplete }: { onComplete: (score: number, to
 // ─────────────────────────────────────────────
 // Flashcards
 // ─────────────────────────────────────────────
-type Flashcard = { id: number; type: "standard" | "cloze"; front: string; back: string; hint: string };
-
-const CH1213_CARDS: Flashcard[] = [
-  { id: 1, type: "standard", front: "What are the six key dimensions where Keynesian and Neoclassical economics differ?", back: "Comparison table from your slides:\n\n| Dimension | Keynesian | Neoclassical |\n|---|---|---|\n| Focus | Short run | Long run |\n| Key driver | Aggregate Demand | Aggregate Supply / potential GDP |\n| Wages & prices | Sticky — adjust slowly | Flexible — self-correcting |\n| Unemployment | Demand deficiency | Natural rate |\n| Policy | Countercyclical (active) | Rules + supply-side reform |\n| Expectations | Adaptive | Rational |\n\n'Both schools agreed on the goal — stable growth — but disagreed about the mechanism.'", hint: "6 rows: Focus · Driver · Wages · Unemployment · Policy · Expectations" },
-  { id: 2, type: "standard", front: "What is Robert Solow's synthesis of Keynesian and Neoclassical economics?", back: "Robert Solow (Nobel 1987): 'At short time scales, something sort of Keynesian is a good approximation. At very long time scales, neoclassical framework. At the 5-to-10-year scale, we have to piece things together.'\n\nPractical takeaway: neither camp fully controls the economic dashboard. Good policy borrows from both:\n• Keynesian tools for demand crises (recessions, financial collapses)\n• Neoclassical tools for long-run growth (supply-side reform, institution building)\n\nThe Fed's dual mandate literally embeds both schools into law: maximum employment (Keynesian) + price stability (Neoclassical).", hint: "Short run = Keynesian · Long run = Neoclassical · 5–10 yrs = piece together. Dual mandate." },
-  { id: 3, type: "standard", front: "What are 'animal spirits' and why do they make investment (I) the most volatile AD component?", back: "Keynes coined 'animal spirits' to describe the psychological element driving business investment: firms invest based on confidence and optimism about future profits — not just cold mathematical expected returns.\n\nWhy I is most volatile:\n• Long-horizon decisions are inherently uncertain\n• Confidence can collapse rapidly (financial crisis, pandemic shock)\n• Even low interest rates may not revive investment if confidence is gone\n• 2008–09: business investment fell ~20% even as rates approached zero\n\nImplication: AD is inherently unstable. A collapse in animal spirits can crash the economy regardless of current interest rates — which is exactly why Keynesians argue government must stabilize demand when markets cannot.", hint: "Animal spirits = confidence drives investment. Makes I volatile. AD inherently unstable." },
-  { id: 4, type: "standard", front: "What is the 'coordination failure' problem, and why does it justify government intervention in Keynesian theory?", back: "Coordination failure: workers would accept a wage cut IF everyone else accepted one simultaneously — preserving relative wages and restoring employment. But no market mechanism coordinates this simultaneous agreement.\n\nResult: each firm that cuts wages alone loses its best workers and destroys morale → so no firm cuts → wages stay sticky → when demand falls, output falls instead → unemployment persists.\n\n'The coordination failure is the core reason Keynes said government must step in — it can coordinate what markets cannot.'\n\nGovernment can restore aggregate demand directly (spending/tax cuts) without requiring millions of individual wage negotiations to coordinate simultaneously.", hint: "Workers would accept cuts if everyone did — but no coordination mechanism. Gov't can coordinate AD." },
-  { id: 5, type: "cloze", front: "Complete: Expenditure Multiplier = _______ / (_______  − _______)", back: "Multiplier = 1 / (1 − MPC)\n\nMPC = Marginal Propensity to Consume = fraction of each new dollar of income that is spent (not saved).\n\nExamples:\n• MPC = 0.8 → Multiplier = 1/(1−0.8) = 1/0.2 = 5 → $1,000 injection → $5,000 GDP\n• MPC = 0.75 → Multiplier = 1/(1−0.75) = 1/0.25 = 4 → $1,000 → $4,000 GDP\n\nWorks in reverse: $10B investment collapse with multiplier=5 → $50B GDP contraction (Great Depression amplification).\n\nSmaller for tax cuts than direct spending because: tax cut → household saves some fraction first → saving leakage before the multiplier starts.", hint: "1 / (1 − MPC). MPC=0.8 → multiplier=5. Works in reverse." },
-  { id: 6, type: "standard", front: "Why is the multiplier smaller for tax cuts than for direct government spending?", back: "Tax cut → household disposable income rises → but household saves (1−MPC) fraction first → only MPC fraction enters the spending stream immediately.\n\nDirect spending → full $1 enters the economy immediately → no saving leakage in round 1 → larger first-round injection → larger total multiplier.\n\nAdditional factor: wealthy households have lower MPC (save more of each dollar). Tax cuts targeted at high earners have smaller multipliers than cuts targeted at low-income households.\n\n2009 ARRA ($800B): CBO estimated multiplier 0.8–2.5 depending on mechanism. Infrastructure/transfers to low-income (high multiplier) vs. tax cuts to upper earners (lower multiplier).", hint: "Tax cut → saving leakage first. Direct spending → full dollar in immediately. High-earner MPC lower." },
-  { id: 7, type: "standard", front: "Describe the Short-Run Phillips Curve (SRPC) and what economic mechanism produces the inflation-unemployment tradeoff.", back: "SRPC: downward-sloping curve showing the short-run tradeoff between inflation and unemployment.\n\nMechanism: Boost AD → unemployment falls (tighter labor market) → workers gain bargaining power → wages rise → costs pass into prices → inflation rises. Moving along the SRPC: lower unemployment ↔ higher inflation.\n\n1960s experience: Vietnam War spending boosted AD → unemployment fell from ~5% to ~3.5% → inflation rose from ~1.5% to ~5%. The curve held remarkably well for a decade.\n\n'The 1960s consensus: policy could exploit this tradeoff.' Policymakers thought they had a permanent menu between inflation and unemployment.", hint: "Downward sloping. Tighter labor market → wages up → prices up. 1960s: held well." },
-  { id: 8, type: "standard", front: "What broke the Simple Keynesian Phillips Curve model in 1973, and what does stagflation reveal about supply vs. demand shocks?", back: "1973 OPEC oil embargo: oil prices quadrupled in 6 months → SRAS shifted left → STAGFLATION: prices rose AND unemployment rose simultaneously.\n\nSimple Keynesian Phillips Curve said you couldn't have both high at once — high inflation = low unemployment and vice versa. Stagflation violated this.\n\nReveal about supply vs. demand: the SRPC describes movements along the curve (demand-side changes). But supply shocks SHIFT the curve outward. A new, worse SRPC emerges at every inflation-unemployment combination. 'Each supply shock moved the economy off the curve.'\n\nPolicy dilemma: fight inflation → deeper recession. Fight recession → more inflation. Supply shocks require a different diagnosis than demand-management tools.", hint: "OPEC shock → SRAS left → stagflation (both rise). SRPC shifted outward. No demand tool works." },
-  { id: 9, type: "standard", front: "What is the Long-Run Phillips Curve (LRPC) and what did Friedman and Phelps predict in 1968?", back: "LRPC: vertical at the Natural Rate of Unemployment (NRU) — no lasting inflation-unemployment tradeoff in the long run.\n\nFriedman/Phelps prediction (1968 — BEFORE stagflation):\n• Workers and firms adapt their inflation expectations over time\n• If government keeps unemployment below NRU via stimulus: wages get bid up → workers realize real wages haven't fallen → SRPC shifts up → inflation accelerates with no lasting output gain\n• 'Trying to buy lower unemployment creates ever-rising inflation'\n• 'No free lunch from permanently running above the natural rate'\n\nValidation: stagflation in 1970s proved expectations-augmented Phillips Curve correct. Modern implication: the Fed targets 2% inflation (not zero unemployment) because the LRPC is vertical — permanently pushing below NRU just generates inflation.", hint: "Vertical at NRU. Expectations adapt. No permanent tradeoff. Friedman/Phelps 1968 predicted stagflation." },
-  { id: 10, type: "standard", front: "What are the four Neoclassical foundations (pillars) that explain long-run economic behavior?", back: "Four Neoclassical pillars from your slides:\n\n1. Vertical LRAS — Potential GDP (Yp) is the anchor; set by labor, capital, and technology — not by AD. Price level changes cannot permanently alter real output above potential.\n\n2. Flexible wages & prices — Recession → labor surplus → wages fall → SRAS shifts right → economy returns to Yp automatically. No government needed — just time.\n\n3. Rational expectations — People anticipate policy effects and adjust immediately. Anticipated stimulus is offset before it arrives (home prices jump the day a transit station is announced). Makes discretionary policy less effective.\n\n4. Crowding out — Government borrowing → higher interest rates → private investment falls. Fiscal stimulus may be partly or fully offset by reduced private capital formation.\n\n'For neoclassicals, the economy is mostly self-healing — and active policy often does more harm than good.'", hint: "Vertical LRAS · Flexible wages · Rational expectations · Crowding out" },
-  { id: 11, type: "standard", front: "What are K, H, T, and I — the four levers to grow potential GDP in the Neoclassical framework?", back: "The only ways to grow richer in the LONG run (shift LRAS right permanently):\n\nK — Physical Capital: machines, factories, infrastructure. Raises output/hour. Interstate highway system (1956–72) boosted productivity for decades. Depreciates → must be continuously replaced.\n\nH — Human Capital: education and skills. Each additional year of schooling raises earnings ~10%. GI Bill → 2M veterans to college → one of the largest LRAS boosts in U.S. history. Skills permanently embedded; compound over careers.\n\nT — Technology: GPS, computers, internet, AI. The biggest lever — shifts LRAS right without needing more workers or capital. R&D generates knowledge spillovers. TFP captures this residual.\n\nI — Institutions: property rights, contract enforcement, stable money, rule of law. McCloskey's Bourgeois Deal: let ordinary people 'have a go.' Post-apartheid South Africa: institutional reform unlocked investment.", hint: "K = Physical capital · H = Human capital · T = Technology · I = Institutions" },
-  { id: 12, type: "standard", front: "What are the real-world Keynesian moments vs. Neoclassical moments your slides identify?", back: "KEYNESIAN MOMENTS — When demand collapses suddenly:\n• 1933 New Deal: banking collapse, 25% unemployment → FDR spending + bank stabilization prevented full deflation spiral\n• 2008–09 TARP + ARRA ($787B): AD collapsed from financial crisis → stimulus prevented a second Great Depression\n• 2020 COVID: CARES Act $2.2T; PPP; ARP $1.9T → fastest GDP recovery in postwar history\n• When to use: any time AD collapses suddenly and economy is far below potential (Keynesian zone of SRAS)\n\nNEOCLASSICAL MOMENTS — When supply-side reform is needed:\n• Reagan/Volcker 1980s: taming inflation via Fed credibility + supply-side tax reform → sustained 1983–90 expansion without high inflation\n• 1990s balanced budget: deficit reduction + deregulation + NAFTA → productivity boom, 4% unemployment, budget surplus\n• Long-run growth policy: education, R&D, immigration reform, infrastructure → raise LRAS permanently\n• When to use: stable conditions, structural mismatches, productivity slowdowns, or economy near potential", hint: "Keynesian: demand collapses (1933, 2009, 2020). Neoclassical: supply-side/structural (Reagan, 1990s)." },
+const FLASHCARDS = [
+  { front: "Keynesian Economics", back: "Short-run focused school holding that aggregate demand drives output and employment. Wages and prices are sticky, so demand shortfalls cause recessions. Recommends active government stabilization policy." },
+  { front: "Neoclassical Economics", back: "Long-run focused school holding that wages and prices are flexible, markets self-correct, and potential GDP (LRAS) is the output anchor. Favors rules-based policy and supply-side reform over discretionary stimulus." },
+  { front: "Sticky Wages and Prices", back: "The Keynesian idea that wages and prices adjust slowly downward in recessions, preventing rapid self-correction. Wages are sticky because of contracts, efficiency wages, morale, and adverse selection." },
+  { front: "Expenditure Multiplier", back: "1 ÷ (1 − MPC). A $1 increase in government spending generates more than $1 in GDP because each round of spending becomes income for another person. MPC = 0.8 → multiplier = 5." },
+  { front: "Marginal Propensity to Consume (MPC)", back: "The fraction of each additional dollar of income that a household spends (rather than saves). If MPC = 0.8, households spend 80¢ of every new dollar and save 20¢." },
+  { front: "Animal Spirits", back: "Keynes' term for the psychological confidence and optimism driving business investment. Because confidence is volatile, investment (I) is the most unstable component of AD." },
+  { front: "Crowding Out", back: "The neoclassical argument that government borrowing raises interest rates, reducing private investment. Fiscal stimulus is partly offset because higher government demand for loanable funds crowds out private borrowers." },
+  { front: "Rational Expectations", back: "The neoclassical idea that people anticipate and adjust to predictable government policy before it takes effect, reducing the impact of discretionary stabilization policy." },
+  { front: "Short-Run Phillips Curve (SRPC)", back: "Downward-sloping curve showing the short-run tradeoff between inflation and unemployment. Lower unemployment is associated with higher inflation as tight labor markets push up wages and prices." },
+  { front: "Long-Run Phillips Curve (LRPC)", back: "Vertical line at the natural rate of unemployment. In the long run, inflation expectations adjust, eliminating any lasting tradeoff. Permanently pushing unemployment below the natural rate only accelerates inflation." },
+  { front: "Natural Rate of Unemployment", back: "The unemployment rate consistent with stable inflation — equal to frictional + structural unemployment. The LRPC is vertical at this rate. For the U.S., approximately 4–5%." },
+  { front: "Coordination Failure", back: "The Keynesian argument that wages are sticky because individual wage cuts are self-defeating — a firm that cuts wages alone loses its best workers. Government stimulus can restore demand without requiring coordinated wage cuts." },
 ];
 
 function FlashcardStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [deck] = useState<Flashcard[]>([...CH1213_CARDS]);
-  const [cardIdx, setCardIdx] = useState(0);
+  const [cards] = useState(() => shuffle([...FLASHCARDS]));
+  const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [masteredIds, setMasteredIds] = useState<Set<number>>(new Set());
-  const [reviewIds, setReviewIds] = useState<Set<number>>(new Set());
-  const total = deck.length;
-  const masteredCount = masteredIds.size;
-  const allDone = masteredIds.size + reviewIds.size === total;
-  const card = deck[cardIdx];
-  function stripCloze(text: string) { return text.replace(/\{\{c\d+::([^}]+)\}\}/g, "____"); }
-  function handleMastered() { setMasteredIds(prev => new Set([...prev, card.id])); setFlipped(false); if (cardIdx < deck.length - 1) setCardIdx(i => i + 1); }
-  function handleReview() { setReviewIds(prev => new Set([...prev, card.id])); setFlipped(false); if (cardIdx < deck.length - 1) setCardIdx(i => i + 1); }
+  const [seen, setSeen] = useState<Set<number>>(new Set());
+
+  function handleFlip() { setFlipped(f => !f); }
+  function handleNext() {
+    setSeen(s => new Set([...s, idx]));
+    if (idx < cards.length - 1) { setIdx(i => i + 1); setFlipped(false); }
+  }
+  function handlePrev() {
+    if (idx > 0) { setIdx(i => i - 1); setFlipped(false); }
+  }
+  const allSeen = seen.size >= cards.length - 1;
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-1">Flashcard Review — Ch12/13 Keynesian & Neoclassical</p>
-        <p className="text-muted-foreground text-xs">Work through all {total} cards. Mark each Mastered or Review. Complete all cards to unlock the quiz.</p>
-        <div className="flex gap-4 mt-2 text-xs">
-          <span className="text-green-700 font-semibold">✓ Mastered: {masteredCount}</span>
-          <span className="text-amber-700 font-semibold">↩ Review: {reviewIds.size}</span>
-          <span className="text-muted-foreground">Remaining: {total - masteredIds.size - reviewIds.size}</span>
+        <p className="font-semibold text-foreground mb-1">Flashcard Review — Chapter 12/13 Key Terms</p>
+        <p className="text-muted-foreground text-xs">Review all {cards.length} terms. Click each card to reveal the definition. You must view all cards before the Quiz unlocks.</p>
+        <div className="mt-2 h-1.5 bg-primary/20 rounded-full overflow-hidden">
+          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(seen.size / cards.length) * 100}%` }} />
         </div>
+        <p className="text-xs text-muted-foreground mt-1">{seen.size}/{cards.length} cards reviewed</p>
       </div>
-      {!allDone ? (
-        <div className="space-y-3">
-          <p className="text-xs text-muted-foreground text-center">Card {cardIdx + 1} of {total}</p>
-          <div onClick={() => setFlipped(f => !f)} className="bg-card border-2 border-border rounded-2xl p-6 min-h-[180px] cursor-pointer flex flex-col justify-between hover:border-primary transition">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{flipped ? "Answer" : card.type === "cloze" ? "Fill in the blank" : "Question"}</p>
-              <p className="text-sm font-semibold text-foreground whitespace-pre-line">{flipped ? card.back : stripCloze(card.front)}</p>
-            </div>
-            {!flipped && <p className="text-xs text-muted-foreground italic mt-3">Hint: {card.hint}</p>}
-            <p className="text-xs text-primary mt-3 text-right">{flipped ? "Click to flip back" : "Click to reveal answer"}</p>
-          </div>
-          {flipped && (
-            <div className="flex gap-3">
-              <button onClick={handleReview} className="flex-1 py-2.5 border-2 border-amber-400 text-amber-700 rounded-xl font-semibold text-sm hover:bg-amber-50 transition">↩ Review Again</button>
-              <button onClick={handleMastered} className="flex-1 py-2.5 bg-green-600 text-white rounded-xl font-semibold text-sm hover:bg-green-700 transition">✓ Mastered</button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-            <p className="text-green-800 font-semibold text-sm">All {total} cards complete!</p>
-            <p className="text-green-700 text-xs mt-1">{masteredCount}/{total} mastered · {reviewIds.size} flagged for review</p>
-            <p className="text-sm text-green-700 mt-1">You cleared the full Ch12/13 deck. The quiz is now unlocked.</p>
-          </div>
-          <button type="button" onClick={() => onComplete(masteredCount, total)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">Mark Complete ✓</button>
-        </div>
-      )}
+      <div onClick={handleFlip} className="cursor-pointer select-none bg-card border-2 border-border rounded-2xl p-6 min-h-[160px] flex flex-col items-center justify-center text-center shadow-sm hover:border-primary transition">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">{flipped ? "Definition" : "Term"} — {idx + 1} / {cards.length}</p>
+        <p className={`font-semibold leading-relaxed ${flipped ? "text-sm text-muted-foreground" : "text-base text-foreground"}`}>
+          {flipped ? cards[idx].back : cards[idx].front}
+        </p>
+        <p className="text-xs text-muted-foreground mt-4">{flipped ? "Click to see term" : "Click to reveal definition"}</p>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={handlePrev} disabled={idx === 0}
+          className="flex-1 py-2 rounded-xl border border-border text-sm font-medium text-foreground disabled:opacity-30 hover:bg-muted transition">← Prev</button>
+        <button onClick={handleNext} disabled={idx === cards.length - 1}
+          className="flex-1 py-2 rounded-xl border border-border text-sm font-medium text-foreground disabled:opacity-30 hover:bg-muted transition">Next →</button>
+      </div>
+      <button disabled={!allSeen} onClick={() => onComplete(cards.length, cards.length)}
+        className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+        {allSeen ? "Mark Complete — Unlock Quiz ✓" : `Review all cards to unlock (${seen.size}/${cards.length})`}
+      </button>
     </div>
   );
 }

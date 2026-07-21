@@ -699,74 +699,64 @@ function PersonalFinanceStation({ onComplete }: { onComplete: (score: number, to
 // ─────────────────────────────────────────────
 // Flashcards
 // ─────────────────────────────────────────────
-type Flashcard = { id: number; type: "standard" | "cloze"; front: string; back: string; hint: string };
-
-const CH14_CARDS: Flashcard[] = [
-  { id: 1, type: "standard", front: "What are the five problems with barter, and how does money solve each?", back: "1. Double coincidence of wants — must find someone wanting exactly what you have AND having exactly what you want. Money: any seller accepts it.\n2. No standard unit of pricing — need unique exchange rate for every pair of goods. Money: one common denominator.\n3. Indivisibility — can't split a cow for partial payment. Money: divisible into any denomination.\n4. Perishability — fish rot before the next trade. Money: stores value over time.\n5. High transaction costs — hours searching for trading partners. Money: bilateral transactions, no matching required.\n\nAnalogy: Uber solves the double coincidence problem for rides — money does the same for all goods.", hint: "5 problems: coincidence · pricing · indivisibility · perishability · transaction costs" },
-  { id: 2, type: "standard", front: "What are the four functions of money? Which is the defining function?", back: "1. Medium of Exchange — accepted in payment for goods/services; eliminates barter. THE DEFINING FUNCTION.\n2. Store of Value — holds purchasing power over time (save today, spend tomorrow). Stocks and real estate are also stores of value, but only money is also a medium of exchange.\n3. Unit of Account — standard measure of value; prices quoted in a common unit.\n4. Standard of Deferred Payment — future obligations stated in a common unit (loans, bonds, mortgages).\n\n'Most assets are stores of value. Money is unique in ALSO being a medium of exchange — that's its defining function.'", hint: "Medium of exchange (defining) · Store of value · Unit of account · Deferred payment" },
-  { id: 3, type: "standard", front: "What is the difference between commodity money and fiat money? Give examples of each.", back: "COMMODITY MONEY — has intrinsic value independent of its use as money:\n• Gold & silver (5,000+ years, cross-cultural universal)\n• Salt (Roman soldiers paid in salt — 'salary' derives from 'salarium')\n• Cowrie shells (Africa, South Asia, East Asia)\n• Tobacco (Colonial Virginia — even regulated quality to prevent debasement)\n• Cigarettes (WWII POW camps — spontaneous money creation)\n\nFIAT MONEY — value by government decree; no intrinsic value:\n• U.S. Dollar (off gold standard Aug 1971 — 'Nixon Shock')\n• Euro, yen, pound, yuan — every major global currency today\n• Why it works: government requires dollars for taxes; legal tender laws; network effects (everyone accepts what everyone accepts)\n• Fiat ≠ worthless: hyperinflation occurs when trust collapses (Zimbabwe 2008, Weimar Germany 1923)", hint: "Commodity = intrinsic value (gold, salt, cigarettes). Fiat = government decree (dollar since 1971)." },
-  { id: 4, type: "cloze", front: "M1 includes: _______, _______, and _______ (added May 2020). M2 includes everything in M1 plus _______, _______, and _______.", back: "M1 (most liquid — spendable immediately):\n• Coins & currency in circulation (physical cash held by public)\n• Checkable deposits (demand deposits — pay by check or debit instantly)\n• Savings deposits (added to M1 May 2020 when Fed removed 6-transfer/month limit)\nNov 2021: M1 = $20.3 trillion\n\nM2 (M1 + near-money assets):\n• Everything in M1\n• Money market mutual funds (pooled short-term securities — liquid but not instantly spendable)\n• Small time deposits/CDs (under $100K — fixed term, modest early-withdrawal penalty)\n• Other liquid deposits (sweep accounts, overnight repos)\nNov 2021: M2 = $21.4 trillion\n\nRule of thumb: M1 = what you spend; M2 = what you can convert to spending within days to weeks.", hint: "M1: currency + checkable deposits + savings (2020). M2 adds money market funds + small CDs." },
-  { id: 5, type: "standard", front: "Why are credit cards NOT money? Why are debit cards NOT independently money?", back: "CREDIT CARDS — not money:\n• A credit card is a short-term loan instrument. When you swipe, the bank pays the merchant and you owe the bank.\n• Credit cards create DEBT, not money.\n• More credit cards in circulation do NOT increase M1 or M2.\n• Analogy: 'Using a credit card is like writing a check on someone else's account — that someone is the bank.'\n\nDEBIT CARDS — not independently money:\n• A debit card is simply electronic access to checkable deposits that already exist in M1.\n• Swiping moves an existing dollar deposit — no new money is created.\n• The DEPOSIT is money; the card is just the access method.\n• 'The debit card is the key, not the lock box. The money is the deposit itself.'", hint: "Credit card = loan (debt not money). Debit card = access to existing deposit (no new money)." },
-  { id: 6, type: "standard", front: "How does fractional reserve banking allow a single bank to create money? Walk through the Singleton Bank example.", back: "Fractional reserve system: banks hold only a fraction of deposits as reserves — the rest is lent out.\n\nSingleton Bank example (10% reserve requirement):\n1. Singleton receives $10M in new deposits. Assets = $10M reserves; Liabilities = $10M deposits.\n2. Required reserves = 10% × $10M = $1M. Excess reserves available to lend = $9M.\n3. Singleton lends $9M to Hank's Auto Supply by crediting Hank's deposit account.\n4. Now: Assets = $1M reserves + $9M loans; Liabilities = $10M deposits. Balance sheet still balances.\n5. Hank writes a check; supplier deposits $9M at First National Bank.\n6. First National has $9M new deposits, keeps $900K (10%), lends $8.1M — and the process repeats.\n\nKEY INSIGHT: Singleton's loan DID NOT reduce M1 — it CREATED new money. Hank has $9M that didn't exist before the loan. Total deposits after round 1: $10M + $9M = $19M.", hint: "10% RR → keep $1M, lend $9M → new $9M deposit created → First National repeats → chain continues." },
-  { id: 7, type: "cloze", front: "Money Multiplier = _______ ÷ _______. With a 10% RR and $10M initial deposit: Multiplier = ___; Total deposits = ___; Total reserves = ___; Total loans = ___.", back: "Money Multiplier = 1 ÷ Reserve Requirement\n\nWith 10% RR and $10M initial deposit:\n• Multiplier = 1 ÷ 0.10 = 10\n• Total deposits = $10M × 10 = $100M\n• Total reserves = 10% × $100M = $10M (held across all banks)\n• Total loans = $100M − $10M = $90M\n\nReal-world cautions (actual multiplier < theoretical):\n1. Excess reserves: banks voluntarily hold more than required (especially post-2008 with IORB)\n2. Cash leakage: people hold some money as physical cash, breaking the deposit chain\n3. Loan demand: banks can only lend if creditworthy borrowers want loans\n4. Post-2008: IORB pays banks interest on reserves, reducing incentive to lend aggressively\n\nNote: 0% RR (since March 2020) → theoretical multiplier is infinite, but capital requirements (Basel III) now constrain actual lending.", hint: "1 ÷ RR. 10% RR: multiplier=10, $10M→$100M deposits, $90M loans, $10M reserves." },
-  { id: 8, type: "standard", front: "What are the four main risks banks face, and how does the financial system manage each?", back: "RISKS:\n1. Loan defaults — borrowers stop repaying, eroding bank assets and net worth.\n   Managed by: diversification across industries/geographies; capital buffers (net worth absorbs losses).\n\n2. Bank run — too many depositors withdraw simultaneously before loans are repaid.\n   Managed by: FDIC deposit insurance ($250K) — eliminates rational reason to run. Fed as lender of last resort (discount window).\n\n3. Time mismatch — banks borrow short (deposits), lend long (mortgages). Rising rates hurt.\n   Example: SVB (March 2023) — long-duration Treasury bonds fell in value when rates rose; concentrated tech depositors withdrew $42B in one day.\n\n4. Interest rate risk — bonds held as assets lose market value when rates rise.\n   Managed by: duration management; stress testing (large banks must prove they can survive severe scenarios).\n\n'Bank failures are rare but not extinct. Diversification + insurance + oversight do the work — but cannot eliminate risk entirely.'", hint: "Loan defaults · Bank runs (FDIC fix) · Time mismatch (SVB 2023) · Interest rate risk" },
-  { id: 9, type: "standard", front: "What changed in the Fed's operating framework after 2008? Pre-2008 vs. Post-2008.", back: "PRE-2008 (Limited Reserves):\n• Banks held just enough reserves to meet the ~10% requirement\n• Fed's main tool: Open Market Operations — buy/sell Treasuries to add/drain reserves, pushing fed funds rate to target\n• Fed DID NOT pay interest on reserves — holding excess reserves was costly\n• Money supply target: Fed could control M1/M2 growth indirectly by controlling reserves\n\nPOST-2008 (Ample Reserves):\n• QE flooded banking system with far more reserves than legally required\n• Fed's main tool: IORB (Interest on Reserve Balances) — sets a floor rate; banks lend to each other only above IORB\n• Fed now directly targets the fed funds rate rather than reserves quantity\n• Reserve requirement set to 0% (March 2020); capital requirements (Basel III) are now the binding constraint on lending\n\n'This framework shift is why Chapter 15 focuses on the federal funds rate and IORB rather than reserve requirements and money supply targets.'", hint: "Pre-2008: limited reserves, OMO, no IORB. Post-2008: ample reserves, IORB floor, 0% RR, Basel III." },
-  { id: 10, type: "standard", front: "What are the FDIC coverage rules, and what strategies protect balances above $250K?", back: "FDIC covers: $250,000 per depositor, per insured bank, per ownership category.\n\nOwnership categories (each gets separate $250K):\n• Individual accounts: $250K\n• Joint accounts: $250K per co-owner ($500K for two owners)\n• IRAs and retirement accounts: $250K separate from other deposits\n• Business accounts: $250K\n\nStrategies for balances above $250K:\n1. Spread across multiple banks — each bank's $250K is separate\n2. Use multiple ownership categories at the same bank\n3. IntraFi Network (formerly CDARS) — one bank spreads large deposits across many institutions; you get multi-million-dollar FDIC coverage through one relationship\n\nCredit unions: insured by NCUA to the same $250K limit\n\n'Most people never approach this limit — but if you do, the strategy is simple: diversify banks, not just investments.'", hint: "$250K per depositor per bank per ownership category. Strategies: multiple banks, categories, IntraFi." },
-  { id: 11, type: "standard", front: "Describe the SVB failure (March 2023) — what went wrong and what does it teach?", back: "WHAT HAPPENED:\n• Silicon Valley Bank loaded its asset portfolio with long-duration Treasury bonds purchased at low 2021 rates.\n• The Fed's rapid 2022–23 rate hikes caused those bonds to fall sharply in market value (interest rate risk + time mismatch).\n• SVB's depositors were mostly tech-startup companies — concentrated and largely uninsured (>$250K).\n• After SVB disclosed losses, a bank run spread via social media: $42 billion withdrawn in a single day.\n• SVB was seized by FDIC on March 10, 2023 — second-largest bank failure in U.S. history.\n\nLESSONS:\n1. Duration mismatch is a hidden risk in a rising-rate environment\n2. Depositor concentration amplifies run risk — diverse retail depositors are more stable than concentrated institutional ones\n3. Social media dramatically accelerates contagion — what took weeks in 1930 now takes hours\n\n'FDIC insurance virtually eliminates runs for insured deposits — rational depositors have no reason to run if $250K is guaranteed. SVB's problem: most deposits were UNINSURED.'", hint: "Long bonds + rate hikes → losses. Concentrated uninsured depositors → $42B run in one day. Social media." },
-  { id: 12, type: "standard", front: "What is the interest rate spread and how do banks earn profit from it?", back: "The interest rate spread = rate charged on loans − rate paid on deposits.\n\nExample from your slides:\n• Bank charges 6% on mortgages (asset — bank earns this)\n• Bank pays 2% on savings deposits (liability — bank pays this)\n• Spread = 6% − 2% = 4 percentage points = gross revenue per dollar deployed\n\nThis is how financial intermediaries earn profit: they accept deposits from savers (paying them a lower rate) and make loans to borrowers (charging them a higher rate). The spread covers operating costs and provides profit.\n\nPost-2008 IORB connection: When the Fed raises the IORB rate, banks earn more risk-free return on reserves → they compete for deposits by raising savings APY → the rate you get on savings is connected to the Fed's policy rate.\n\n'Every transaction you make is a balance sheet entry somewhere.'", hint: "Spread = loan rate − deposit rate. 6% mortgage − 2% savings = 4% spread. IORB lifts savings rates." },
+const FLASHCARDS = [
+  { front: "Barter", back: "A system of exchange without money, trading goods and services directly. Requires a double coincidence of wants and suffers from problems of indivisibility, perishability, and high transaction costs." },
+  { front: "Medium of Exchange", back: "The defining function of money — accepted in payment for goods and services by everyone in the economy. What makes something money rather than merely an asset." },
+  { front: "Store of Value", back: "Money holds purchasing power over time, allowing people to save today and spend later. Inflation erodes this function." },
+  { front: "Unit of Account", back: "Money provides a common measuring unit for pricing all goods and services, eliminating the need for separate exchange rates between every pair of goods." },
+  { front: "Commodity Money", back: "Money with intrinsic value independent of its use as money. Examples: gold, silver, salt (Roman soldiers), tobacco (Colonial Virginia), cigarettes (WWII POW camps)." },
+  { front: "Fiat Money", back: "Money with no intrinsic value, backed only by government decree and legal tender laws. Every major currency today (dollar, euro, yen) is fiat money. The U.S. left the gold standard in 1971." },
+  { front: "M1 Money Supply", back: "The most liquid measure of money: coins and currency in circulation, checkable deposits, and savings deposits (added May 2020). 'What you spend.'" },
+  { front: "M2 Money Supply", back: "M1 plus near-money assets: money market mutual funds, small time deposits/CDs under $100K, and other liquid deposits. 'What you can convert to spending within days to weeks.'" },
+  { front: "Fractional Reserve Banking", back: "Banks hold only a fraction of deposits as reserves and lend out the rest. A $10M deposit with a 10% reserve requirement allows $9M in new loans — creating new money in the process." },
+  { front: "Money Multiplier", back: "1 ÷ Reserve Requirement. The theoretical maximum amount of new money created from an initial deposit. At 10% RR: multiplier = 10, so $10M deposit → $100M in total deposits." },
+  { front: "Interest Rate Spread", back: "The difference between the rate banks charge on loans and the rate they pay on deposits. A bank charging 6% on mortgages and paying 2% on savings earns a 4% spread — its gross profit margin." },
+  { front: "FDIC", back: "Federal Deposit Insurance Corporation. Insures bank deposits up to $250,000 per depositor per bank per ownership category. Established in 1933 to prevent bank runs by eliminating depositors' rational fear of loss." },
 ];
 
 function FlashcardStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [deck] = useState<Flashcard[]>([...CH14_CARDS]);
-  const [cardIdx, setCardIdx] = useState(0);
+  const [cards] = useState(() => shuffle([...FLASHCARDS]));
+  const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [masteredIds, setMasteredIds] = useState<Set<number>>(new Set());
-  const [reviewIds, setReviewIds] = useState<Set<number>>(new Set());
-  const total = deck.length;
-  const masteredCount = masteredIds.size;
-  const allDone = masteredIds.size + reviewIds.size === total;
-  const card = deck[cardIdx];
-  function stripCloze(text: string) { return text.replace(/\{\{c\d+::([^}]+)\}\}/g, "____"); }
-  function handleMastered() { setMasteredIds(prev => new Set([...prev, card.id])); setFlipped(false); if (cardIdx < deck.length - 1) setCardIdx(i => i + 1); }
-  function handleReview() { setReviewIds(prev => new Set([...prev, card.id])); setFlipped(false); if (cardIdx < deck.length - 1) setCardIdx(i => i + 1); }
+  const [seen, setSeen] = useState<Set<number>>(new Set());
+
+  function handleFlip() { setFlipped(f => !f); }
+  function handleNext() {
+    setSeen(s => new Set([...s, idx]));
+    if (idx < cards.length - 1) { setIdx(i => i + 1); setFlipped(false); }
+  }
+  function handlePrev() {
+    if (idx > 0) { setIdx(i => i - 1); setFlipped(false); }
+  }
+  const allSeen = seen.size >= cards.length - 1;
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-1">Flashcard Review — Ch14 Money & Banking</p>
-        <p className="text-muted-foreground text-xs">Work through all {total} cards. Mark each Mastered or Review. Complete all cards to unlock the quiz.</p>
-        <div className="flex gap-4 mt-2 text-xs">
-          <span className="text-green-700 font-semibold">✓ Mastered: {masteredCount}</span>
-          <span className="text-amber-700 font-semibold">↩ Review: {reviewIds.size}</span>
-          <span className="text-muted-foreground">Remaining: {total - masteredIds.size - reviewIds.size}</span>
+        <p className="font-semibold text-foreground mb-1">Flashcard Review — Chapter 14 Key Terms</p>
+        <p className="text-muted-foreground text-xs">Review all {cards.length} terms. Click each card to reveal the definition. You must view all cards before the Quiz unlocks.</p>
+        <div className="mt-2 h-1.5 bg-primary/20 rounded-full overflow-hidden">
+          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(seen.size / cards.length) * 100}%` }} />
         </div>
+        <p className="text-xs text-muted-foreground mt-1">{seen.size}/{cards.length} cards reviewed</p>
       </div>
-      {!allDone ? (
-        <div className="space-y-3">
-          <p className="text-xs text-muted-foreground text-center">Card {cardIdx + 1} of {total}</p>
-          <div onClick={() => setFlipped(f => !f)} className="bg-card border-2 border-border rounded-2xl p-6 min-h-[180px] cursor-pointer flex flex-col justify-between hover:border-primary transition">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{flipped ? "Answer" : card.type === "cloze" ? "Fill in the blank" : "Question"}</p>
-              <p className="text-sm font-semibold text-foreground whitespace-pre-line">{flipped ? card.back : stripCloze(card.front)}</p>
-            </div>
-            {!flipped && <p className="text-xs text-muted-foreground italic mt-3">Hint: {card.hint}</p>}
-            <p className="text-xs text-primary mt-3 text-right">{flipped ? "Click to flip back" : "Click to reveal answer"}</p>
-          </div>
-          {flipped && (
-            <div className="flex gap-3">
-              <button onClick={handleReview} className="flex-1 py-2.5 border-2 border-amber-400 text-amber-700 rounded-xl font-semibold text-sm hover:bg-amber-50 transition">↩ Review Again</button>
-              <button onClick={handleMastered} className="flex-1 py-2.5 bg-green-600 text-white rounded-xl font-semibold text-sm hover:bg-green-700 transition">✓ Mastered</button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-            <p className="text-green-800 font-semibold text-sm">All {total} cards complete!</p>
-            <p className="text-green-700 text-xs mt-1">{masteredCount}/{total} mastered · {reviewIds.size} flagged for review</p>
-          </div>
-          <button type="button" onClick={() => onComplete(masteredCount, total)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">Mark Complete ✓</button>
-        </div>
-      )}
+      <div onClick={handleFlip} className="cursor-pointer select-none bg-card border-2 border-border rounded-2xl p-6 min-h-[160px] flex flex-col items-center justify-center text-center shadow-sm hover:border-primary transition">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">{flipped ? "Definition" : "Term"} — {idx + 1} / {cards.length}</p>
+        <p className={`font-semibold leading-relaxed ${flipped ? "text-sm text-muted-foreground" : "text-base text-foreground"}`}>
+          {flipped ? cards[idx].back : cards[idx].front}
+        </p>
+        <p className="text-xs text-muted-foreground mt-4">{flipped ? "Click to see term" : "Click to reveal definition"}</p>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={handlePrev} disabled={idx === 0}
+          className="flex-1 py-2 rounded-xl border border-border text-sm font-medium text-foreground disabled:opacity-30 hover:bg-muted transition">← Prev</button>
+        <button onClick={handleNext} disabled={idx === cards.length - 1}
+          className="flex-1 py-2 rounded-xl border border-border text-sm font-medium text-foreground disabled:opacity-30 hover:bg-muted transition">Next →</button>
+      </div>
+      <button disabled={!allSeen} onClick={() => onComplete(cards.length, cards.length)}
+        className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+        {allSeen ? "Mark Complete — Unlock Quiz ✓" : `Review all cards to unlock (${seen.size}/${cards.length})`}
+      </button>
     </div>
   );
 }

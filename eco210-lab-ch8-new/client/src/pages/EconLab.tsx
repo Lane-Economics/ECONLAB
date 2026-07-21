@@ -664,75 +664,64 @@ function PersonalFinanceStation({ onComplete }: { onComplete: (score: number, to
 // ─────────────────────────────────────────────
 // Flashcards
 // ─────────────────────────────────────────────
-type Flashcard = { id: number; type: "standard" | "cloze"; front: string; back: string; hint: string };
-
-const CH8_CARDS: Flashcard[] = [
-  { id: 1, type: "standard", front: "What are the three categories of the adult population in BLS labor statistics?", back: "Employed: working for pay (any hours), 15+ hrs unpaid family business, or temporarily absent.\n\nUnemployed: not working AND actively looked past 4 weeks AND available.\n\nNot in Labor Force: everyone else — under 16, military, institutionalized, retirees, students, stay-at-home parents, discouraged workers.\n\nNov 2021: 155.2M Employed · 6.9M Unemployed · 100.0M Not in Labor Force", hint: "Employed · Unemployed · Not in Labor Force" },
-  { id: 2, type: "cloze", front: "Complete: Unemployment Rate = (_______ ÷ _______) × 100", back: "Unemployment Rate = (Unemployed ÷ Labor Force) × 100\n\nNOT divided by adult population — only by the labor force (employed + unemployed).\nNov 2021: 6.877 ÷ 162.052 × 100 = 4.2%", hint: "Denominator = Labor Force, not adult population" },
-  { id: 3, type: "cloze", front: "Complete: Labor Force Participation Rate = (_______ ÷ _______) × 100", back: "LFPR = (Labor Force ÷ Adult Population) × 100\n\nNov 2021: 162.052 ÷ 262.029 × 100 = 61.8%\n\nMeasures what share of adults are either working or actively looking.", hint: "LFPR denominator = adult population" },
-  { id: 4, type: "standard", front: "What is a discouraged worker and how are they counted?", back: "A discouraged worker has given up looking for work because they believe no jobs are available for them.\n\nNOT counted as unemployed in U-3 — classified as Not in the Labor Force.\n\nDO appear in the broader U-6 measure, which captures the full extent of labor market slack.", hint: "NILF in U-3 · Visible in U-6" },
-  { id: 5, type: "standard", front: "What three groups does U-6 add that U-3 misses?", back: "U-6 = U-3 plus:\n1. Underemployed — workers whose skills far exceed their jobs (college grad at Starbucks)\n2. Discouraged workers — gave up looking, not counted in U-3 at all\n3. Involuntary part-time — want full-time work, can only get 20 hours\n\nU-6 ≈ 2× U-3 in normal times; gap widens in recessions.", hint: "Underemployed · Discouraged · Involuntary part-time" },
-  { id: 6, type: "standard", front: "Define cyclical, frictional, and structural unemployment.", back: "Cyclical: rises/falls with the business cycle. Meta/Google layoffs in 2022–23. Policy: stimulus, rate cuts.\n\nFrictional: normal job-search time. Always 1–2%. New grad finding first job. Healthy and unavoidable.\n\nStructural: permanent skills mismatch. Travel agents replaced by internet, data-entry by AI. Policy: retraining.\n\n'Policy targeting one type doesn't help the others.'", hint: "Cyclical=cycle · Frictional=search · Structural=mismatch" },
-  { id: 7, type: "standard", front: "Why are wages 'sticky downward'? Give all four reasons.", back: "1. Laws & contracts — minimum wage laws and union contracts floor wages\n2. Efficiency wages — firms pay above-market to attract productivity and cut turnover\n3. Adverse selection — cutting wages drives away the best workers first (they have outside options)\n4. Morale — a 10% pay cut feels worse than never getting a 10% raise (loss aversion)\n\nResult: firms lay off headcount rather than cut wages in downturns.", hint: "Laws · Efficiency wages · Adverse selection · Morale" },
-  { id: 8, type: "standard", front: "What is NAIRU and what does the natural rate equal?", back: "NAIRU = Non-Accelerating Inflation Rate of Unemployment\n\nAlso called the 'natural rate' of unemployment.\n\nNatural Rate = Frictional + Structural (cyclical = 0)\n\nU.S. estimate: ~4.5–5.5%, but drifts over time.\n\nSpeed-limit analogy: push unemployment below NAIRU → wages accelerate → inflation accelerates → Fed raises rates.", hint: "Natural Rate = Frictional + Structural · US ≈ 4.5–5.5%" },
-  { id: 9, type: "standard", front: "What factors LOWER the natural rate of unemployment over time?", back: "↓ Internet job boards & LinkedIn — faster job matching reduces frictional unemployment\n↓ Growth of temp staffing — workers find quicker bridges between jobs\n↓ Aging population — older workers churn less\n↓ Productivity booms — create new jobs faster\n↓ Retraining programs — reduce structural unemployment", hint: "LinkedIn · Temp staffing · Aging pop · Productivity · Retraining" },
-  { id: 10, type: "standard", front: "What factors RAISE the natural rate of unemployment over time?", back: "↑ Generous/long-lasting UI benefits — workers search longer before accepting jobs\n↑ Burdensome hiring/firing regulations — firms create fewer permanent jobs\n↑ Productivity slowdowns — fewer new jobs created\n↑ Large youth cohorts — young workers churn at high rates\n↑ High minimum wages above equilibrium — fewer entry-level jobs created", hint: "UI · Regulations · Productivity slowdown · Youth cohorts · Min wage" },
-  { id: 11, type: "standard", front: "What are the human costs of unemployment beyond lost income?", back: "• Worse physical and mental health outcomes\n• Strained marriages and family relationships\n• Children's future earnings reduced by parent's unemployment spell\n• Loss of identity — work provides structure, purpose, and social connection\n\n'Unemployment is not just an economic statistic — it is a deeply human experience.'\n\nEconomic costs: lost output never recovered, skills atrophy, lower tax revenue, reduced investment.", hint: "Health · Marriage · Children · Identity & routine" },
-  { id: 12, type: "standard", front: "What are the three personal-finance takeaways from the unemployment chapter?", back: "1. Build a 3–6 month emergency fund — size it for the tail risk of a long spell, not just the 2-month median\n\n2. Education is the best unemployment insurance — college degree ≈ 2.3% vs. no diploma ≈ 5.7% unemployment rate; the gap is persistent\n\n3. Maintain your professional network always — connections built before a layoff are far more valuable than ones built after\n\n'Macro happens to all of us — but how prepared you are is mostly micro.'", hint: "Emergency fund · Education · Network" },
+const FLASHCARDS = [
+  { front: "Employed", back: "Working for pay (any hours), working 15+ hours in an unpaid family business, or temporarily absent from a job. Classified by the BLS monthly household survey." },
+  { front: "Unemployed", back: "Not currently working AND actively searched for work in the past 4 weeks AND available to work. All three conditions must be met." },
+  { front: "Not in Labor Force (NILF)", back: "All adults not classified as employed or unemployed — retirees, students, stay-at-home parents, active military, the institutionalized, and discouraged workers." },
+  { front: "Unemployment Rate (U-3)", back: "(Unemployed ÷ Labor Force) × 100. The official unemployment rate. The denominator is only the labor force — not the full adult population." },
+  { front: "Labor Force Participation Rate (LFPR)", back: "(Labor Force ÷ Adult Population) × 100. Measures the share of adults either working or actively looking for work." },
+  { front: "U-6 Unemployment", back: "The broadest unemployment measure. Adds to U-3: (1) discouraged workers, (2) marginally attached workers, and (3) involuntary part-time workers. Typically about twice the U-3 rate." },
+  { front: "Discouraged Worker", back: "A person who has stopped looking for work because they believe no jobs are available for them. Classified as Not in Labor Force in U-3 but captured in U-6." },
+  { front: "Frictional Unemployment", back: "Short-term unemployment from the normal process of searching for a job. Always present (1–2%) and considered healthy — reflects worker choice and job matching." },
+  { front: "Structural Unemployment", back: "Unemployment from a permanent mismatch between workers' skills and available jobs, often caused by technology or industry change. Requires retraining, not just stimulus." },
+  { front: "Cyclical Unemployment", back: "Unemployment caused by a downturn in the business cycle. Rises in recessions, falls in expansions. The target of macroeconomic stabilization policy." },
+  { front: "Natural Rate of Unemployment (NAIRU)", back: "The unemployment rate when the economy is at full employment — equal to frictional + structural unemployment. For the U.S., approximately 4–5%. Cyclical unemployment is zero at the natural rate." },
+  { front: "Sticky Wages", back: "The tendency of wages to resist downward adjustment even in recessions. Caused by contracts, efficiency wage theory, adverse selection, and worker morale. Results in layoffs rather than pay cuts during downturns." },
 ];
 
 function FlashcardStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [deck] = useState<Flashcard[]>([...CH8_CARDS]);
-  const [cardIdx, setCardIdx] = useState(0);
+  const [cards] = useState(() => shuffle([...FLASHCARDS]));
+  const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [masteredIds, setMasteredIds] = useState<Set<number>>(new Set());
-  const [reviewIds, setReviewIds] = useState<Set<number>>(new Set());
-  const total = deck.length;
-  const masteredCount = masteredIds.size;
-  const allDone = masteredIds.size + reviewIds.size === total;
-  const card = deck[cardIdx];
-  function stripCloze(text: string) { return text.replace(/\{\{c\d+::([^}]+)\}\}/g, "____"); }
-  function handleMastered() { setMasteredIds(prev => new Set([...prev, card.id])); setFlipped(false); if (cardIdx < deck.length - 1) setCardIdx(i => i + 1); }
-  function handleReview() { setReviewIds(prev => new Set([...prev, card.id])); setFlipped(false); if (cardIdx < deck.length - 1) setCardIdx(i => i + 1); }
+  const [seen, setSeen] = useState<Set<number>>(new Set());
+
+  function handleFlip() { setFlipped(f => !f); }
+  function handleNext() {
+    setSeen(s => new Set([...s, idx]));
+    if (idx < cards.length - 1) { setIdx(i => i + 1); setFlipped(false); }
+  }
+  function handlePrev() {
+    if (idx > 0) { setIdx(i => i - 1); setFlipped(false); }
+  }
+  const allSeen = seen.size >= cards.length - 1;
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-1">Flashcard Review — Ch8 Unemployment</p>
-        <p className="text-muted-foreground text-xs">Work through all {total} cards. Mark each Mastered or Review. Complete all cards to unlock the quiz.</p>
-        <div className="flex gap-4 mt-2 text-xs">
-          <span className="text-green-700 font-semibold">✓ Mastered: {masteredCount}</span>
-          <span className="text-amber-700 font-semibold">↩ Review: {reviewIds.size}</span>
-          <span className="text-muted-foreground">Remaining: {total - masteredIds.size - reviewIds.size}</span>
+        <p className="font-semibold text-foreground mb-1">Flashcard Review — Chapter 8 Key Terms</p>
+        <p className="text-muted-foreground text-xs">Review all {cards.length} terms. Click each card to reveal the definition. You must view all cards before the Quiz unlocks.</p>
+        <div className="mt-2 h-1.5 bg-primary/20 rounded-full overflow-hidden">
+          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(seen.size / cards.length) * 100}%` }} />
         </div>
+        <p className="text-xs text-muted-foreground mt-1">{seen.size}/{cards.length} cards reviewed</p>
       </div>
-      {!allDone ? (
-        <div className="space-y-3">
-          <p className="text-xs text-muted-foreground text-center">Card {cardIdx + 1} of {total}</p>
-          <div onClick={() => setFlipped(f => !f)} className="bg-card border-2 border-border rounded-2xl p-6 min-h-[180px] cursor-pointer flex flex-col justify-between hover:border-primary transition">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{flipped ? "Answer" : card.type === "cloze" ? "Fill in the blank" : "Question"}</p>
-              <p className="text-sm font-semibold text-foreground whitespace-pre-line">{flipped ? card.back : stripCloze(card.front)}</p>
-            </div>
-            {!flipped && <p className="text-xs text-muted-foreground italic mt-3">Hint: {card.hint}</p>}
-            <p className="text-xs text-primary mt-3 text-right">{flipped ? "Click to flip back" : "Click to reveal answer"}</p>
-          </div>
-          {flipped && (
-            <div className="flex gap-3">
-              <button onClick={handleReview} className="flex-1 py-2.5 border-2 border-amber-400 text-amber-700 rounded-xl font-semibold text-sm hover:bg-amber-50 transition">↩ Review Again</button>
-              <button onClick={handleMastered} className="flex-1 py-2.5 bg-green-600 text-white rounded-xl font-semibold text-sm hover:bg-green-700 transition">✓ Mastered</button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-            <p className="text-green-800 font-semibold text-sm">All {total} cards complete!</p>
-            <p className="text-green-700 text-xs mt-1">{masteredCount}/{total} mastered · {reviewIds.size} flagged for review</p>
-            <p className="text-sm text-green-700 mt-1">You cleared the full Ch8 deck. The quiz is now unlocked.</p>
-          </div>
-          <button type="button" onClick={() => onComplete(masteredCount, total)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">Mark Complete ✓</button>
-        </div>
-      )}
+      <div onClick={handleFlip} className="cursor-pointer select-none bg-card border-2 border-border rounded-2xl p-6 min-h-[160px] flex flex-col items-center justify-center text-center shadow-sm hover:border-primary transition">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">{flipped ? "Definition" : "Term"} — {idx + 1} / {cards.length}</p>
+        <p className={`font-semibold leading-relaxed ${flipped ? "text-sm text-muted-foreground" : "text-base text-foreground"}`}>
+          {flipped ? cards[idx].back : cards[idx].front}
+        </p>
+        <p className="text-xs text-muted-foreground mt-4">{flipped ? "Click to see term" : "Click to reveal definition"}</p>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={handlePrev} disabled={idx === 0}
+          className="flex-1 py-2 rounded-xl border border-border text-sm font-medium text-foreground disabled:opacity-30 hover:bg-muted transition">← Prev</button>
+        <button onClick={handleNext} disabled={idx === cards.length - 1}
+          className="flex-1 py-2 rounded-xl border border-border text-sm font-medium text-foreground disabled:opacity-30 hover:bg-muted transition">Next →</button>
+      </div>
+      <button disabled={!allSeen} onClick={() => onComplete(cards.length, cards.length)}
+        className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+        {allSeen ? "Mark Complete — Unlock Quiz ✓" : `Review all cards to unlock (${seen.size}/${cards.length})`}
+      </button>
     </div>
   );
 }

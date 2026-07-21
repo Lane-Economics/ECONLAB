@@ -707,98 +707,64 @@ function SteppedQuiz({ q, idx, total, sel, setSel, checked, onCheck, onNext, isL
 // ─────────────────────────────────────────────
 // Flashcards
 // ─────────────────────────────────────────────
-type Flashcard = { id: number; type: "standard" | "cloze"; front: string; back: string; hint: string };
-
-const CH3_CARDS: Flashcard[] = [
-  { id: 1, type: "standard", front: "What is the price mechanism?", back: "A price is a signal wrapped in an incentive. It communicates what is scarce (the signal) and simultaneously rewards people for responding (the incentive).\n\nPrices transmit information instantly, locally, and continuously — every shopper, shipper, and producer reads the same signal with no central coordinator needed.\n\nExample: Pandemic lumber prices tripled → consumers postponed projects, producers ramped up output, entrepreneurs developed substitutes.", hint: "Signal + incentive. No coordinator needed." },
-  { id: 2, type: "standard", front: "What is the Law of Demand?", back: "As price rises, quantity demanded falls; as price falls, quantity demanded rises. Price and quantity demanded move in OPPOSITE directions.\n\nDefinition: Demand = consumer willingness AND ability to buy at each price.\n\nGasoline example from slides: at $5.20/gal → 420M gallons demanded; at $1.00/gal → 800M gallons demanded.", hint: "Price ↑ → Qd ↓. They move oppositely." },
-  { id: 3, type: "cloze", front: "Complete: 'Demand' = _______. 'Quantity demanded' = _______.", back: "'Demand' = the whole curve (all price-quantity combinations).\n'Quantity demanded' = one specific point on the curve at a given price.\n\nA price change causes a movement ALONG the curve (change in quantity demanded).\nA non-price change SHIFTS the entire curve (change in demand).", hint: "Demand = whole curve. QD = one point." },
-  { id: 4, type: "standard", front: "What is the Law of Supply?", back: "As price rises, quantity supplied rises; as price falls, quantity supplied falls. Price and quantity supplied move in the SAME direction.\n\nDefinition: Supply = producer willingness to produce and sell at each price.\n\nGasoline example: at $1.00/gal → 500M gallons supplied; at $2.20/gal → 720M gallons supplied.\n\nHigher prices reward production — producers drill more, hire more, open new plants.", hint: "Price ↑ → Qs ↑. They move together." },
-  { id: 5, type: "standard", front: "What are the 5 demand shifters?", back: "1. Income — Normal goods: ↑ income → demand right. Inferior goods: ↑ income → demand left.\n2. Tastes — U.S. chicken consumption: 47 → 97 lbs/person (1980–2021).\n3. Population — Aging society → ↑ demand for nursing homes, hearing aids.\n4. Related goods — Substitutes: tablets ↓ → laptop demand ↓. Complements: golf clubs ↑ → golf balls ↓.\n5. Future expectations — Expect coffee prices to rise → buy more now.", hint: "Income, Tastes, Population, Related goods, Expectations." },
-  { id: 6, type: "standard", front: "What are the 4 supply shifters?", back: "1. Input prices — Steel prices rise → car supply shifts left.\n2. Natural conditions — Drought → grain supply left. Good weather → salmon supply right.\n3. Technology — Green Revolution seeds doubled wheat/rice yields by the 1990s → supply right.\n4. Government policy — Taxes/costly regulations → supply left. Subsidies → supply right.", hint: "Input prices, Natural conditions, Technology, Government policy." },
-  { id: 7, type: "standard", front: "What is market equilibrium, and how do markets self-correct?", back: "Equilibrium = where Qd = Qs. The price at which the market clears.\n\nGasoline equilibrium: $1.40/gal · 600M gallons.\n\nSurplus (price too high): Qs > Qd → unsold goods pile up → sellers cut prices → back to equilibrium.\nAt $1.80: Qs 680M vs Qd 500M → 180M surplus → price falls.\n\nShortage (price too low): Qd > Qs → shelves bare → sellers raise prices → back to equilibrium.\nAt $1.20: Qd 700M vs Qs 550M → 150M shortage → price rises.", hint: "Surplus → price falls. Shortage → price rises. Self-correcting." },
-  { id: 8, type: "standard", front: "The Four-Step Method for analyzing market changes", back: "1. Draw the initial model — sketch D and S, mark equilibrium P and Q.\n2. Demand or supply? — Consumer-side factor → demand. Producer-side factor → supply.\n3. Right or left? — Increases quantity at every price → right. Decreases → left.\n4. Compare equilibria — Find new P and Q.\n\nKey pattern:\n• Demand shifts → P and Q move TOGETHER (both up or both down).\n• Supply shifts → P and Q move OPPOSITELY (one up, one down).\n\nCeteris paribus — analyze ONE change at a time.", hint: "D shifts → P&Q together. S shifts → P&Q opposite." },
-  { id: 9, type: "cloze", front: "Complete: A price ceiling set _______ equilibrium creates a _______. A price floor set _______ equilibrium creates a _______.", back: "A price ceiling set BELOW equilibrium creates a SHORTAGE (Qd > Qs).\nA price floor set ABOVE equilibrium creates a SURPLUS (Qs > Qd).\n\nOnly controls that are 'binding' (ceiling below eq. or floor above eq.) affect the market. Controls set on the other side have no effect.", hint: "Ceiling below → shortage. Floor above → surplus." },
-  { id: 10, type: "standard", front: "Rent control: who benefits and what are the unintended consequences?", back: "Example from slides: Rent control at $500 (equilibrium $600).\n\nWho benefits: current tenants who keep the rent-controlled unit.\n\nUnintended consequences:\n• Fewer apartments rented than at market price\n• Landlords convert units to condos and co-ops\n• Maintenance and quality deteriorate\n• Allocation by waiting list, connections, discrimination\n\n'The ceiling helps a few — and hurts many more. There's no free lunch.'", hint: "Helps sitting tenants. Hurts housing supply, quality, and new renters." },
-  { id: 11, type: "standard", front: "Agricultural price floors: who pays?", back: "Example from slides: Price support set ABOVE equilibrium → surplus.\n\nGovernment usually buys the surplus to keep prices up.\n\nWho pays:\n• Farmers — benefit from guaranteed higher prices\n• Taxpayers — fund government purchases\n• Consumers — pay higher food prices than the market would set\n• Resources — misallocated; too much produced of supported crops\n\nHigh-income countries spend roughly $1 billion per day supporting farmers.", hint: "Farmers gain. Taxpayers, consumers, and resource allocation all lose." },
-  { id: 12, type: "cloze", front: "Complete: 'Movement along ≠ shift of.' A _______ change causes a movement along the curve. A _______ change shifts the entire curve.", back: "A PRICE change causes a movement ALONG the curve (change in quantity demanded or supplied).\nA NON-PRICE change shifts the ENTIRE curve (change in demand or supply).\n\nThis is the most common error in supply and demand analysis. Never say 'demand increased because price fell' — that's a movement along the curve, not a shift of it.", hint: "Price → movement along. Non-price → shift of." },
+const FLASHCARDS = [
+  { front: "Price Mechanism", back: "Prices act as signals and incentives — communicating scarcity while rewarding producers and guiding consumers, all without a central coordinator." },
+  { front: "Law of Demand", back: "As price rises, quantity demanded falls; as price falls, quantity demanded rises. Price and quantity demanded move in opposite directions." },
+  { front: "Demand vs. Quantity Demanded", back: "Demand is the entire curve (all price-quantity combinations). Quantity demanded is one specific point on that curve at a given price." },
+  { front: "Law of Supply", back: "As price rises, quantity supplied rises; as price falls, quantity supplied falls. Price and quantity supplied move in the same direction." },
+  { front: "Demand Shifters (5)", back: "The five non-price factors that shift the demand curve: (1) Income, (2) Tastes, (3) Population, (4) Prices of related goods (substitutes/complements), (5) Future price expectations." },
+  { front: "Supply Shifters (4)", back: "The four non-price factors that shift the supply curve: (1) Input prices, (2) Natural conditions, (3) Technology, (4) Government policy (taxes, subsidies, regulations)." },
+  { front: "Market Equilibrium", back: "The price at which quantity demanded equals quantity supplied. At this price the market clears — no surplus or shortage." },
+  { front: "Surplus", back: "When price is above equilibrium, quantity supplied exceeds quantity demanded. Sellers cut prices to clear unsold goods, pushing price back toward equilibrium." },
+  { front: "Shortage", back: "When price is below equilibrium, quantity demanded exceeds quantity supplied. Sellers raise prices, pushing the market back toward equilibrium." },
+  { front: "Price Ceiling", back: "A government-imposed maximum price set below equilibrium. Creates a shortage (Qd > Qs). Example: rent control." },
+  { front: "Price Floor", back: "A government-imposed minimum price set above equilibrium. Creates a surplus (Qs > Qd). Example: agricultural price supports." },
+  { front: "Ceteris Paribus", back: "Latin for 'all else equal.' When analyzing a market change, we change one variable at a time and hold all others constant." },
 ];
 
 function FlashcardStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [deck] = useState<Flashcard[]>([...CH3_CARDS]);
-  const [cardIdx, setCardIdx] = useState(0);
+  const [cards] = useState(() => shuffle([...FLASHCARDS]));
+  const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [masteredIds, setMasteredIds] = useState<Set<number>>(new Set());
-  const [reviewIds, setReviewIds] = useState<Set<number>>(new Set());
-  const total = deck.length;
-  const masteredCount = masteredIds.size;
-  const allDone = masteredIds.size + reviewIds.size === total;
-  const card = deck[cardIdx];
+  const [seen, setSeen] = useState<Set<number>>(new Set());
 
-  function stripCloze(text: string) {
-    return text.replace(/\{\{c\d+::([^}]+)\}\}/g, "____");
+  function handleFlip() { setFlipped(f => !f); }
+  function handleNext() {
+    setSeen(s => new Set([...s, idx]));
+    if (idx < cards.length - 1) { setIdx(i => i + 1); setFlipped(false); }
   }
-
-  function handleMastered() {
-    setMasteredIds((prev) => new Set([...prev, card.id]));
-    setFlipped(false);
-    if (cardIdx < deck.length - 1) setCardIdx((i) => i + 1);
+  function handlePrev() {
+    if (idx > 0) { setIdx(i => i - 1); setFlipped(false); }
   }
-
-  function handleReview() {
-    setReviewIds((prev) => new Set([...prev, card.id]));
-    setFlipped(false);
-    if (cardIdx < deck.length - 1) setCardIdx((i) => i + 1);
-  }
+  const allSeen = seen.size >= cards.length - 1;
 
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-1">Flashcard Review — Ch3 Demand and Supply</p>
-        <p className="text-muted-foreground text-xs">Work through all {total} cards. Mark each Mastered or Review. Complete all cards to unlock the quiz.</p>
-        <div className="flex gap-4 mt-2 text-xs">
-          <span className="text-green-700 font-semibold">✓ Mastered: {masteredCount}</span>
-          <span className="text-amber-700 font-semibold">↩ Review: {reviewIds.size}</span>
-          <span className="text-muted-foreground">Remaining: {total - masteredIds.size - reviewIds.size}</span>
+        <p className="font-semibold text-foreground mb-1">Flashcard Review — Chapter 3 Key Terms</p>
+        <p className="text-muted-foreground text-xs">Review all {cards.length} terms. Click each card to reveal the definition. You must view all cards before the Quiz unlocks.</p>
+        <div className="mt-2 h-1.5 bg-primary/20 rounded-full overflow-hidden">
+          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(seen.size / cards.length) * 100}%` }} />
         </div>
+        <p className="text-xs text-muted-foreground mt-1">{seen.size}/{cards.length} cards reviewed</p>
       </div>
-
-      {!allDone ? (
-        <div className="space-y-3">
-          <p className="text-xs text-muted-foreground text-center">Card {cardIdx + 1} of {total}</p>
-          <div onClick={() => setFlipped((f) => !f)}
-            className="bg-card border-2 border-border rounded-2xl p-6 min-h-[180px] cursor-pointer flex flex-col justify-between hover:border-primary transition">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                {flipped ? "Answer" : card.type === "cloze" ? "Fill in the blank" : "Question"}
-              </p>
-              <p className="text-sm font-semibold text-foreground whitespace-pre-line">
-                {flipped ? card.back : stripCloze(card.front)}
-              </p>
-            </div>
-            {!flipped && <p className="text-xs text-muted-foreground italic mt-3">Hint: {card.hint}</p>}
-            <p className="text-xs text-primary mt-3 text-right">{flipped ? "Click to flip back" : "Click to reveal answer"}</p>
-          </div>
-          {flipped && (
-            <div className="flex gap-3">
-              <button onClick={handleReview} className="flex-1 py-2.5 border-2 border-amber-400 text-amber-700 rounded-xl font-semibold text-sm hover:bg-amber-50 transition">↩ Review Again</button>
-              <button onClick={handleMastered} className="flex-1 py-2.5 bg-green-600 text-white rounded-xl font-semibold text-sm hover:bg-green-700 transition">✓ Mastered</button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-            <p className="text-green-800 font-semibold text-sm">All {total} cards complete!</p>
-            <p className="text-green-700 text-xs mt-1">{masteredCount}/{total} mastered · {reviewIds.size} flagged for review</p>
-            <p className="text-sm text-green-700 mt-1">You cleared the full Ch3 deck. The quiz is now unlocked.</p>
-          </div>
-          <button type="button" onClick={() => onComplete(masteredCount, total)}
-            className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
-            Mark Complete ✓
-          </button>
-        </div>
-      )}
+      <div onClick={handleFlip} className="cursor-pointer select-none bg-card border-2 border-border rounded-2xl p-6 min-h-[160px] flex flex-col items-center justify-center text-center shadow-sm hover:border-primary transition">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">{flipped ? "Definition" : "Term"} — {idx + 1} / {cards.length}</p>
+        <p className={`font-semibold leading-relaxed ${flipped ? "text-sm text-muted-foreground" : "text-base text-foreground"}`}>
+          {flipped ? cards[idx].back : cards[idx].front}
+        </p>
+        <p className="text-xs text-muted-foreground mt-4">{flipped ? "Click to see term" : "Click to reveal definition"}</p>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={handlePrev} disabled={idx === 0}
+          className="flex-1 py-2 rounded-xl border border-border text-sm font-medium text-foreground disabled:opacity-30 hover:bg-muted transition">← Prev</button>
+        <button onClick={handleNext} disabled={idx === cards.length - 1}
+          className="flex-1 py-2 rounded-xl border border-border text-sm font-medium text-foreground disabled:opacity-30 hover:bg-muted transition">Next →</button>
+      </div>
+      <button disabled={!allSeen} onClick={() => onComplete(cards.length, cards.length)}
+        className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+        {allSeen ? "Mark Complete — Unlock Quiz ✓" : `Review all cards to unlock (${seen.size}/${cards.length})`}
+      </button>
     </div>
   );
 }

@@ -574,75 +574,64 @@ function IndexingStation({ onComplete }: { onComplete: (score: number, total: nu
 // ─────────────────────────────────────────────
 // Flashcards
 // ─────────────────────────────────────────────
-type Flashcard = { id: number; type: "standard" | "cloze"; front: string; back: string; hint: string };
-
-const CH9_CARDS: Flashcard[] = [
-  { id: 1, type: "standard", front: "Define inflation and give the two key distinctions your slides make.", back: "Inflation: a general AND ongoing rise in the level of prices across an entire economy.\n\nDistinction 1 — Not a relative price change: tuition rises 8% while laptops fall 15%. That's two prices moving differently — not inflation.\n\nDistinction 2 — Not a one-time shock: a hurricane spikes gas prices for two weeks. That's a temporary supply disruption — not ongoing.\n\nAnalogy: 'Think of the ocean tide rising — all boats go up, not just one wave splashing higher.'", hint: "General + ongoing. Not relative change. Not one-time shock. Ocean tide." },
-  { id: 2, type: "cloze", front: "Complete: Inflation Rate = [(_______ − _______) / _______] × 100", back: "Inflation Rate = [(New − Old) / Old] × 100\n\nWorked example from slides — 3-item basket:\nYear 1: Coffee (12×$2.50) + T-shirt (2×$18) + Gas (10×$3.20) = $98.00\nYear 2: Coffee (12×$2.75) + T-shirt (2×$19.50) + Gas (10×$3.30) = $105.00\nInflation = (105 − 98) / 98 × 100 = 7.14%", hint: "[(New − Old) / Old] × 100. Basket: $98→$105 = 7.14%." },
-  { id: 3, type: "standard", front: "How is the CPI basket built? Give the four key scale numbers and the top weights.", back: "Built from Consumer Expenditure Survey of ~7,000 households.\n\nScale: ~80,000 products · 200+ categories · 23,000 stores · 87 urban areas. ~¼ of basket rotated yearly.\n\nTop weights (spending shares):\nHousing 42% · Transportation 15% · Food & Bev 15% · Medical 9% · Education 7% · Recreation 6% · Apparel 3%\n\nBase period: 1982–84 = 100. Published monthly by BLS.", hint: "80K products, 200+ categories, 23K stores, 87 cities. Housing 42%." },
-  { id: 4, type: "standard", front: "Name the three CPI biases and explain each briefly.", back: "All three cause CPI to OVERSTATE true cost-of-living increases. BLS corrections reduced total to ~0.5%/yr.\n\n1. Substitution bias: Fixed basket ignores switching. Beef rises → buy chicken. Actual spending increase < what fixed basket implies.\n\n2. Quality bias: Better products cost 'the same.' 2024 smartphone = 2020 price but far better camera/battery. CPI may count as zero inflation — misses real-value gain.\n\n3. New goods bias: Streaming, smartwatches started expensive and dropped rapidly. CPI basket adds them slowly, misses early price declines.", hint: "Substitution · Quality · New goods. All overstate inflation. ~0.5%/yr total." },
-  { id: 5, type: "standard", front: "What is Core CPI, why does it exist, and what does the Hurricane Katrina case show?", back: "Core CPI = CPI minus food and energy.\n\nWhy: Food and energy prices swing wildly due to weather, geopolitics, and commodity markets — short-term noise that obscures the underlying trend.\n\nCore reveals the persistent, demand-driven inflation trend — 'the part caused by too much money chasing too few goods, not by a cold winter.'\n\nKatrina (2005): Gas spiked 40¢/gallon in a day. Headline CPI jumped. Core barely moved — correctly signaling a supply disruption, not a trend. Fed held steady → right call. Headline came back down within weeks.\n\nAnalogy: 'Weighing yourself while holding grocery bags — Core CPI removes the bags.' FRED: CPILFESL", hint: "CPI minus food & energy. Strips noise. Katrina: headline spiked, core flat → Fed held → correct." },
-  { id: 6, type: "standard", front: "What are the three harms inflation causes? (Your slides' framework)", back: "Framing: 'If wages and prices rose at the same rate, at the same time, inflation would be harmless. They don't.'\n\n1. Redistribution of purchasing power — cash holders/savers/lenders/fixed-pension retirees lose. Borrowers with fixed rates benefit (Real Rate = Nominal − Inflation). Unintended and arbitrary.\n\n2. Blurred price signals — prices are the economy's GPS. Inflation adds static. Can't tell genuine scarcity from noise. Israel 1985: 500% inflation → stores stopped posting prices → GPS broken.\n\n3. Long-term planning problems — retirement savings, business investment require stable price expectations. High inflation converts productive decisions into inflation-hedging exercises.", hint: "Redistribution · Blurred signals · Planning problems. Real Rate = Nominal − Inflation." },
-  { id: 7, type: "cloze", front: "Complete: Real Interest Rate = _______ − _______", back: "Real Interest Rate = Nominal Rate − Inflation Rate\n\nExamples:\n• Saver earns 2% nominal, inflation = 6% → Real return = −4% (losing purchasing power)\n• Borrower pays 4% fixed, inflation = 8% → Real rate = −4% (effectively paid to borrow)\n• Homeowner: home value rises with inflation, mortgage stays fixed → net real wealth grows\n\n'Inflation transfers wealth from savers and lenders to borrowers and asset owners.'", hint: "Real = Nominal − Inflation. Saver at 2% with 6% inflation = −4% real." },
-  { id: 8, type: "standard", front: "What happened in Israel 1985 and what does it illustrate?", back: "Israel 1985: 500% annual inflation.\n\n— Stores stopped posting prices — they changed every few hours, then every few hours.\n— Shoppers couldn't compare costs or make informed decisions.\n— Businesses couldn't plan inventory.\n— The economy's GPS was broken — firms and households navigated blind.\n\nIllustrates Harm #2: Blurred price signals. In a market economy, prices convey supply/demand information. High inflation adds so much static that even basic allocation decisions become unreliable.\n\nIsrael's stabilization plan (June 1985) cut inflation to ~20% within a year, then to single digits. Economic normalization followed.", hint: "500% inflation. Stores stopped posting prices. Economy's GPS broken. 1985 stabilization plan worked." },
-  { id: 9, type: "standard", front: "Name all the indexing tools your slides cover — private and government.", back: "Private markets:\n• COLAs (Cost-of-Living Adjustments) — wages rise automatically with CPI. Example: COLA + 3% base; if inflation = 5%, total raise = 8%.\n• ARMs (Adjustable-Rate Mortgages) — interest rates adjust with inflation; borrowers get lower initial rates since lender bears less inflation risk.\n\nGovernment programs:\n• Social Security — benefits adjusted annually by CPI. 2022–23 COLA = 8.7% (largest in 40 years).\n• Tax brackets — indexed since 1981 to prevent 'bracket creep.'\n• TIPS bonds — Treasury Inflation-Protected Securities; principal adjusts with CPI, guaranteeing real return above inflation.\n\nCaveat: indexing is partial — not every employer offers COLAs, not every saver has access to TIPS.", hint: "COLAs · ARMs · Social Security · Tax brackets (1981) · TIPS. Partial — not universal." },
-  { id: 10, type: "standard", front: "What is Venezuela's hyperinflation case, and what is the lesson?", back: "Venezuela 2018 peak: ~130,000% annual inflation (IMF estimate)\n• 7M+ Venezuelans emigrated 2015–2023\n• 3+ currency redenominations (cutting off 5 zeros, then 6 zeros)\n\nCause: Oil revenue (95% of exports) collapsed after 2014 → government printed money to fund fiscal deficits → Bolívar lost virtually all value → informal dollarization (businesses switched to USD/euros) → legalized in 2021.\n\nLesson: 'Hyperinflation is a fiscal and monetary policy failure — not an act of nature. Friedman's law holds: too much money chasing too few goods always ends the same way.'", hint: "~130,000% (2018). Money printing to fund deficits. 7M+ emigrated. Policy failure, not nature." },
-  { id: 11, type: "standard", front: "Distinguish good deflation from bad deflation with examples of each.", back: "Good deflation — driven by productivity and innovation:\n• Prices fall because supply increases and costs drop\n• Flat-screen TVs: $10,000 → $300\n• Computing power: 1/1,000th the cost of 20 years ago\n• Solar panels: 90% cost reduction since 2010\n• Genome sequencing: $100M (2001) → ~$500 today\n• McCloskey's 'Bourgeois Deal' — innovation making everyone better off\n\nBad deflation — driven by collapsing demand:\n• Nobody is buying → firms cut prices, then wages, then workers\n• Deflationary spiral: consumers delay ('cheaper tomorrow') → less revenue → layoffs → less income → less spending → repeat\n• Debts harder to repay in real terms\n• Made the Great Depression devastating; Japan's 'Lost Decade' shows it can persist for years", hint: "Good: productivity (TVs/solar). Bad: demand collapse → spiral. Great Depression. Japan." },
-  { id: 12, type: "standard", front: "What are your slides' three personal-finance takeaways for living with inflation?", back: "1. Watch REAL raises, not nominal raises\n— A 3% raise with 5% inflation is a 2% real pay cut\n— Always ask: 'Is my raise above CPI?' If not, standard of living is declining even as paycheck grows\n\n2. Use inflation-indexed savings\n— TIPS and I-Bonds protect principal from inflation\n— High-yield savings prevents cash from 'rotting'\n— Stocks and real estate have historically beaten inflation over long horizons — cash does not\n\n3. Avoid long fixed-income lock-ins when inflation expectations rise\n— Long-duration bonds lose value rapidly when inflation rises\n— Short-duration bonds and floating-rate instruments adjust faster\n— Don't lock in 3% for 30 years if inflation might run 5%\n\n'Inflation is a tax on cash and on lazy money. Indexing is the simplest defense.'", hint: "Watch real raises · Indexed savings (TIPS/stocks) · Avoid long fixed-income lock-ins." },
+const FLASHCARDS = [
+  { front: "Inflation", back: "A general and ongoing rise in the overall price level across an entire economy. Not a relative price change (one good rising) and not a one-time shock." },
+  { front: "Inflation Rate", back: "[(New Price Level − Old Price Level) / Old Price Level] × 100. Measures the percentage change in a price index over a given period." },
+  { front: "Consumer Price Index (CPI)", back: "A price index measuring the cost of a fixed basket of ~80,000 goods and services purchased by a typical urban consumer. Published monthly by the BLS. Base period = 1982–84 = 100." },
+  { front: "CPI Basket Weights", back: "The spending shares in the CPI: Housing 42%, Transportation 15%, Food & Beverages 15%, Medical Care 9%, Education 7%, Recreation 6%, Apparel 3%." },
+  { front: "Core CPI", back: "CPI minus food and energy prices. Strips out volatile short-term swings to reveal the underlying, persistent inflation trend. FRED series: CPILFESL." },
+  { front: "CPI Biases", back: "Three biases that cause CPI to overstate true inflation: (1) Substitution bias — ignores switching to cheaper alternatives, (2) Quality bias — misses product improvements, (3) New goods bias — adds new products slowly." },
+  { front: "Nominal Interest Rate", back: "The stated interest rate on a loan or savings account before adjusting for inflation. What the bank advertises." },
+  { front: "Real Interest Rate", back: "Nominal Interest Rate − Inflation Rate. The actual purchasing-power return on savings or the true cost of borrowing after accounting for inflation." },
+  { front: "Deflation", back: "A general and ongoing fall in the overall price level. Can be 'good' (driven by productivity gains) or 'bad' (driven by collapsing demand, risking a deflationary spiral)." },
+  { front: "Hyperinflation", back: "Extremely rapid inflation — typically defined as exceeding 50% per month. Caused by governments printing money to fund deficits. Destroys the currency's store-of-value function. Example: Venezuela 2018 (~130,000%/yr)." },
+  { front: "Indexing", back: "Automatic adjustment of wages, benefits, or financial instruments to track inflation. Examples: Social Security COLAs, TIPS bonds, adjustable-rate mortgages, and indexed tax brackets." },
+  { front: "TIPS (Treasury Inflation-Protected Securities)", back: "U.S. government bonds whose principal automatically adjusts with CPI. Guarantee a real return above inflation, protecting savers from purchasing-power erosion." },
 ];
 
 function FlashcardStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [deck] = useState<Flashcard[]>([...CH9_CARDS]);
-  const [cardIdx, setCardIdx] = useState(0);
+  const [cards] = useState(() => shuffle([...FLASHCARDS]));
+  const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [masteredIds, setMasteredIds] = useState<Set<number>>(new Set());
-  const [reviewIds, setReviewIds] = useState<Set<number>>(new Set());
-  const total = deck.length;
-  const masteredCount = masteredIds.size;
-  const allDone = masteredIds.size + reviewIds.size === total;
-  const card = deck[cardIdx];
-  function stripCloze(text: string) { return text.replace(/\{\{c\d+::([^}]+)\}\}/g, "____"); }
-  function handleMastered() { setMasteredIds(prev => new Set([...prev, card.id])); setFlipped(false); if (cardIdx < deck.length - 1) setCardIdx(i => i + 1); }
-  function handleReview() { setReviewIds(prev => new Set([...prev, card.id])); setFlipped(false); if (cardIdx < deck.length - 1) setCardIdx(i => i + 1); }
+  const [seen, setSeen] = useState<Set<number>>(new Set());
+
+  function handleFlip() { setFlipped(f => !f); }
+  function handleNext() {
+    setSeen(s => new Set([...s, idx]));
+    if (idx < cards.length - 1) { setIdx(i => i + 1); setFlipped(false); }
+  }
+  function handlePrev() {
+    if (idx > 0) { setIdx(i => i - 1); setFlipped(false); }
+  }
+  const allSeen = seen.size >= cards.length - 1;
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-1">Flashcard Review — Ch9 Inflation</p>
-        <p className="text-muted-foreground text-xs">Work through all {total} cards. Mark each Mastered or Review. Complete all cards to unlock the quiz.</p>
-        <div className="flex gap-4 mt-2 text-xs">
-          <span className="text-green-700 font-semibold">✓ Mastered: {masteredCount}</span>
-          <span className="text-amber-700 font-semibold">↩ Review: {reviewIds.size}</span>
-          <span className="text-muted-foreground">Remaining: {total - masteredIds.size - reviewIds.size}</span>
+        <p className="font-semibold text-foreground mb-1">Flashcard Review — Chapter 9 Key Terms</p>
+        <p className="text-muted-foreground text-xs">Review all {cards.length} terms. Click each card to reveal the definition. You must view all cards before the Quiz unlocks.</p>
+        <div className="mt-2 h-1.5 bg-primary/20 rounded-full overflow-hidden">
+          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(seen.size / cards.length) * 100}%` }} />
         </div>
+        <p className="text-xs text-muted-foreground mt-1">{seen.size}/{cards.length} cards reviewed</p>
       </div>
-      {!allDone ? (
-        <div className="space-y-3">
-          <p className="text-xs text-muted-foreground text-center">Card {cardIdx + 1} of {total}</p>
-          <div onClick={() => setFlipped(f => !f)} className="bg-card border-2 border-border rounded-2xl p-6 min-h-[180px] cursor-pointer flex flex-col justify-between hover:border-primary transition">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{flipped ? "Answer" : card.type === "cloze" ? "Fill in the blank" : "Question"}</p>
-              <p className="text-sm font-semibold text-foreground whitespace-pre-line">{flipped ? card.back : stripCloze(card.front)}</p>
-            </div>
-            {!flipped && <p className="text-xs text-muted-foreground italic mt-3">Hint: {card.hint}</p>}
-            <p className="text-xs text-primary mt-3 text-right">{flipped ? "Click to flip back" : "Click to reveal answer"}</p>
-          </div>
-          {flipped && (
-            <div className="flex gap-3">
-              <button onClick={handleReview} className="flex-1 py-2.5 border-2 border-amber-400 text-amber-700 rounded-xl font-semibold text-sm hover:bg-amber-50 transition">↩ Review Again</button>
-              <button onClick={handleMastered} className="flex-1 py-2.5 bg-green-600 text-white rounded-xl font-semibold text-sm hover:bg-green-700 transition">✓ Mastered</button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-            <p className="text-green-800 font-semibold text-sm">All {total} cards complete!</p>
-            <p className="text-green-700 text-xs mt-1">{masteredCount}/{total} mastered · {reviewIds.size} flagged for review</p>
-            <p className="text-sm text-green-700 mt-1">You cleared the full Ch9 deck. The quiz is now unlocked.</p>
-          </div>
-          <button type="button" onClick={() => onComplete(masteredCount, total)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">Mark Complete ✓</button>
-        </div>
-      )}
+      <div onClick={handleFlip} className="cursor-pointer select-none bg-card border-2 border-border rounded-2xl p-6 min-h-[160px] flex flex-col items-center justify-center text-center shadow-sm hover:border-primary transition">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">{flipped ? "Definition" : "Term"} — {idx + 1} / {cards.length}</p>
+        <p className={`font-semibold leading-relaxed ${flipped ? "text-sm text-muted-foreground" : "text-base text-foreground"}`}>
+          {flipped ? cards[idx].back : cards[idx].front}
+        </p>
+        <p className="text-xs text-muted-foreground mt-4">{flipped ? "Click to see term" : "Click to reveal definition"}</p>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={handlePrev} disabled={idx === 0}
+          className="flex-1 py-2 rounded-xl border border-border text-sm font-medium text-foreground disabled:opacity-30 hover:bg-muted transition">← Prev</button>
+        <button onClick={handleNext} disabled={idx === cards.length - 1}
+          className="flex-1 py-2 rounded-xl border border-border text-sm font-medium text-foreground disabled:opacity-30 hover:bg-muted transition">Next →</button>
+      </div>
+      <button disabled={!allSeen} onClick={() => onComplete(cards.length, cards.length)}
+        className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+        {allSeen ? "Mark Complete — Unlock Quiz ✓" : `Review all cards to unlock (${seen.size}/${cards.length})`}
+      </button>
     </div>
   );
 }

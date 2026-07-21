@@ -653,74 +653,64 @@ function PersonalFinanceStation({ onComplete }: { onComplete: (score: number, to
 // ─────────────────────────────────────────────
 // Flashcards
 // ─────────────────────────────────────────────
-type Flashcard = { id: number; type: "standard" | "cloze"; front: string; back: string; hint: string };
-
-const CH11_CARDS: Flashcard[] = [
-  { id: 1, type: "standard", front: "What four questions does the AD/AS model answer simultaneously?", back: "One model. Four questions:\n1. Price levels & inflation\n2. Real GDP & growth\n3. Employment & unemployment\n4. Effects of policy shocks\n\nNo other macro framework answers all four at once — that's why it's called the economy's master dashboard.\n\nAnalogy: AD = accelerator · SRAS = current engine capacity · LRAS = peak design output", hint: "Prices · Real GDP · Employment · Policy effects. Four outputs, one framework." },
-  { id: 2, type: "standard", front: "Why does AD slope downward? Give all three effects.", back: "Three effects explain why total spending falls as the price level rises:\n\n1. Wealth Effect: Higher prices erode real value of savings → households feel poorer → cut spending (C falls).\n\n2. Interest Rate Effect: Higher prices → more money needed → interest rates rise → borrowing costs up → C and I fall.\n\n3. Foreign Price Effect: U.S. prices rise relative to abroad → exports become expensive (X falls) → imports become cheaper (M rises) → net exports (X−M) shrink.\n\nAll three reduce spending at higher price levels → downward slope.", hint: "Wealth · Interest rate · Foreign price. All reduce spending when price level rises." },
-  { id: 3, type: "standard", front: "What shifts AD rightward? What shifts it leftward?", back: "AD SHIFTS RIGHT (increases):\n• Higher consumer/business confidence\n• Tax cuts → disposable income rises → C rises\n• More government purchases → G rises directly\n• Fed cuts rates → borrowing cheaper → I and C rise\n• Weaker dollar → net exports rise\n\nAD SHIFTS LEFT (decreases):\n• Lower confidence\n• Tax increases → C falls\n• Government spending cuts → G falls\n• Fed raises rates → I and C fall\n• Stronger dollar → net exports fall\n\nKey distinction: a SHIFT moves the whole curve. A MOVEMENT along AD is caused by a price level change.", hint: "Right: confidence↑, tax cuts, G↑, rates↓, weaker dollar. Left: reverse. Shift ≠ movement along curve." },
-  { id: 4, type: "standard", front: "Why does SRAS slope upward? What shifts it? How does it differ from LRAS?", back: "SRAS upward slope: input prices (wages, energy) are sticky in the short run. When output prices rise, profit margins widen → firms produce more.\n\nSRAS shifts RIGHT: input costs fall, productivity rises, favorable supply shocks.\nSRAS shifts LEFT: input costs rise, unfavorable supply shocks (oil embargo, pandemic, war).\n\nLRAS vs. SRAS:\n• Shape: SRAS upward sloping; LRAS vertical at potential GDP\n• Input prices: SRAS fixed; LRAS fully flexible\n• Shifters: SRAS → costs/shocks; LRAS → real factors (K, H, T, I)\n• Time: SRAS → short run; LRAS → long run\n\nCritical difference: whether input prices are fixed or flexible.", hint: "SRAS: sticky inputs → upward slope. Shifts with costs/shocks. LRAS: vertical, real factors, long run." },
-  { id: 5, type: "standard", front: "Define the three output gaps. Give the diagnosis, self-correction mechanism, and policy for each.", back: "RECESSIONARY GAP: AD/SRAS LEFT of LRAS. Actual < Potential. Unemployment above natural rate. Self-correction: wages fall → SRAS shifts right (slow). Policy: stimulus → shift AD right. Ex: 2008-09, COVID Q2 2020.\n\nFULL EMPLOYMENT: AD/SRAS AT LRAS. Actual = Potential. No self-correction needed. Policy: maintain stability. Ex: late 1990s, 2019 pre-COVID.\n\nINFLATIONARY GAP: AD/SRAS RIGHT of LRAS. Actual > Potential temporarily. Self-correction: wages rise → SRAS shifts left. Policy: tighten → shift AD left. Ex: 2021-22 post-COVID.\n\n'Output gaps are the headline diagnosis of the AD/AS model — identifying the gap tells us both the problem and the appropriate policy response.'", hint: "Recessionary: left of LRAS, stimulus. Full: at LRAS, maintain. Inflationary: right of LRAS, tighten." },
-  { id: 6, type: "standard", front: "Describe the three zones of the SRAS curve and what rightward AD shift does in each.", back: "KEYNESIAN ZONE (far left — flat SRAS):\nHigh unemployment, massive idle capacity. AD shift right → large output gain, tiny price rise. Stimulus creates real jobs, not inflation. Ex: Great Depression 1933-38; COVID recession 2020.\n\nINTERMEDIATE ZONE (middle — moderate slope):\nSome idle capacity but bottlenecks exist. AD shift right → both output AND prices rise. Tradeoffs emerge. Most recoveries pass through here. Ex: U.S. mid-2010s.\n\nNEOCLASSICAL ZONE (near LRAS — steep):\nNear full capacity. Workers scarce. AD shift right → mainly price rise (inflation), little output gain. Ex: 2021-22 — $5T+ stimulus into tight economy → 9.1% CPI.\n\n'Where the economy SITS on SRAS determines whether stimulus mostly creates jobs or mostly creates inflation.'", hint: "Keynesian: flat→jobs. Intermediate: mixed. Neoclassical: steep→inflation. Zone determines stimulus effect." },
-  { id: 7, type: "standard", front: "Distinguish demand-pull inflation from cost-push (stagflation). Cause, mechanism, result, and policy for each.", back: "DEMAND-PULL:\nCause: AD surges past potential (Neoclassical zone).\nMechanism: Too much money chasing too few goods → firms raise prices.\nResult: Prices UP + output UP (short run, until SRAS adjusts up).\nPolicy: Restrict demand — raise rates or cut G → AD shifts left.\nEx: Late 1960s Vietnam War spending; post-COVID 2021.\n\nCOST-PUSH (STAGFLATION):\nCause: SRAS shifts left — supply shock (oil, war, pandemic).\nMechanism: Higher costs squeeze margins → output falls AND prices rise.\nResult: Prices UP + output DOWN — worst of both worlds.\nPolicy: No clean solution — tightening deepens recession; easing accelerates inflation.\nEx: 1973 OPEC — oil 4× in 6 months → 8.5% unemployment, >12% CPI.\n\n'Same outcome (inflation) but very different policy responses.'", hint: "Demand-pull: AD surge→prices+output up. Cost-push: SRAS left→prices up+output DOWN. No clean cost-push fix." },
-  { id: 8, type: "standard", front: "What happened in the COVID-19 recession (2020) and post-COVID inflation (2021-22)? Trace both episodes through AD/AS.", back: "COVID RECESSION (2020) — Recessionary Gap:\nShock: AD shifted left (fear, lockdowns) AND SRAS shifted left (supply chains, closures) simultaneously.\nOutcome: GDP fell ~9% Q2 2020; unemployment hit 14.7% (fastest collapse in U.S. history).\nPrice effect: deflationary pressure — demand collapse dominated.\nPolicy: CARES Act $2.2T → AD shifted right → fastest post-war recovery.\n\nPOST-COVID INFLATION (2021-22) — Inflationary Gap:\nShock: Cumulative ~$5T+ fiscal stimulus → AD shifted far right. Supply chains still disrupted + Ukraine war energy spike → SRAS shifted left.\nResult: AD surge (demand-pull) + SRAS contraction (cost-push) simultaneously → CPI 9.1% June 2022 (highest since 1981).\nPolicy: Fed raised rates 0.25%→5.25% (2022-23) → AD shifted left → CPI returned to ~3% by end 2023.", hint: "2020: AD+SRAS left→recession→CARES fast fix. 2021-22: AD right+SRAS left→demand-pull+cost-push→9.1% CPI." },
-  { id: 9, type: "standard", front: "What is the 1973 OPEC oil shock case? What does it teach about supply shocks and the policy dilemma?", back: "EVENT: OPEC embargo Oct 1973 – Mar 1974. Oil prices quadrupled in 6 months.\n\nSRAS shifted far left → STAGFLATION:\n• Unemployment hit 8.5% by 1975\n• CPI inflation peaked >12% in 1974\n• Prices rose AND output fell — worst of both worlds\n\nPOLICY DILEMMA:\n• Fight inflation (tighten → AD left) → output falls further, deepening recession\n• Fight recession (ease → AD right) → inflation accelerates\n• No demand-management tool fixes both simultaneously\n\nRESOLUTION: Volcker (1979-87) chose sustained aggressive tightening — fed funds rate peaked at ~20% (1981). Inflation broken at the cost of two recessions (1980, 1981-82) and 10.8% unemployment.\n\nLESSON: Supply shocks are uniquely painful because the standard demand-management toolkit makes one problem worse when you fix the other. You need to fix the supply side.", hint: "OPEC oil 4× → SRAS left → stagflation. Policy dilemma: tighten=worse recession; ease=worse inflation." },
-  { id: 10, type: "cloze", front: "FRED series: Real GDP = _______. Potential GDP = _______. When real GDP is BELOW potential on the chart, this represents a _______. When real GDP is ABOVE potential, this represents an _______.", back: "FRED series:\n• Real GDP = GDPC1 (quarterly, billions of chained 2017 dollars)\n• Potential GDP = GDPPOT (CBO estimate, quarterly)\n\nGDPC1 BELOW GDPPOT → RECESSIONARY GAP:\n• AD/SRAS equilibrium left of LRAS\n• Unemployment above natural rate\n• Policy: stimulus\n• Examples: every recession trough visible as dip below the GDPPOT trend line\n\nGDPC1 ABOVE GDPPOT → INFLATIONARY GAP:\n• AD/SRAS equilibrium right of LRAS\n• Unemployment below natural rate\n• Policy: tighten\n• Example: 2021-22 when post-COVID stimulus pushed actual above potential → 9.1% CPI\n\nGDPPOT is LRAS translated into dollar terms — reading the FRED chart is reading the AD/AS diagram.", hint: "GDPC1 = Real GDP. GDPPOT = Potential GDP. Below = recessionary gap. Above = inflationary gap." },
-  { id: 11, type: "standard", front: "What are the three personal-finance applications of the AD/AS macro dashboard?", back: "1. READ THE MACRO ENVIRONMENT:\n• Inflationary gap → Fed WILL raise rates → lock in fixed mortgage BEFORE hikes. 2021-22: those who locked in 3% fixed avoided 7%+ variable rates.\n• Recessionary gap developing → hiring freezes/layoffs coming → build emergency savings NOW, update skills, certify, diversify income.\n• Stagflation (SRAS shock) → brace for simultaneous recession AND inflation; rates may rise even as GDP falls.\n\n2. CAREER POSITIONING ACROSS THE CYCLE:\n• Recessionary gap: don't job-hop; be indispensable; build cushion before the gap widens.\n• Inflationary gap (tight labor): workers have leverage → negotiate raises aggressively.\n\n3. INVEST FOR THE GAP:\n• Recessionary gap: quality bonds (rate cuts make them valuable), defensive stocks, cash optionality.\n• Inflationary gap: TIPS, real estate, broad equities, short-duration debt.\n• Stagflation: real assets, commodities — both bonds AND equities struggle.\n\n'The AD/AS model is not academic — it is a positioning guide.'", hint: "Read environment · Career positioning · Invest for the gap. Dashboard = positioning guide." },
-  { id: 12, type: "standard", front: "What is Say's Law vs. Keynes' Law and which governs in the short run vs. long run?", back: "SAY'S LAW: 'Supply creates its own demand.'\n• Production generates income → income generates spending → markets self-clear.\n• Neoclassical / long-run view: real factors (K, H, T, I) set the output ceiling.\n• Self-correction works — just takes time.\n\nKEYNES' LAW: 'Demand creates its own supply.'\n• Spending drives production. Demand can be deficient.\n• Sticky wages prevent fast self-correction → government must act.\n• Short-run view: AD is the key driver; real recessions happen when AD collapses.\n\nMODERN SYNTHESIS (Solow):\n'At short time scales, Keynesian is a good approximation. At very long time scales, neoclassical. At 5-10 years, we piece things together.'\n\nBOTH MATTER — the time horizon determines which law dominates:\n• Short run = Keynes (demand, sticky prices, SRAS)\n• Long run = Say (supply/real factors, LRAS, full adjustment)", hint: "Say's = supply creates demand (long run, self-correcting). Keynes = demand creates supply (short run, sticky)." },
+const FLASHCARDS = [
+  { front: "Aggregate Demand (AD)", back: "The total quantity of goods and services demanded in an economy at each price level. Components: C + I + G + (X − M). Slopes downward due to the wealth, interest rate, and foreign price effects." },
+  { front: "Short-Run Aggregate Supply (SRAS)", back: "The total quantity of goods and services that producers supply at each price level when input prices (wages, energy) are fixed. Slopes upward because higher output prices raise profit margins." },
+  { front: "Long-Run Aggregate Supply (LRAS)", back: "The economy's potential output — the vertical line at full-employment GDP. Set by real factors: labor, physical capital, human capital, and technology. Unaffected by price level changes." },
+  { front: "Potential GDP", back: "The level of real GDP the economy produces when all resources are fully employed at the natural rate of unemployment. The position of the LRAS curve." },
+  { front: "Recessionary Gap", back: "When actual GDP is below potential GDP — the AD/SRAS intersection is to the left of LRAS. Unemployment is above the natural rate. Policy response: expansionary stimulus to shift AD right." },
+  { front: "Inflationary Gap", back: "When actual GDP is above potential GDP — the AD/SRAS intersection is to the right of LRAS. Unemployment is below the natural rate. Policy response: contractionary tightening to shift AD left." },
+  { front: "Demand-Pull Inflation", back: "Inflation caused by AD surging beyond potential output. 'Too much money chasing too few goods.' Both prices and output rise in the short run. Example: post-COVID stimulus 2021–22." },
+  { front: "Cost-Push Inflation (Stagflation)", back: "Inflation caused by SRAS shifting left due to a supply shock (oil, war, pandemic). Prices rise AND output falls simultaneously — stagflation. Example: 1973 OPEC oil embargo." },
+  { front: "AD Shifters", back: "Factors that shift the entire AD curve: consumer/business confidence, tax policy, government spending, Federal Reserve interest rate decisions, and the exchange rate (affecting net exports)." },
+  { front: "SRAS Shifters", back: "Factors that shift the SRAS curve: input costs (wages, energy), productivity, and supply shocks. Cost increases shift SRAS left; cost decreases or productivity gains shift it right." },
+  { front: "LRAS Shifters", back: "Factors that permanently expand potential GDP: increases in labor supply, physical capital (K), human capital (H), and technology (A). These shift the LRAS curve rightward." },
+  { front: "Say's Law vs. Keynes' Law", back: "Say's Law: 'Supply creates its own demand' — the long-run, neoclassical view. Keynes' Law: 'Demand creates its own supply' — the short-run view. The time horizon determines which dominates." },
 ];
 
 function FlashcardStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [deck] = useState<Flashcard[]>([...CH11_CARDS]);
-  const [cardIdx, setCardIdx] = useState(0);
+  const [cards] = useState(() => shuffle([...FLASHCARDS]));
+  const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [masteredIds, setMasteredIds] = useState<Set<number>>(new Set());
-  const [reviewIds, setReviewIds] = useState<Set<number>>(new Set());
-  const total = deck.length;
-  const masteredCount = masteredIds.size;
-  const allDone = masteredIds.size + reviewIds.size === total;
-  const card = deck[cardIdx];
-  function stripCloze(text: string) { return text.replace(/\{\{c\d+::([^}]+)\}\}/g, "____"); }
-  function handleMastered() { setMasteredIds(prev => new Set([...prev, card.id])); setFlipped(false); if (cardIdx < deck.length - 1) setCardIdx(i => i + 1); }
-  function handleReview() { setReviewIds(prev => new Set([...prev, card.id])); setFlipped(false); if (cardIdx < deck.length - 1) setCardIdx(i => i + 1); }
+  const [seen, setSeen] = useState<Set<number>>(new Set());
+
+  function handleFlip() { setFlipped(f => !f); }
+  function handleNext() {
+    setSeen(s => new Set([...s, idx]));
+    if (idx < cards.length - 1) { setIdx(i => i + 1); setFlipped(false); }
+  }
+  function handlePrev() {
+    if (idx > 0) { setIdx(i => i - 1); setFlipped(false); }
+  }
+  const allSeen = seen.size >= cards.length - 1;
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-1">Flashcard Review — Ch11 AD/AS</p>
-        <p className="text-muted-foreground text-xs">Work through all {total} cards. Mark each Mastered or Review. Complete all cards to unlock the quiz.</p>
-        <div className="flex gap-4 mt-2 text-xs">
-          <span className="text-green-700 font-semibold">✓ Mastered: {masteredCount}</span>
-          <span className="text-amber-700 font-semibold">↩ Review: {reviewIds.size}</span>
-          <span className="text-muted-foreground">Remaining: {total - masteredIds.size - reviewIds.size}</span>
+        <p className="font-semibold text-foreground mb-1">Flashcard Review — Chapter 11 Key Terms</p>
+        <p className="text-muted-foreground text-xs">Review all {cards.length} terms. Click each card to reveal the definition. You must view all cards before the Quiz unlocks.</p>
+        <div className="mt-2 h-1.5 bg-primary/20 rounded-full overflow-hidden">
+          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(seen.size / cards.length) * 100}%` }} />
         </div>
+        <p className="text-xs text-muted-foreground mt-1">{seen.size}/{cards.length} cards reviewed</p>
       </div>
-      {!allDone ? (
-        <div className="space-y-3">
-          <p className="text-xs text-muted-foreground text-center">Card {cardIdx + 1} of {total}</p>
-          <div onClick={() => setFlipped(f => !f)} className="bg-card border-2 border-border rounded-2xl p-6 min-h-[180px] cursor-pointer flex flex-col justify-between hover:border-primary transition">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{flipped ? "Answer" : card.type === "cloze" ? "Fill in the blank" : "Question"}</p>
-              <p className="text-sm font-semibold text-foreground whitespace-pre-line">{flipped ? card.back : stripCloze(card.front)}</p>
-            </div>
-            {!flipped && <p className="text-xs text-muted-foreground italic mt-3">Hint: {card.hint}</p>}
-            <p className="text-xs text-primary mt-3 text-right">{flipped ? "Click to flip back" : "Click to reveal answer"}</p>
-          </div>
-          {flipped && (
-            <div className="flex gap-3">
-              <button onClick={handleReview} className="flex-1 py-2.5 border-2 border-amber-400 text-amber-700 rounded-xl font-semibold text-sm hover:bg-amber-50 transition">↩ Review Again</button>
-              <button onClick={handleMastered} className="flex-1 py-2.5 bg-green-600 text-white rounded-xl font-semibold text-sm hover:bg-green-700 transition">✓ Mastered</button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-            <p className="text-green-800 font-semibold text-sm">All {total} cards complete!</p>
-            <p className="text-green-700 text-xs mt-1">{masteredCount}/{total} mastered · {reviewIds.size} flagged for review</p>
-          </div>
-          <button type="button" onClick={() => onComplete(masteredCount, total)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">Mark Complete ✓</button>
-        </div>
-      )}
+      <div onClick={handleFlip} className="cursor-pointer select-none bg-card border-2 border-border rounded-2xl p-6 min-h-[160px] flex flex-col items-center justify-center text-center shadow-sm hover:border-primary transition">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">{flipped ? "Definition" : "Term"} — {idx + 1} / {cards.length}</p>
+        <p className={`font-semibold leading-relaxed ${flipped ? "text-sm text-muted-foreground" : "text-base text-foreground"}`}>
+          {flipped ? cards[idx].back : cards[idx].front}
+        </p>
+        <p className="text-xs text-muted-foreground mt-4">{flipped ? "Click to see term" : "Click to reveal definition"}</p>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={handlePrev} disabled={idx === 0}
+          className="flex-1 py-2 rounded-xl border border-border text-sm font-medium text-foreground disabled:opacity-30 hover:bg-muted transition">← Prev</button>
+        <button onClick={handleNext} disabled={idx === cards.length - 1}
+          className="flex-1 py-2 rounded-xl border border-border text-sm font-medium text-foreground disabled:opacity-30 hover:bg-muted transition">Next →</button>
+      </div>
+      <button disabled={!allSeen} onClick={() => onComplete(cards.length, cards.length)}
+        className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+        {allSeen ? "Mark Complete — Unlock Quiz ✓" : `Review all cards to unlock (${seen.size}/${cards.length})`}
+      </button>
     </div>
   );
 }

@@ -556,75 +556,64 @@ function ConvergenceStation({ onComplete }: { onComplete: (score: number, total:
 // ─────────────────────────────────────────────
 // Flashcards
 // ─────────────────────────────────────────────
-type Flashcard = { id: number; type: "standard" | "cloze"; front: string; back: string; hint: string };
-
-const CH7_CARDS: Flashcard[] = [
-  { id: 1, type: "standard", front: "What is the Great Enrichment, and what are the key numbers?", back: "The Great Enrichment: the 200-year revolution in living standards that began with the Industrial Revolution.\n\nKey numbers:\n• Average income 1800: $3/day (Rome, Ming China, medieval England — about the same)\n• Average income today (global): $35+/day\n• Multiplier: ×10 in real terms (much more for industrialized economies)\n\n'More change in the last 200 years than in the previous 2,000 combined.'\n\nModern growth = the last 2 minutes of a 24-hour history of humanity.", hint: "$3→$35+ per day. ×10. Last 2 minutes of 24-hour history." },
-  { id: 2, type: "standard", front: "South Korea's four-stage growth story", back: "From $854 GDP/capita (1950s) to $30,000+ today — in one lifetime.\n\nStage 1 (1950s): War-torn, agrarian. $854/capita.\nStage 2 (1960s–70s): Investment surge to 30–35% of GDP. Government partners with industry.\nStage 3 (1980s): Near-universal secondary education. Engineering culture takes root.\nStage 4 (Today): 11th-largest economy. GDP/cap >$30,000. Peer with Italy, New Zealand, Israel.\n\nRecipe: education + investment + technology adoption + economic openness. Sustained 6%+ growth for four decades.", hint: "$854→$30K+ in one lifetime. 4 stages. Recipe: education, investment, technology, openness." },
-  { id: 3, type: "standard", front: "The four institutional pillars of growth", back: "1. Property rights — You own what you produce. Land, tools, savings, wages, inventions, contracts.\n2. Rule of law — Rules apply equally to everyone (from Magna Carta to modern courts). Predictable, fair, transparent.\n3. Contract enforcement — Strangers can do business. A surgeon needs to know you'll pay; a buyer needs delivery.\n4. Low corruption & red tape — Bribes, permits, and delays don't stop the economy — they slow it.\n\nCountries weak in all four (Somalia, South Sudan, Zimbabwe) remain among the poorest. Not a coincidence.\n\n'Would you plant a crop if anyone could harvest it?' — Investment requires property rights.", hint: "Property rights · Rule of law · Contract enforcement · Low corruption" },
-  { id: 4, type: "standard", front: "Why is 'investment is patience' the key insight about property rights?", back: "Investment = giving up consumption today for a future return.\nYou skip dinner out, delay the new car — in exchange for a business, a home, a college degree.\n\nBut you only do that if you trust the rules will let you KEEP the return.\n\nWeak property rights destroy the patience that growth requires:\n• Why build a factory if it can be seized?\n• Why save if your bank account can be frozen?\n• Why invent if your patent won't be enforced?\n\n'Investment is patience' — and patience requires trust in institutions.", hint: "Give up consumption today IF you trust the rules will protect your future return." },
-  { id: 5, type: "standard", front: "The aggregate production function: GDP = f(L, K, H, A)", back: "L = Labor: Hours of work, by people\nK = Physical Capital: Machines, factories, infrastructure, computers, software\nH = Human Capital: Skills, education, experience — 'the most powerful, most durable form of capital you ever build'\nA = Technology: Knowledge, ideas, methods — 'the joker in the deck'\n\nInputs reinforce each other. A modern factory needs operators who understand the machines (H) to use the equipment (K). Without human capital, physical capital is wasted.\n\nU.S. workers today have ~3× the physical capital of a 1950s worker.", hint: "L=Labor, K=Physical Capital, H=Human Capital, A=Technology. They reinforce each other." },
-  { id: 6, type: "standard", front: "Why is technology 'the joker in the deck'? (Three properties)", back: "Technology (A) has three unique properties that other inputs lack:\n\n1. Non-rival: My use doesn't reduce yours. The Pythagorean theorem works for everyone simultaneously. A truck doesn't work that way.\n\n2. Non-depreciating: Calculus from 1700 still works perfectly. Buildings rust. Machines break. Ideas stay.\n\n3. Combinatorial: Ideas spawn ideas. Steam + iron → railroad. Transistor + memory → computer. Internet + GPS + smartphone → ride-sharing.\n\nU.S. issues 150,000+ patents/year — each one a small new lever for productivity.", hint: "Non-rival · Non-depreciating · Combinatorial. Ideas don't wear out and one spawns many more." },
-  { id: 7, type: "standard", front: "Growth accounting: What does 'Technology wins' mean?", back: "Growth accounting breaks down which inputs explain cross-country growth differences.\n\nResult: Technology (total factor productivity / TFP) is consistently the #1 driver.\n\n• Capital + Labor together explain ~50% of growth differences\n• The residual 'A' — ideas, institutions, organization — explains the rest and dominates\n• 'A' is what economists can't measure directly but always find winning\n\nWhy: Physical capital hits diminishing returns (12th highway lane barely helps). Ideas and technology don't hit diminishing returns — they compound and combine.", hint: "TFP = #1. K+L ≈ 50%. Residual 'A' dominates. Capital diminishes; ideas don't." },
-  { id: 8, type: "cloze", front: "Complete: Years to double ≈ _______ ÷ growth rate (in %).", back: "Years to double ≈ 70 ÷ growth rate (in %).\n\nKey examples from your slides:\n1% → 70 years → ×1.6 in 50 yrs (slow Europe, late 1800s)\n3% → 23 years → ×4.4 in 50 yrs (solid U.S. trend)\n5% → 14 years → ×11.5 in 50 yrs (fast catch-up)\n8% → ~9 years → ×47 in 50 yrs (South Korea, China boom)", hint: "Rule of 70. At 3%: doubles every 23 years." },
-  { id: 9, type: "standard", front: "The personal compounding example from your slides", back: "$5,000/year saved for 40 years at 7% annual return → $1,068,000\n\nOf which:\n• Only $200,000 was contributions (40 × $5,000)\n• $868,000 is pure compounding — more than 4× the contributions\n\nKey insight: Most wealth is built in the FINAL decade, when the snowball is biggest.\nStarting at 25 vs. 35 isn't '10 years extra' — it's often half the final balance.\n\n'The same force that lifts nations lifts savers — if you give it time.'", hint: "$5K/yr × 40 yrs at 7% = $1.068M. Only $200K contributed. Patience wins." },
-  { id: 10, type: "standard", front: "The growth scoreboard: Fast Club vs. Slow Group (last 30 years)", back: "Fast Growth Club (~5–10%/yr):\nChina ~9%, India ~6–7%, South Korea (earlier) ~7–8%, Vietnam ~6–7%, Poland ~4–5%\n\nSlow Growth Group (~0–2%/yr):\nUnited States ~2%, Germany ~1–2%, Japan ~0.5–1%, Italy ~0–1%, many sub-Saharan economies ~0%\n\nPattern: Rich, mature economies grow slowly. Many catching-up economies grow fast — except where institutions fail.", hint: "Fast: China/India/Vietnam/Poland. Slow: US/Germany/Japan/Italy/sub-Saharan." },
-  { id: 11, type: "standard", front: "Three lessons from convergence", back: "Lesson 1 — East Asia: convergence works\nJapan, South Korea, Taiwan, Singapore, and China closed massive gaps. Recipe: open trade, heavy investment in education, stable government, protection of property rights.\n\nLesson 2 — Africa: convergence stalled\nMany sub-Saharan economies have nearly the same GDP/capita today as in 1960. Weak institutions, civil conflict, and corruption keep capital out and prevent ideas from taking root.\n\nLesson 3 — Institutions are the bottleneck\nNot geography. Not natural resources. Not aid. Countries that catch up build the rules of the game that let people invest, trade, learn, and innovate.", hint: "East Asia works · Africa stalled · Institutions are the bottleneck" },
-  { id: 12, type: "cloze", front: "Complete: Robert Lucas said: 'Once one starts to think about _______, it is hard to think about anything else.'", back: "Robert Lucas, Nobel laureate: 'Once one starts to think about [growth], it is hard to think about anything else.'\n\nWhy it matters: A 1% difference in annual growth sustained over 50 years is the difference between a ×1.6 and ×4.4 multiplier. Over generations, that gap determines whether your grandchildren live in poverty or prosperity.", hint: "Lucas Nobel quote. Growth differences compound into civilizational gaps over generations." },
+const FLASHCARDS = [
+  { front: "The Great Enrichment", back: "The dramatic rise in living standards over the last 200 years — global average income grew roughly 10× from ~$3/day in 1800 to $35+/day today." },
+  { front: "Rule of 70", back: "Approximate years to double = 70 ÷ growth rate (%). At 3% growth, an economy doubles in about 23 years; at 7%, in about 10 years." },
+  { front: "Aggregate Production Function", back: "GDP = f(L, K, H, A). Output depends on Labor (L), Physical Capital (K), Human Capital (H), and Technology (A). All four inputs reinforce each other." },
+  { front: "Physical Capital (K)", back: "Machines, factories, infrastructure, and equipment used in production. More K raises output per worker. Depreciates over time and must be continuously replaced." },
+  { front: "Human Capital (H)", back: "The skills, education, and experience embedded in workers. Each additional year of schooling raises earnings ~10%. Compounds over a career and does not depreciate like physical capital." },
+  { front: "Technology (A)", back: "Knowledge, ideas, and methods of production. Non-rival (one person's use doesn't reduce another's), non-depreciating, and combinatorial — ideas spawn more ideas." },
+  { front: "Total Factor Productivity (TFP)", back: "The portion of economic growth not explained by increases in labor or capital. Captures the contribution of ideas, technology, and organizational improvements. Consistently the largest driver of long-run growth." },
+  { front: "Convergence", back: "The tendency for poorer countries to grow faster than richer ones as they adopt existing technologies and institutions. Works when institutions are strong (East Asia); stalls when they are weak (sub-Saharan Africa)." },
+  { front: "Institutional Pillars of Growth", back: "The four foundations required for sustained growth: (1) Property rights, (2) Rule of law, (3) Contract enforcement, (4) Low corruption and red tape." },
+  { front: "Property Rights", back: "Legal protections giving individuals ownership over what they produce — land, tools, savings, inventions, contracts. Without them, the incentive to invest and innovate disappears." },
+  { front: "Compounding (Personal Finance)", back: "Saving $5,000/year for 40 years at 7% yields ~$1,068,000 — of which only $200,000 was contributions. Most wealth is built in the final decade when the balance is largest." },
+  { front: "Investment is Patience", back: "Growth requires giving up consumption today in exchange for a future return. That patience only happens when institutions reliably protect the returns from investment." },
 ];
 
 function FlashcardStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [deck] = useState<Flashcard[]>([...CH7_CARDS]);
-  const [cardIdx, setCardIdx] = useState(0);
+  const [cards] = useState(() => shuffle([...FLASHCARDS]));
+  const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [masteredIds, setMasteredIds] = useState<Set<number>>(new Set());
-  const [reviewIds, setReviewIds] = useState<Set<number>>(new Set());
-  const total = deck.length;
-  const masteredCount = masteredIds.size;
-  const allDone = masteredIds.size + reviewIds.size === total;
-  const card = deck[cardIdx];
-  function stripCloze(text: string) { return text.replace(/\{\{c\d+::([^}]+)\}\}/g, "____"); }
-  function handleMastered() { setMasteredIds(prev => new Set([...prev, card.id])); setFlipped(false); if (cardIdx < deck.length - 1) setCardIdx(i => i + 1); }
-  function handleReview() { setReviewIds(prev => new Set([...prev, card.id])); setFlipped(false); if (cardIdx < deck.length - 1) setCardIdx(i => i + 1); }
+  const [seen, setSeen] = useState<Set<number>>(new Set());
+
+  function handleFlip() { setFlipped(f => !f); }
+  function handleNext() {
+    setSeen(s => new Set([...s, idx]));
+    if (idx < cards.length - 1) { setIdx(i => i + 1); setFlipped(false); }
+  }
+  function handlePrev() {
+    if (idx > 0) { setIdx(i => i - 1); setFlipped(false); }
+  }
+  const allSeen = seen.size >= cards.length - 1;
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-1">Flashcard Review — Ch7 Economic Growth</p>
-        <p className="text-muted-foreground text-xs">Work through all {total} cards. Mark each Mastered or Review. Complete all cards to unlock the quiz.</p>
-        <div className="flex gap-4 mt-2 text-xs">
-          <span className="text-green-700 font-semibold">✓ Mastered: {masteredCount}</span>
-          <span className="text-amber-700 font-semibold">↩ Review: {reviewIds.size}</span>
-          <span className="text-muted-foreground">Remaining: {total - masteredIds.size - reviewIds.size}</span>
+        <p className="font-semibold text-foreground mb-1">Flashcard Review — Chapter 7 Key Terms</p>
+        <p className="text-muted-foreground text-xs">Review all {cards.length} terms. Click each card to reveal the definition. You must view all cards before the Quiz unlocks.</p>
+        <div className="mt-2 h-1.5 bg-primary/20 rounded-full overflow-hidden">
+          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(seen.size / cards.length) * 100}%` }} />
         </div>
+        <p className="text-xs text-muted-foreground mt-1">{seen.size}/{cards.length} cards reviewed</p>
       </div>
-      {!allDone ? (
-        <div className="space-y-3">
-          <p className="text-xs text-muted-foreground text-center">Card {cardIdx + 1} of {total}</p>
-          <div onClick={() => setFlipped(f => !f)} className="bg-card border-2 border-border rounded-2xl p-6 min-h-[180px] cursor-pointer flex flex-col justify-between hover:border-primary transition">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{flipped ? "Answer" : card.type === "cloze" ? "Fill in the blank" : "Question"}</p>
-              <p className="text-sm font-semibold text-foreground whitespace-pre-line">{flipped ? card.back : stripCloze(card.front)}</p>
-            </div>
-            {!flipped && <p className="text-xs text-muted-foreground italic mt-3">Hint: {card.hint}</p>}
-            <p className="text-xs text-primary mt-3 text-right">{flipped ? "Click to flip back" : "Click to reveal answer"}</p>
-          </div>
-          {flipped && (
-            <div className="flex gap-3">
-              <button onClick={handleReview} className="flex-1 py-2.5 border-2 border-amber-400 text-amber-700 rounded-xl font-semibold text-sm hover:bg-amber-50 transition">↩ Review Again</button>
-              <button onClick={handleMastered} className="flex-1 py-2.5 bg-green-600 text-white rounded-xl font-semibold text-sm hover:bg-green-700 transition">✓ Mastered</button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-            <p className="text-green-800 font-semibold text-sm">All {total} cards complete!</p>
-            <p className="text-green-700 text-xs mt-1">{masteredCount}/{total} mastered · {reviewIds.size} flagged for review</p>
-            <p className="text-sm text-green-700 mt-1">You cleared the full Ch7 deck. The quiz is now unlocked.</p>
-          </div>
-          <button type="button" onClick={() => onComplete(masteredCount, total)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">Mark Complete ✓</button>
-        </div>
-      )}
+      <div onClick={handleFlip} className="cursor-pointer select-none bg-card border-2 border-border rounded-2xl p-6 min-h-[160px] flex flex-col items-center justify-center text-center shadow-sm hover:border-primary transition">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">{flipped ? "Definition" : "Term"} — {idx + 1} / {cards.length}</p>
+        <p className={`font-semibold leading-relaxed ${flipped ? "text-sm text-muted-foreground" : "text-base text-foreground"}`}>
+          {flipped ? cards[idx].back : cards[idx].front}
+        </p>
+        <p className="text-xs text-muted-foreground mt-4">{flipped ? "Click to see term" : "Click to reveal definition"}</p>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={handlePrev} disabled={idx === 0}
+          className="flex-1 py-2 rounded-xl border border-border text-sm font-medium text-foreground disabled:opacity-30 hover:bg-muted transition">← Prev</button>
+        <button onClick={handleNext} disabled={idx === cards.length - 1}
+          className="flex-1 py-2 rounded-xl border border-border text-sm font-medium text-foreground disabled:opacity-30 hover:bg-muted transition">Next →</button>
+      </div>
+      <button disabled={!allSeen} onClick={() => onComplete(cards.length, cards.length)}
+        className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+        {allSeen ? "Mark Complete — Unlock Quiz ✓" : `Review all cards to unlock (${seen.size}/${cards.length})`}
+      </button>
     </div>
   );
 }

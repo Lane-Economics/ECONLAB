@@ -140,7 +140,7 @@
         </div>
       </div></a>
 
-    <a class="lab-card" role="listitem" href="https://www.perplexity.ai/computer/a/eco210-lab-ch6-dist-public-T.MKjjSRQ1.9fOG4.qExmw" data-lab="ch6">
+    <a class="lab-card" role="listitem" href="https://www.perplexity.ai/computer/a/eco210-lab-ch6-redo-dist-publi-J6QzkvxBSmS_kQMZsSs1_w" data-lab="ch6">
       <div class="lab-card-top">
         <span class="lab-chapter-badge">Ch 6</span>
         <div>
@@ -210,7 +210,7 @@
         </div>
       </div></a>
 
-    <a class="lab-card" role="listitem" href="https://www.perplexity.ai/computer/a/econ-lab-chapter-15-monetary-p-1p_a402eReqJptapbXneuQ" data-lab="ch15">
+    <a class="lab-card" role="listitem" href="https://www.perplexity.ai/computer/a/eco210-lab-ch15-new-dist-publi-PNI6Hgs9RgOMKNEFYzo4EQ" data-lab="ch15">
       <div class="lab-card-top">
         <span class="lab-chapter-badge">Ch 15</span>
         <div>
@@ -245,12 +245,16 @@
   // Labs that store completion as a JSON array of station IDs (Ch1, Ch2, Ch20)
   const ARRAY_LABS = new Set(['ch1','ch2','ch20','ch3','ch6','ch7']);
 
+  // Key overrides for labs that use a non-standard storage key
+  const KEY_OVERRIDES = { ch6: 'econlab_done_ch6_v2' };
+
   // Auto-detect completion from lab localStorage flags
   function getCompleted() {
     const done = [];
     LABS.forEach(lab => {
       try {
-        const val = localStorage.getItem(`econlab_done_${lab}`);
+        const storageKey = KEY_OVERRIDES[lab] || `econlab_done_${lab}`;
+        const val = localStorage.getItem(storageKey);
         if (!val) return;
         if (ARRAY_LABS.has(lab)) {
           // These labs store an array of completed station IDs; done when 'quiz' is present

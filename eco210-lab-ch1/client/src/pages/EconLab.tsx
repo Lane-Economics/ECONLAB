@@ -1006,7 +1006,7 @@ function Dashboard({ completed, onSelect, quizUnlocked, onStartQuiz, onSummary }
         <p className="font-semibold mb-1">Chapter 1 — Introduction to Economics</p>
         <p className="text-muted-foreground text-xs">Complete all 5 stations and the Recap to unlock the Quiz. Your progress is saved automatically.</p>
         <div className="mt-3 h-2 bg-primary/20 rounded-full overflow-hidden">
-          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(progress / STATIONS.length) * 100}%` }} />
+          <div className="h-full bg-primary rounded-full transition-all" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={STATIONS.length} style={{ width: `${(progress / STATIONS.length) * 100}%` }} />
         </div>
         <p className="text-xs text-muted-foreground mt-1">{progress}/{STATIONS.length} stations complete</p>
       </div>

@@ -1196,6 +1196,7 @@ function ComparativeStation({ onComplete }: { onComplete: (score: number, total:
                 key={oi}
                 disabled={checked}
                 onClick={() => setSel(oi)}
+                aria-pressed={sel === i}
                 className={`w-full text-left rounded-xl border-2 px-4 py-2.5 text-sm transition ${cls} ${!checked ? "hover:border-primary/40" : ""}`}
               >
                 {opt}
@@ -1585,7 +1586,8 @@ function FlashcardStation({ onComplete }: { onComplete: (score: number, total: n
         className={`bg-card border-2 rounded-2xl p-6 min-h-48 flex flex-col transition-all cursor-pointer select-none ${
           flipped ? "border-primary/40 bg-primary/5" : "border-border hover:border-primary/30"
         }`}
-        onClick={() => { if (!flipped) { setFlipped(true); setShowHint(false); } }}
+        onClick={() => { if (!flipped) { setFlipped(true); setShowHint(false); } }} onKeyDown={e => { if ((e.key === "Enter" || e.key === " ") && !flipped) { e.preventDefault(); setFlipped(true); }}} role="button" tabIndex={0} aria-label={flipped ? "Card showing answer. Press to see next." : "Card showing term. Press to reveal."}
+          aria-live="polite"
         role="button"
         tabIndex={0}
         aria-label={flipped ? "Card answer — rate yourself below" : "Tap to flip card"}
@@ -2181,10 +2183,7 @@ function Dashboard({
           automatically.
         </p>
         <div className="mt-3 h-2 bg-primary/20 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary rounded-full transition-all"
-            style={{ width: `${(progress / STATIONS_LIST.length) * 100}%` }}
-          />
+          <div className="h-full bg-primary rounded-full transition-all" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={STATIONS_LIST.length} style={{ width: `${(progress / STATIONS_LIST.length) * 100}%` }} />
         </div>
         <p className="text-xs text-muted-foreground mt-1">
           {progress}/{STATIONS_LIST.length} stations complete

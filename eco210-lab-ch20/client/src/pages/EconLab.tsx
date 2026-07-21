@@ -858,7 +858,8 @@ function FlashcardStation({ onComplete }: { onComplete: (score: number, total: n
         <div className="space-y-3">
           <p className="text-xs text-muted-foreground text-center">Card {cardIdx + 1} of {total}</p>
           <div
-            onClick={() => setFlipped((f) => !f)}
+            onClick={() => setFlipped((f) => !f)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setFlipped(f => !f); }}} role="button" tabIndex={0} aria-label={flipped ? "Card showing definition. Press to see term." : "Card showing term. Press to reveal definition."}
+          aria-live="polite"
             className="bg-card border-2 border-border rounded-2xl p-6 min-h-[180px] cursor-pointer flex flex-col justify-between hover:border-primary transition"
           >
             <div className="space-y-2">
@@ -1453,7 +1454,7 @@ function Dashboard({ completed, onSelect, quizUnlocked, onStartQuiz, onSummary, 
         <p className="font-semibold mb-1">Chapter 20 — International Trade</p>
         <p className="text-muted-foreground text-xs">Complete all stations and the Flashcard review to unlock the Quiz. Your progress is saved automatically.</p>
         <div className="mt-3 h-2 bg-primary/20 rounded-full overflow-hidden">
-          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(progress / STATIONS.length) * 100}%` }} />
+          <div className="h-full bg-primary rounded-full transition-all" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={STATIONS.length} style={{ width: `${(progress / STATIONS.length) * 100}%` }} />
         </div>
         <p className="text-xs text-muted-foreground mt-1">{progress}/{STATIONS.length} stations complete</p>
       </div>

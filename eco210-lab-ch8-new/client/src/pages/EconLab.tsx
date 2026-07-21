@@ -1061,7 +1061,6 @@ function Header({ station, completed, onNav, courseTitle, courseSubtitle, hubUrl
             <div className="text-xs text-sidebar-foreground/80 leading-none mt-0.5">{courseSubtitle}</div>
           </div>
         </div>
-        <a href={hubUrl} target="_top" className="hidden sm:flex items-center gap-1.5 text-xs text-sidebar-foreground/80 hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-sidebar-accent shrink-0">← Course Hub</a>
         <div className="hidden sm:flex items-center gap-1 flex-wrap">
           {NAV_STATIONS.map(s => {
             const idx = STATION_ORDER.indexOf(s.id);

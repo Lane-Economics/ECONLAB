@@ -102,194 +102,204 @@ function PriceMechStation({ onComplete }: { onComplete: (score: number, total: n
 }
 
 // ─────────────────────────────────────────────
-// Station 2 — Laws of Demand & Supply
+// Station 2 — Laws of Demand & Supply: Curve Direction Sorter
 // ─────────────────────────────────────────────
-const LAWS_QS = [
-  {
-    q: "Your slides show a gasoline demand curve: at $5.20/gal, quantity demanded is 420 million gallons; at $1.00/gal, quantity demanded is 800 million gallons. Which law does this illustrate?",
-    options: [
-      "Law of Supply — higher price leads to higher quantity",
-      "Law of Demand — as price falls, quantity demanded rises",
-      "Law of Equilibrium — price adjusts until markets clear",
-      "Law of Diminishing Returns — each gallon is worth less than the last",
-    ],
-    correct: 1,
-    exp: "The Law of Demand: when price falls from $5.20 to $1.00, quantity demanded rises from 420M to 800M gallons. Price and quantity demanded move in opposite directions along the demand curve.",
-  },
-  {
-    q: "Your slides define demand as 'consumer willingness AND ability to buy at each price.' A student says 'I want a Ferrari — I have high demand for Ferraris.' Is this correct?",
-    options: [
-      "Yes — wanting something is the same as demanding it",
-      "No — demand requires both willingness AND ability (purchasing power) to buy",
-      "Yes — desire drives all economic decisions",
-      "No — demand only refers to what consumers actually purchased last year",
-    ],
-    correct: 1,
-    exp: "Demand requires both willingness AND ability to pay. Wanting a Ferrari without the purchasing power to buy one is not economic demand. This is why the demand curve represents actual market behavior, not wishes.",
-  },
-  {
-    q: "Your slides emphasize: 'demand' = the whole curve; 'quantity demanded' = one point on it. A news headline says 'rising incomes increase demand for organic food.' What actually happened?",
-    options: [
-      "A movement along the existing demand curve to a higher quantity",
-      "The entire demand curve shifted to the right — more is demanded at every price",
-      "The supply curve shifted right, which increased demand",
-      "The equilibrium price rose, increasing quantity demanded",
-    ],
-    correct: 1,
-    exp: "Income is a non-price factor — it shifts the whole curve. When income rises, consumers want more organic food at every price level, so the entire demand curve shifts right. That is a change in demand, not a change in quantity demanded.",
-  },
-  {
-    q: "Your slides show a gasoline supply curve: at $1.00/gal, quantity supplied is 500M gallons; at $2.20/gal, quantity supplied is 720M gallons. What does this illustrate?",
-    options: [
-      "Law of Demand — consumers buy less at higher prices",
-      "Law of Supply — as price rises, quantity supplied rises",
-      "Market equilibrium — supply equals demand at $1.60",
-      "A supply curve shift caused by higher input costs",
-    ],
-    correct: 1,
-    exp: "The Law of Supply: as price rises from $1.00 to $2.20, quantity supplied rises from 500M to 720M gallons. Higher prices reward production — producers drill more, hire more, open new plants. Price and quantity supplied move in the same direction.",
-  },
+const CURVE_SCENARIOS = [
+  { id: 1, text: "The price of gasoline rises from $1.40 to $2.80 per gallon.", curve: "movement", curveLabel: "Movement along demand", dir: "down", dirLabel: "Quantity demanded decreases (movement along curve)", reason: "A price change causes a movement ALONG the existing demand curve — not a shift. Higher price → lower quantity demanded." },
+  { id: 2, text: "A study finds coffee reduces heart disease risk. Millions of consumers switch from tea to coffee.", curve: "demand", curveLabel: "Demand curve shifts", dir: "right", dirLabel: "Right — demand increases at every price", reason: "Tastes changed — a non-price factor. The entire demand curve shifts right: more coffee demanded at every price level." },
+  { id: 3, text: "A drought destroys half the Florida orange crop.", curve: "supply", curveLabel: "Supply curve shifts", dir: "left", dirLabel: "Left — supply decreases at every price", reason: "Natural conditions are a supply shifter. The drought reduces production at every price — the entire supply curve shifts left." },
+  { id: 4, text: "The government grants a large subsidy to electric vehicle manufacturers.", curve: "supply", curveLabel: "Supply curve shifts", dir: "right", dirLabel: "Right — supply increases at every price", reason: "Government policy (subsidy) lowers production costs — a supply shifter. Producers offer more EVs at every price — supply shifts right." },
+  { id: 5, text: "Consumer incomes rise, increasing willingness to buy new cars.", curve: "demand", curveLabel: "Demand curve shifts", dir: "right", dirLabel: "Right — demand increases at every price", reason: "Income is a demand shifter. Higher income means consumers want more cars at every price — the entire demand curve shifts right." },
+  { id: 6, text: "The price of solar panels falls from $400 to $200 per panel.", curve: "movement", curveLabel: "Movement along demand", dir: "down", dirLabel: "Quantity demanded increases (movement along curve)", reason: "Price fell — this causes a movement ALONG the demand curve (quantity demanded rises). The curve itself does not shift." },
+];
+
+const CURVE_OPTS = [
+  { id: "movement", label: "Movement along curve", color: "bg-slate-100 border-slate-300 text-slate-800" },
+  { id: "demand",   label: "Demand curve shifts",  color: "bg-blue-100 border-blue-300 text-blue-800" },
+  { id: "supply",   label: "Supply curve shifts",  color: "bg-green-100 border-green-300 text-green-800" },
+];
+const DIR_OPTS = [
+  { id: "right", label: "→ Right (increase)" },
+  { id: "left",  label: "← Left (decrease)" },
+  { id: "down",  label: "↓ Along (quantity changes)" },
 ];
 
 function LawsStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<Record<number, { curve: string; dir: string }>>({});
   const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
+  const allAnswered = CURVE_SCENARIOS.every(s => answers[s.id]?.curve && answers[s.id]?.dir);
+  const correctCount = checked ? CURVE_SCENARIOS.filter(s => answers[s.id]?.curve === s.curve && answers[s.id]?.dir === s.dir).length : 0;
 
-  const q = LAWS_QS[idx];
-  const isLast = idx === LAWS_QS.length - 1;
-
-  function handleCheck() {
-    if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
-    setScore(newScore);
-    setChecked(true);
-  }
-
-  function handleNext() {
-    setSel(null);
-    setChecked(false);
-    setIdx((i) => i + 1);
+  function setAns(id: number, field: "curve" | "dir", val: string) {
+    setAnswers(a => ({ ...a, [id]: { ...a[id], [field]: val } }));
   }
 
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-1">Laws of Demand & Supply</p>
-        <div className="text-muted-foreground text-xs space-y-1">
-          <p><strong className="text-foreground">Law of Demand:</strong> ↑ Price → ↓ Quantity demanded &nbsp;|&nbsp; ↓ Price → ↑ Quantity demanded</p>
-          <p><strong className="text-foreground">Law of Supply:</strong> ↑ Price → ↑ Quantity supplied &nbsp;|&nbsp; ↓ Price → ↓ Quantity supplied</p>
-          <p className="italic">Watch the language: "demand" = the whole curve. "Quantity demanded" = one point on it.</p>
-        </div>
-        {/* Gasoline reference table */}
-        <div className="mt-3 rounded-lg overflow-hidden border border-border text-xs">
-          <table className="w-full">
-            <thead><tr className="bg-primary text-primary-foreground"><th className="text-left px-3 py-1.5">Price ($/gal)</th><th className="text-center px-3 py-1.5">Qty Demanded (M gal)</th><th className="text-center px-3 py-1.5">Qty Supplied (M gal)</th></tr></thead>
-            <tbody>
-              <tr className="border-t border-border bg-background"><td className="px-3 py-1.5">$1.00</td><td className="text-center px-3 py-1.5">800</td><td className="text-center px-3 py-1.5">500</td></tr>
-              <tr className="border-t border-border bg-muted/30"><td className="px-3 py-1.5">$2.20</td><td className="text-center px-3 py-1.5">—</td><td className="text-center px-3 py-1.5">720</td></tr>
-              <tr className="border-t border-border bg-background"><td className="px-3 py-1.5">$5.20</td><td className="text-center px-3 py-1.5">420</td><td className="text-center px-3 py-1.5">—</td></tr>
-            </tbody>
-          </table>
+        <p className="font-semibold text-foreground mb-1">Station 2 — Laws of Demand & Supply: Curve or Shift?</p>
+        <p className="text-muted-foreground text-xs mb-2">For each scenario, decide: does it cause a <strong className="text-foreground">movement along a curve</strong> (price changed) or a <strong className="text-foreground">shift of a curve</strong> (non-price factor)? Then pick the direction.</p>
+        <div className="flex flex-wrap gap-1 text-xs">
+          {CURVE_OPTS.map(c => <span key={c.id} className={`px-2 py-0.5 rounded-full border font-medium ${c.color}`}>{c.label}</span>)}
         </div>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={LAWS_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-3">
+        {CURVE_SCENARIOS.map(s => {
+          const ans = answers[s.id] || {};
+          const curveOk = checked && ans.curve === s.curve;
+          const dirOk = checked && ans.dir === s.dir;
+          const bothOk = curveOk && dirOk;
+          const anyWrong = checked && (!curveOk || !dirOk);
+          return (
+            <div key={s.id} className={`rounded-xl border-2 p-3 transition ${bothOk ? "border-green-400 bg-green-50" : anyWrong ? "border-red-400 bg-red-50" : "border-border bg-card"}`}>
+              <p className="text-sm font-medium text-foreground mb-2">{s.text}</p>
+              {!checked ? (
+                <div className="space-y-2">
+                  <div className="flex flex-wrap gap-1">
+                    {CURVE_OPTS.map(c => (
+                      <button key={c.id} onClick={() => setAns(s.id, "curve", c.id)}
+                        className={`px-3 py-1 rounded-lg border text-xs font-semibold transition ${ans.curve === c.id ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/40"}`}>
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    {DIR_OPTS.map(d => (
+                      <button key={d.id} onClick={() => setAns(s.id, "dir", d.id)}
+                        className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition ${ans.dir === d.id ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/40"}`}>
+                        {d.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <p className={`text-xs font-semibold ${curveOk ? "text-green-700" : "text-red-700"}`}>{curveOk ? "✓ " : "✗ "}{s.curveLabel}</p>
+                  <p className={`text-xs font-semibold ${dirOk ? "text-green-700" : "text-red-700"}`}>{dirOk ? "✓ " : "✗ "}{s.dirLabel}</p>
+                  <p className="text-xs text-muted-foreground italic mt-1">{s.reason}</p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {!checked ? (
+        <button disabled={!allAnswered} onClick={() => setChecked(true)}
+          className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+          Check Answers
+        </button>
+      ) : (
+        <div className="space-y-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+            <p className="text-sm font-bold text-blue-800">You got {correctCount} of {CURVE_SCENARIOS.length} correct!</p>
+          </div>
+          <button onClick={() => onComplete(correctCount, CURVE_SCENARIOS.length)}
+            className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+            Mark Complete ✓
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 // ─────────────────────────────────────────────
-// Station 3 — Market Equilibrium
+// Station 3 — Market Equilibrium: Surplus/Shortage Classifier
 // ─────────────────────────────────────────────
-const EQUIL_QS = [
-  {
-    q: "In the gasoline market, equilibrium is at $1.40/gal and 600M gallons. If the price is set at $1.80/gal, producers want to sell 680M gallons but buyers only want 500M. What is this situation called, and what happens next?",
-    options: [
-      "A shortage — buyers want more than sellers supply, so price rises",
-      "A surplus — unsold goods pile up, so sellers cut prices back toward $1.40",
-      "Equilibrium — the market is balanced at $1.80",
-      "A price floor — the government is holding the price above equilibrium",
-    ],
-    correct: 1,
-    exp: "At $1.80, Qs (680M) > Qd (500M) — a surplus of 180M gallons. Unsold inventory builds up, pressuring sellers to cut prices. The market self-corrects back down toward the equilibrium of $1.40.",
-  },
-  {
-    q: "At $1.20/gal in the gasoline market, buyers want 700M gallons but producers only want to supply 550M. What is this situation, and what pressure does it create?",
-    options: [
-      "A surplus — too much is being produced, so price falls",
-      "A shortage — shelves go bare, and sellers raise prices back toward $1.40",
-      "Equilibrium — the market clears at $1.20",
-      "A demand shift — income must have fallen",
-    ],
-    correct: 1,
-    exp: "At $1.20, Qd (700M) > Qs (550M) — a shortage of 150M gallons. Shelves go bare, buyers compete for limited supply, and sellers raise prices. The market self-corrects back up toward the equilibrium of $1.40.",
-  },
-  {
-    q: "What is the key insight about how markets handle surpluses and shortages without any government intervention?",
-    options: [
-      "Markets require a regulator to correct imbalances — prices alone are not enough",
-      "Whenever price is off equilibrium, pressure builds in the direction of the equilibrium price — markets self-correct",
-      "Surpluses fix themselves but shortages require government action",
-      "Markets only self-correct in competitive industries with many sellers",
-    ],
-    correct: 1,
-    exp: "Markets self-correct automatically. A surplus drives price down; a shortage drives price up. In both cases, the pressure pushes toward equilibrium — no coordinator needed. This is one of the key takeaways from your slides.",
-  },
-  {
-    q: "Your slides show a 'Shift vs. Move' diagram. A frost destroys half the Florida orange crop. What happens in the orange juice market?",
-    options: [
-      "The demand curve shifts left — consumers want less orange juice",
-      "There is a movement along the supply curve to a lower quantity",
-      "The supply curve shifts left — less is offered at every price, pushing equilibrium price up",
-      "The equilibrium quantity rises while price falls",
-    ],
-    correct: 2,
-    exp: "The frost is a non-price factor (natural conditions) that shifts the entire supply curve left — less orange juice is offered at every price. This is a shift of supply, not a movement along it. The new equilibrium has a higher price and lower quantity.",
-  },
+const EQUIL_SCENARIOS = [
+  { id: 1, text: "Gasoline market: equilibrium is $1.40/gal. Current price is $1.80. At this price, producers supply 680M gallons but buyers only want 500M.", status: "surplus", movement: "falls", statusLabel: "Surplus (Qs > Qd)", movementLabel: "Price falls toward equilibrium", reason: "At $1.80, Qs (680M) > Qd (500M) — 180M gallon surplus. Unsold inventory builds. Sellers cut prices to clear stock." },
+  { id: 2, text: "Gasoline market: current price is $1.20/gal. Buyers want 700M gallons but producers only supply 550M.", status: "shortage", movement: "rises", statusLabel: "Shortage (Qd > Qs)", movementLabel: "Price rises toward equilibrium", reason: "At $1.20, Qd (700M) > Qs (550M) — 150M gallon shortage. Shelves go bare. Sellers raise prices as buyers compete." },
+  { id: 3, text: "At the current price, every unit produced is sold and no buyer is left wanting. Quantity demanded equals quantity supplied.", status: "equilibrium", movement: "stable", statusLabel: "Equilibrium (Qd = Qs)", movementLabel: "Price is stable — no pressure to change", reason: "When Qd = Qs the market clears. There are no unsold goods and no unsatisfied buyers, so there is no pressure for the price to move." },
+  { id: 4, text: "A city passes a rent control law capping rent at $500/month. The market equilibrium rent is $600/month. More people want apartments than landlords are willing to rent.", status: "shortage", movement: "rises", statusLabel: "Shortage (Qd > Qs)", movementLabel: "Price would rise — but ceiling holds it down", reason: "A price ceiling below equilibrium causes Qd > Qs — a persistent shortage. The price cannot rise to clear the market because of the legal ceiling." },
+  { id: 5, text: "The government sets a minimum wheat price of $8/bushel. The market equilibrium is $6/bushel. Farmers produce more wheat than buyers want to purchase.", status: "surplus", movement: "falls", statusLabel: "Surplus (Qs > Qd)", movementLabel: "Price would fall — but floor holds it up", reason: "A price floor above equilibrium causes Qs > Qd — a persistent surplus. Government typically buys the excess to maintain the floor price." },
+];
+
+const STATUS_OPTS = [
+  { id: "surplus",     label: "Surplus (Qs > Qd)",  color: "bg-red-100 border-red-300 text-red-800" },
+  { id: "shortage",    label: "Shortage (Qd > Qs)", color: "bg-amber-100 border-amber-300 text-amber-800" },
+  { id: "equilibrium", label: "Equilibrium",        color: "bg-green-100 border-green-300 text-green-800" },
+];
+const MOVE_OPTS = [
+  { id: "falls",  label: "Price falls" },
+  { id: "rises",  label: "Price rises" },
+  { id: "stable", label: "Price stable" },
 ];
 
 function EquilibriumStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<Record<number, { status: string; movement: string }>>({});
   const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
+  const allAnswered = EQUIL_SCENARIOS.every(s => answers[s.id]?.status && answers[s.id]?.movement);
+  const correctCount = checked ? EQUIL_SCENARIOS.filter(s => answers[s.id]?.status === s.status && answers[s.id]?.movement === s.movement).length : 0;
 
-  const q = EQUIL_QS[idx];
-  const isLast = idx === EQUIL_QS.length - 1;
-
-  function handleCheck() {
-    if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
-    setScore(newScore);
-    setChecked(true);
-  }
-
-  function handleNext() {
-    setSel(null);
-    setChecked(false);
-    setIdx((i) => i + 1);
+  function setAns(id: number, field: "status" | "movement", val: string) {
+    setAnswers(a => ({ ...a, [id]: { ...a[id], [field]: val } }));
   }
 
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-1">Market Equilibrium — Gasoline Market</p>
-        <p className="text-muted-foreground text-xs mb-2">Equilibrium: <strong className="text-foreground">$1.40/gal · 600M gallons</strong></p>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-2">
-            <p className="font-semibold text-red-800">Surplus (price too high)</p>
-            <p className="text-red-700">Qs &gt; Qd → unsold goods pile up → sellers cut prices</p>
-            <p className="text-red-600 mt-1">At $1.80: Qs 680M vs Qd 500M → 180M gap</p>
-          </div>
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-2">
-            <p className="font-semibold text-amber-800">Shortage (price too low)</p>
-            <p className="text-amber-700">Qd &gt; Qs → shelves bare → sellers raise prices</p>
-            <p className="text-amber-600 mt-1">At $1.20: Qd 700M vs Qs 550M → 150M gap</p>
-          </div>
+        <p className="font-semibold text-foreground mb-1">Station 3 — Market Equilibrium: Surplus or Shortage?</p>
+        <p className="text-muted-foreground text-xs mb-2">Classify each market situation and identify which direction price pressure moves. Remember: markets self-correct — surpluses push prices down, shortages push prices up.</p>
+        <div className="flex flex-wrap gap-1 text-xs">
+          {STATUS_OPTS.map(s => <span key={s.id} className={`px-2 py-0.5 rounded-full border font-medium ${s.color}`}>{s.label}</span>)}
         </div>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={EQUIL_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-3">
+        {EQUIL_SCENARIOS.map(s => {
+          const ans = answers[s.id] || {};
+          const statOk = checked && ans.status === s.status;
+          const moveOk = checked && ans.movement === s.movement;
+          const bothOk = statOk && moveOk;
+          const anyWrong = checked && (!statOk || !moveOk);
+          return (
+            <div key={s.id} className={`rounded-xl border-2 p-3 transition ${bothOk ? "border-green-400 bg-green-50" : anyWrong ? "border-red-400 bg-red-50" : "border-border bg-card"}`}>
+              <p className="text-sm font-medium text-foreground mb-2">{s.text}</p>
+              {!checked ? (
+                <div className="space-y-2">
+                  <div className="flex flex-wrap gap-1">
+                    {STATUS_OPTS.map(o => (
+                      <button key={o.id} onClick={() => setAns(s.id, "status", o.id)}
+                        className={`px-3 py-1 rounded-lg border text-xs font-semibold transition ${ans.status === o.id ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/40"}`}>
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    {MOVE_OPTS.map(m => (
+                      <button key={m.id} onClick={() => setAns(s.id, "movement", m.id)}
+                        className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition ${ans.movement === m.id ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/40"}`}>
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <p className={`text-xs font-semibold ${statOk ? "text-green-700" : "text-red-700"}`}>{statOk ? "✓ " : "✗ "}{s.statusLabel}</p>
+                  <p className={`text-xs font-semibold ${moveOk ? "text-green-700" : "text-red-700"}`}>{moveOk ? "✓ " : "✗ "}{s.movementLabel}</p>
+                  <p className="text-xs text-muted-foreground italic mt-1">{s.reason}</p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {!checked ? (
+        <button disabled={!allAnswered} onClick={() => setChecked(true)}
+          className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+          Check Answers
+        </button>
+      ) : (
+        <div className="space-y-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+            <p className="text-sm font-bold text-blue-800">You got {correctCount} of {EQUIL_SCENARIOS.length} correct!</p>
+          </div>
+          <button onClick={() => onComplete(correctCount, EQUIL_SCENARIOS.length)}
+            className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+            Mark Complete ✓
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -462,189 +472,218 @@ function ShiftersStation({ onComplete }: { onComplete: (score: number, total: nu
 }
 
 // ─────────────────────────────────────────────
-// Station 5 — Four-Step Analysis
+// Station 5 — Four-Step Analysis: Stepped Scenario Walkthrough
 // ─────────────────────────────────────────────
-const FOURSTEP_QS = [
+const FOURSTEP_SCENARIOS = [
   {
-    q: "A drought hits Midwest grain farms. Using the four-step method: which curve shifts, in which direction, and what happens to equilibrium price and quantity of grain?",
-    options: [
-      "Demand shifts left → price falls, quantity falls",
-      "Supply shifts left → price rises, quantity falls",
-      "Supply shifts right → price falls, quantity rises",
-      "Demand shifts right → price rises, quantity falls",
+    scenario: "A severe drought hits Midwest grain farms, destroying a large portion of the corn and wheat harvest.",
+    steps: [
+      { q: "Step 1 — Which curve is affected: demand or supply?", options: ["A) Demand — consumers want less grain after the drought", "B) Supply — the drought affects producers' ability to grow grain", "C) Both curves shift simultaneously", "D) Neither — droughts only affect prices, not quantities"], correct: 1, exp: "A drought is a natural condition — a producer-side factor. It affects the supply curve, not demand. Consumers still want the same amount of grain at each price." },
+      { q: "Step 2 — Which direction does the curve shift?", options: ["A) Right — producers offer more grain at every price", "B) Left — producers offer less grain at every price", "C) The curve rotates but does not shift", "D) There is no shift — only a movement along the curve"], correct: 1, exp: "Drought destroys production capacity. Less grain is available at every price level, so the supply curve shifts LEFT." },
+      { q: "Step 3 — What happens to equilibrium price and quantity?", options: ["A) Price falls, quantity rises", "B) Price rises, quantity falls", "C) Price rises, quantity rises", "D) Price falls, quantity falls"], correct: 1, exp: "Supply shifts left → new equilibrium has higher price and lower quantity. Key pattern: when supply shifts, P and Q move in opposite directions." },
     ],
-    correct: 1,
-    exp: "Step 1: draw initial D and S. Step 2: drought is a natural condition — producer-side → supply. Step 3: drought reduces output at every price → supply shifts LEFT. Step 4: new equilibrium has higher P and lower Q. Pattern: supply shifts → P and Q move oppositely.",
   },
   {
-    q: "Rising incomes cause consumers to buy more new cars. What does the four-step method predict for the car market?",
-    options: [
-      "Supply shifts right → price falls, quantity rises",
-      "Demand shifts right → price rises, quantity rises",
-      "Demand shifts left → price falls, quantity falls",
-      "Supply shifts left → price rises, quantity falls",
+    scenario: "Rising incomes and a surge of confidence lead consumers to buy significantly more new cars.",
+    steps: [
+      { q: "Step 1 — Which curve is affected: demand or supply?", options: ["A) Supply — car factories produce more when consumers are confident", "B) Demand — income and confidence are consumer-side factors", "C) Supply — automakers respond to higher prices by producing more", "D) Neither — income changes only affect the labor market"], correct: 1, exp: "Income and consumer confidence are demand shifters — consumer-side factors. They shift the demand curve." },
+      { q: "Step 2 — Which direction does the curve shift?", options: ["A) Left — higher incomes cause consumers to save more instead", "B) Right — consumers want more cars at every price level", "C) Left — car prices rise, reducing quantity demanded", "D) Right for supply, not demand"], correct: 1, exp: "Higher income and confidence increase willingness to buy. More cars are demanded at every price — the demand curve shifts RIGHT." },
+      { q: "Step 3 — What happens to equilibrium price and quantity?", options: ["A) Price rises, quantity falls", "B) Price falls, quantity rises", "C) Price rises, quantity rises", "D) Price falls, quantity falls"], correct: 2, exp: "Demand shifts right → new equilibrium has higher price AND higher quantity. Key pattern: when demand shifts, P and Q move in the SAME direction." },
     ],
-    correct: 1,
-    exp: "Step 1: draw D and S. Step 2: income is a consumer-side factor → demand. Step 3: higher income increases willingness to buy at every price → demand shifts RIGHT. Step 4: new equilibrium has higher P and higher Q. Pattern: demand shifts → P and Q move together.",
   },
   {
-    q: "The government grants a large subsidy to solar panel manufacturers. What does the four-step method predict for the solar panel market?",
-    options: [
-      "Demand shifts right → price rises, quantity rises",
-      "Supply shifts right → price falls, quantity rises",
-      "Supply shifts left → price rises, quantity falls",
-      "Demand shifts left → price falls, quantity falls",
+    scenario: "The government grants a large subsidy to solar panel manufacturers, significantly lowering their production costs.",
+    steps: [
+      { q: "Step 1 — Which curve is affected: demand or supply?", options: ["A) Demand — consumers want more solar panels because of the subsidy", "B) Supply — the subsidy lowers producers' costs", "C) Both — subsidies always shift both curves", "D) Neither — subsidies only affect government revenue"], correct: 1, exp: "A government subsidy to manufacturers is a producer-side policy — it lowers production costs and shifts the supply curve." },
+      { q: "Step 2 — Which direction does the supply curve shift?", options: ["A) Left — the subsidy reduces profit incentive", "B) Right — lower costs mean producers offer more at every price", "C) Left — government intervention always reduces supply", "D) The curve pivots, not shifts"], correct: 1, exp: "Lower production costs mean producers can profitably offer more panels at every price — supply shifts RIGHT." },
+      { q: "Step 3 — What happens to equilibrium price and quantity?", options: ["A) Price rises, quantity falls", "B) Price rises, quantity rises", "C) Price falls, quantity falls", "D) Price falls, quantity rises"], correct: 3, exp: "Supply shifts right → new equilibrium has lower price and higher quantity. Pattern: supply shifts → P and Q move oppositely. The subsidy makes solar cheaper and more widely adopted." },
     ],
-    correct: 1,
-    exp: "Step 1: draw D and S. Step 2: government subsidy lowers production costs → producer-side → supply. Step 3: cheaper to produce → more offered at every price → supply shifts RIGHT. Step 4: new equilibrium has lower P and higher Q. Pattern: supply shifts → P and Q move oppositely.",
-  },
-  {
-    q: "Your slides state: 'Ceteris paribus — analyze ONE change at a time.' Why is this rule important?",
-    options: [
-      "Because only one market can change at a time in the real world",
-      "Because multiple simultaneous shifts make the direction of the outcome ambiguous",
-      "Because the four-step method can only handle supply shifts, not demand shifts",
-      "Because ceteris paribus means the price level is held fixed",
-    ],
-    correct: 1,
-    exp: "Ceteris paribus means 'all else equal.' When two things change simultaneously — say demand rises AND supply falls — we can predict that price will rise, but the effect on quantity is ambiguous (they work in opposite directions). Isolating one change at a time keeps the analysis clear and testable.",
   },
 ];
 
 function FourStepStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
+  const [scenIdx, setScenIdx] = useState(0);
+  const [stepIdx, setStepIdx] = useState(0);
   const [sel, setSel] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const [score, setScore] = useState(0);
 
-  const q = FOURSTEP_QS[idx];
-  const isLast = idx === FOURSTEP_QS.length - 1;
+  const scen = FOURSTEP_SCENARIOS[scenIdx];
+  const step = scen.steps[stepIdx];
+  const isLastStep = stepIdx === scen.steps.length - 1;
+  const isLastScen = scenIdx === FOURSTEP_SCENARIOS.length - 1;
+  const totalQs = FOURSTEP_SCENARIOS.reduce((a, s) => a + s.steps.length, 0);
 
   function handleCheck() {
     if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
+    const newScore = sel === step.correct ? score + 1 : score;
     setScore(newScore);
     setChecked(true);
   }
-
   function handleNext() {
     setSel(null);
     setChecked(false);
-    setIdx((i) => i + 1);
+    if (!isLastStep) { setStepIdx(i => i + 1); }
+    else if (!isLastScen) { setScenIdx(i => i + 1); setStepIdx(0); }
   }
 
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">The Four-Step Method</p>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          {[["1", "Draw initial model", "Sketch D and S, mark equilibrium P and Q"],
-            ["2", "Demand or supply?", "Consumer-side factor → demand. Producer-side → supply."],
-            ["3", "Right or left?", "More at every price → right. Less → left."],
-            ["4", "Compare equilibria", "Find new P and Q. Note: demand shifts → P & Q together. Supply shifts → P & Q oppositely."]
-          ].map(([n, title, desc]) => (
-            <div key={n} className="bg-background border border-border rounded-lg p-2">
-              <p className="text-primary font-bold text-base">{n}</p>
-              <p className="font-semibold text-foreground text-xs">{title}</p>
-              <p className="text-muted-foreground text-xs mt-0.5">{desc}</p>
-            </div>
+        <p className="font-semibold text-foreground mb-1">Station 5 — Four-Step Analysis</p>
+        <p className="text-muted-foreground text-xs">Apply the four-step method to 3 real scenarios. Each scenario walks through which curve shifts, which direction, and what happens to P and Q.</p>
+        <div className="flex gap-1 mt-2">
+          {FOURSTEP_SCENARIOS.map((s, i) => (
+            <div key={i} className={`h-1.5 flex-1 rounded-full ${i < scenIdx ? "bg-primary" : i === scenIdx ? "bg-primary/60" : "bg-primary/20"}`} />
           ))}
         </div>
+        <p className="text-xs text-muted-foreground mt-1">Scenario {scenIdx + 1} of {FOURSTEP_SCENARIOS.length}</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={FOURSTEP_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm">
+        <p className="font-semibold text-amber-800 text-xs uppercase tracking-wide mb-1">Scenario {scenIdx + 1}</p>
+        <p className="text-foreground">{scen.scenario}</p>
+      </div>
+      <div className="bg-card border-2 border-border rounded-xl p-4 space-y-3">
+        <p className="text-xs font-bold uppercase tracking-widest text-primary">Step {stepIdx + 1} of {scen.steps.length}</p>
+        <p className="text-sm font-semibold text-foreground">{step.q}</p>
+        <div className="space-y-2">
+          {step.options.map((opt, i) => (
+            <button key={i} disabled={checked} onClick={() => setSel(i)}
+              className={`w-full text-left px-4 py-2.5 rounded-lg border text-sm transition ${
+                checked
+                  ? i === step.correct ? "border-green-500 bg-green-50 text-green-900"
+                    : i === sel && sel !== step.correct ? "border-red-400 bg-red-50 text-red-900"
+                    : "border-border text-muted-foreground opacity-60"
+                  : sel === i ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border bg-background text-foreground hover:border-primary"
+              }`}>{opt}</button>
+          ))}
+        </div>
+        {checked && (
+          <div className={`rounded-lg p-3 text-xs ${sel === step.correct ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}>
+            {sel === step.correct ? "✓ Correct — " : "✗ Incorrect — "}{step.exp}
+          </div>
+        )}
+        {!checked && sel !== null && (
+          <button onClick={handleCheck} className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition">
+            Check Answer
+          </button>
+        )}
+        {checked && !(isLastStep && isLastScen) && (
+          <button onClick={handleNext} className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition">
+            {isLastStep ? "Next Scenario →" : "Next Step →"}
+          </button>
+        )}
+        {checked && isLastStep && isLastScen && (
+          <button onClick={() => onComplete(score, totalQs)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+            Mark Complete ✓
+          </button>
+        )}
+      </div>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────
-// Station 6 — Price Controls
+// Station 6 — Price Controls: Verdict Cards
 // ─────────────────────────────────────────────
-const CONTROLS_QS = [
+const CONTROLS_CARDS = [
   {
-    q: "Rent control sets a maximum rent of $500/month in a city where the market equilibrium is $600/month. What type of price control is this, and what does it cause?",
-    options: [
-      "A price floor — it creates a surplus of apartments",
-      "A price ceiling set below equilibrium — it creates a shortage of apartments",
-      "A price ceiling set above equilibrium — it has no effect on the market",
-      "A price floor set below equilibrium — it keeps rents affordable for everyone",
-    ],
-    correct: 1,
-    exp: "A price ceiling is a maximum price. When set BELOW equilibrium ($500 < $600), Qd > Qs — more people want apartments than landlords are willing to rent at that price. The result is a shortage.",
+    id: "ceiling",
+    icon: "🏠",
+    title: "Rent Control",
+    tag: "PRICE CEILING",
+    tagColor: "bg-blue-100 border-blue-400 text-blue-800",
+    setup: "City sets maximum rent at $500/month. Market equilibrium is $600/month.",
+    whoWins: "Current tenants holding rent-controlled units pay $100/month less than the market rate.",
+    whoPays: "New renters face a shortage — fewer apartments are offered. Landlords convert units to condos, reduce maintenance, and allocate by waiting lists or connections. Total rental housing supply shrinks.",
+    lesson: "The ceiling helps a few sitting tenants — and hurts many more prospective renters. No free lunch.",
   },
   {
-    q: "Your slides list four unintended consequences of rent control. Which of the following is one of them?",
-    options: [
-      "Rents fall for all tenants, making housing universally more affordable",
-      "New apartment construction booms because developers want to help",
-      "Landlords convert rental units to condos and co-ops, reducing rental supply",
-      "Vacancy rates rise as more apartments become available",
-    ],
-    correct: 2,
-    exp: "Rent control's unintended consequences: fewer apartments rented than at market price, landlords convert units to condos/co-ops, maintenance and quality deteriorate, and allocation shifts to waiting lists, connections, and discrimination. 'The ceiling helps a few — and hurts many more.'",
+    id: "floor",
+    icon: "🌾",
+    title: "Agricultural Price Floor",
+    tag: "PRICE FLOOR",
+    tagColor: "bg-amber-100 border-amber-400 text-amber-800",
+    setup: "Government sets a minimum wheat price of $8/bushel above the $6 market equilibrium.",
+    whoWins: "Farmers receive a guaranteed price above what the market would pay — higher and more stable income.",
+    whoPays: "Taxpayers fund government purchases of the surplus wheat. Consumers pay above-market food prices. Resources are misallocated — too much wheat is produced relative to what buyers actually want. High-income countries spend roughly $1 billion per day supporting farmers.",
+    lesson: "Price floors benefit producers but impose costs on consumers and taxpayers. The surplus must go somewhere — usually government storage or export subsidies.",
   },
   {
-    q: "Agricultural price supports set a price floor above the market equilibrium for grain. Who bears the cost, according to your slides?",
-    options: [
-      "Only farmers — they must accept lower prices than they want",
-      "Taxpayers (who fund government grain purchases) and consumers (who pay above-market prices)",
-      "Only foreign competitors who lose market share",
-      "No one — price floors simply prevent market prices from falling too low",
-    ],
-    correct: 1,
-    exp: "Price floors above equilibrium create surpluses. Governments typically buy the surplus to maintain the floor price. Who pays: taxpayers fund government purchases, consumers pay higher food prices than the market would set, and resources are misallocated to overproduction of supported crops. High-income countries spend roughly $1 billion per day supporting farmers.",
-  },
-  {
-    q: "Your slides state: 'There's no free lunch — every policy has opportunity costs.' Which answer best captures the economic lesson from studying price controls?",
-    options: [
-      "Price controls always hurt consumers and should never be used",
-      "Price controls can achieve their goals without any trade-offs if set correctly",
-      "Price controls generate predictable side effects — the real question is whether the benefit to some is worth the cost to others",
-      "Price floors help consumers; price ceilings help producers",
-    ],
-    correct: 2,
-    exp: "Economics does not say price controls are always wrong — it says they have predictable consequences. A ceiling creates shortages and quality decline; a floor creates surpluses and inefficiency. The normative question — whether the policy is worth it — depends on who benefits and who pays. The positive analysis reveals the trade-offs.",
+    id: "minwage",
+    icon: "💵",
+    title: "Minimum Wage",
+    tag: "PRICE FLOOR",
+    tagColor: "bg-amber-100 border-amber-400 text-amber-800",
+    setup: "Government sets a minimum wage of $15/hour in a market where the equilibrium wage is $12/hour.",
+    whoWins: "Workers who keep their jobs earn $3/hour more. Raises living standards for employed low-wage workers.",
+    whoPays: "The standard model predicts some reduction in employment — businesses hire fewer workers or substitute technology when labor costs rise above equilibrium. The debate: how large is this effect? Most economists find modest employment effects at moderate minimum wages, larger effects if set far above equilibrium.",
+    lesson: "A price floor on labor (minimum wage) is more nuanced than commodity markets. The trade-off is real but the magnitude depends on how binding the floor is relative to the local equilibrium wage.",
   },
 ];
 
 function ControlsStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
-  const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState<Set<string>>(new Set());
+  const allRevealed = CONTROLS_CARDS.every(c => revealed.has(c.id));
 
-  const q = CONTROLS_QS[idx];
-  const isLast = idx === CONTROLS_QS.length - 1;
-
-  function handleCheck() {
-    if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
-    setScore(newScore);
-    setChecked(true);
-  }
-
-  function handleNext() {
-    setSel(null);
-    setChecked(false);
-    setIdx((i) => i + 1);
+  function toggle(id: string) {
+    setRevealed(r => new Set([...r, id]));
+    setExpanded(e => e === id ? null : id);
   }
 
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">Price Controls</p>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="bg-background border border-border rounded-lg p-2">
-            <p className="font-semibold text-foreground">Price Ceiling</p>
-            <p className="text-muted-foreground">Maximum price. If set BELOW equilibrium → shortage. Example: rent control at $500 (eq. $600).</p>
-          </div>
-          <div className="bg-background border border-border rounded-lg p-2">
-            <p className="font-semibold text-foreground">Price Floor</p>
-            <p className="text-muted-foreground">Minimum price. If set ABOVE equilibrium → surplus. Example: agricultural price supports.</p>
-          </div>
-        </div>
-        <p className="text-xs text-muted-foreground italic mt-2">"There's no free lunch — every policy has opportunity costs."</p>
+        <p className="font-semibold text-foreground mb-1">Station 6 — Price Controls: Who Wins, Who Pays?</p>
+        <p className="text-muted-foreground text-xs">Price controls create predictable winners and losers. Open each card to see who benefits and who bears the cost. Open all three to complete the station.</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={CONTROLS_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-3">
+        {CONTROLS_CARDS.map(card => {
+          const isOpen = expanded === card.id;
+          const seen = revealed.has(card.id);
+          return (
+            <div key={card.id} className={`rounded-2xl border-2 overflow-hidden transition ${seen ? "border-primary/40" : "border-border"} bg-card`}>
+              <button onClick={() => toggle(card.id)}
+                className="w-full flex items-center justify-between p-4 text-left gap-3 hover:bg-muted/40 transition">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{card.icon}</span>
+                  <div>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full border mr-2 ${card.tagColor}`}>{card.tag}</span>
+                    <span className="text-sm font-semibold text-foreground">{card.title}</span>
+                  </div>
+                </div>
+                <span className="text-muted-foreground text-sm">{isOpen ? "▲" : "▼"}</span>
+              </button>
+              {isOpen && (
+                <div className="px-4 pb-4 space-y-3">
+                  <div className="bg-muted/50 rounded-xl p-3 text-xs text-foreground">
+                    <p className="font-semibold mb-1">Setup</p>
+                    <p>{card.setup}</p>
+                  </div>
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-xs">
+                    <p className="font-semibold text-green-800 mb-1">✓ Who Benefits</p>
+                    <p className="text-green-700">{card.whoWins}</p>
+                  </div>
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-xs">
+                    <p className="font-semibold text-red-800 mb-1">✗ Who Pays the Cost</p>
+                    <p className="text-red-700">{card.whoPays}</p>
+                  </div>
+                  <div className="bg-primary/10 border border-primary/20 rounded-xl p-3">
+                    <p className="text-xs font-bold text-primary uppercase tracking-wider mb-1">Key Lesson</p>
+                    <p className="text-xs text-foreground">{card.lesson}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <button disabled={!allRevealed} onClick={() => onComplete(CONTROLS_CARDS.length, CONTROLS_CARDS.length)}
+        className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+        {allRevealed ? "Mark Complete ✓" : `Open all cards to continue (${revealed.size}/${CONTROLS_CARDS.length})`}
+      </button>
     </div>
   );
 }

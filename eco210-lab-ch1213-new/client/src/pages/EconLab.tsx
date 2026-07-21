@@ -77,156 +77,212 @@ function SteppedQuiz({ q, idx, total, sel, setSel, checked, onCheck, onNext, isL
 }
 
 // ─────────────────────────────────────────────
-// Station 1 — Two Lenses
+// Station 1 — Two Lenses: Schools Classifier
 // ─────────────────────────────────────────────
-const TWOLENSES_QS = [
-  {
-    q: "Your slides present a comparison table between Keynesian and Neoclassical economics across six dimensions. Which row of that table is CORRECTLY stated?",
-    options: [
-      "Keynesian: key driver is Aggregate Demand · Neoclassical: key driver is Aggregate Supply (potential GDP)",
-      "Keynesian: long run focus · Neoclassical: short run focus",
-      "Keynesian: flexible wages & prices · Neoclassical: sticky wages & prices",
-      "Keynesian: rational expectations · Neoclassical: adaptive expectations",
-    ],
-    correct: 0,
-    exp: "From the comparison table: Keynesian key driver = Aggregate Demand (short run, sticky prices, demand deficiency causes unemployment, countercyclical policy). Neoclassical key driver = Aggregate Supply / potential GDP (long run, flexible wages, natural rate, rules + supply-side reform). The other rows are reversed — Keynesian has sticky wages and adaptive expectations; Neoclassical has flexible wages and rational expectations.",
-  },
-  {
-    q: "Your slides quote Robert Solow (Nobel 1987): 'At short time scales, something sort of Keynesian is a good approximation. At very long time scales, neoclassical. At the 5–10 year scale, we have to piece things together.' What is Solow's core point about these two schools?",
-    options: [
-      "Keynesian economics is correct and Neoclassical economics is wrong — Solow is endorsing Keynes",
-      "The two schools are fundamentally incompatible — no synthesis is possible",
-      "Neither school is universally correct — the appropriate framework depends on the time horizon, and modern policy borrows from both",
-      "Neoclassical economics is better because it covers longer time periods",
-    ],
-    correct: 2,
-    exp: "Solow's synthesis: the two schools are complements, not competitors — each captures something real at a different time scale. Short run → demand matters (Keynesian). Long run → supply/real factors dominate (Neoclassical). The 5–10 year middle range is genuinely ambiguous — both insights apply. Your slides: 'Good policy borrows from both — Keynesian tools for demand crises, Neoclassical tools for long-run growth.' The Fed's dual mandate (employment + price stability) literally embeds both schools into law.",
-  },
-  {
-    q: "The Keynesian school says 'animal spirits' drive investment volatility. What does this mean and why does it matter for policy?",
-    options: [
-      "Businesses make investment decisions based purely on mathematical expected returns — 'animal spirits' is Keynes' term for this rational calculation",
-      "Animal spirits refers to consumer spending patterns — not business investment",
-      "Animal spirits is a Neoclassical concept explaining why wages adjust slowly",
-      "Businesses invest based on confidence, optimism, and fear — not just cold math. When confidence collapses, investment collapses regardless of interest rates, creating sudden AD falls that policy must address",
-    ],
-    correct: 3,
-    exp: "Keynes coined 'animal spirits' to describe the psychological element driving investment: businesses invest based on confidence about future profits, not just current interest rates. A sudden collapse in business confidence — even with low interest rates — can crash investment (I), pulling AD down sharply. This is why Keynesians say AD is inherently unstable. The 2008–09 case: even near-zero rates didn't revive investment until confidence returned. This is also why simple Neoclassical 'lower rates and investment will follow' sometimes fails in severe downturns.",
-  },
+const SCHOOLS_ITEMS = [
+  { id: 1, text: "Wages and prices adjust slowly in recessions, so demand shortfalls persist and require active government response.", school: "keynesian", label: "Keynesian" },
+  { id: 2, text: "The economy's long-run productive capacity is determined by physical capital, human capital, technology, and institutions — not by aggregate demand.", school: "neoclassical", label: "Neoclassical" },
+  { id: 3, text: "If the government runs a large deficit, it borrows in financial capital markets, raising interest rates and crowding out private investment.", school: "neoclassical", label: "Neoclassical" },
+  { id: 4, text: "Animal spirits — waves of business confidence and pessimism — drive investment volatility and can cause AD to collapse independently of interest rates.", school: "keynesian", label: "Keynesian" },
+  { id: 5, text: "The economy will eventually return to potential GDP — the disagreement is how long it takes and whether the human cost of waiting is acceptable.", school: "both", label: "Both Agree" },
+  { id: 6, text: "Rules are better than discretion — predictable, credible policy (like the Fed's 2% inflation target) produces better outcomes than case-by-case decisions.", school: "neoclassical", label: "Neoclassical" },
+];
+
+const SCHOOL_OPTS = [
+  { id: "keynesian",   label: "Keynesian",  color: "bg-blue-100 border-blue-400 text-blue-800" },
+  { id: "neoclassical",label: "Neoclassical",color: "bg-green-100 border-green-400 text-green-800" },
+  { id: "both",        label: "Both Agree", color: "bg-purple-100 border-purple-400 text-purple-800" },
 ];
 
 function TwoLensesStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
-  const q = TWOLENSES_QS[idx];
-  const isLast = idx === TWOLENSES_QS.length - 1;
-  function handleCheck() { if (sel === null) return; setScore(s => s + (sel === q.correct ? 1 : 0)); setChecked(true); }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+  const allAnswered = SCHOOLS_ITEMS.every(s => answers[s.id]);
+  const correctCount = checked ? SCHOOLS_ITEMS.filter(s => answers[s.id] === s.school).length : 0;
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">Two Lenses — Same Goal, Different Mechanisms</p>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="bg-background border border-border rounded-lg p-2">
-            <p className="font-bold text-primary mb-1">Keynesian</p>
-            <ul className="text-muted-foreground space-y-0.5">
-              <li>• Focus: Short run</li>
-              <li>• Driver: Aggregate Demand</li>
-              <li>• Wages: Sticky — adjust slowly</li>
-              <li>• Unemployment: Demand deficiency</li>
-              <li>• Policy: Countercyclical (active)</li>
-              <li>• Expectations: Adaptive</li>
-            </ul>
-          </div>
-          <div className="bg-background border border-border rounded-lg p-2">
-            <p className="font-bold text-primary mb-1">Neoclassical</p>
-            <ul className="text-muted-foreground space-y-0.5">
-              <li>• Focus: Long run</li>
-              <li>• Driver: Aggregate Supply / potential GDP</li>
-              <li>• Wages: Flexible — markets self-correct</li>
-              <li>• Unemployment: Natural rate</li>
-              <li>• Policy: Rules + supply-side reform</li>
-              <li>• Expectations: Rational</li>
-            </ul>
-          </div>
+        <p className="font-semibold text-foreground mb-1">Station 1 — Two Lenses: Keynesian vs. Neoclassical</p>
+        <p className="text-muted-foreground text-xs mb-2">Same goal, different mechanisms. Classify each statement. Solow: "Both capture something real — the time horizon determines which law governs."</p>
+        <div className="grid grid-cols-3 gap-1 text-xs">
+          {SCHOOL_OPTS.map(o => <span key={o.id} className={`px-2 py-1 rounded-lg border font-semibold text-center ${o.color}`}>{o.label}</span>)}
         </div>
-        <p className="text-xs text-muted-foreground italic mt-2">Solow: "Both matter — the time horizon determines which law governs." The Fed's dual mandate embeds both schools into law.</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={TWOLENSES_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-2">
+        {SCHOOLS_ITEMS.map(item => {
+          const ans = answers[item.id];
+          const isCorrect = checked && ans === item.school;
+          const isWrong = checked && ans && ans !== item.school;
+          const optObj = SCHOOL_OPTS.find(o => o.id === item.school);
+          return (
+            <div key={item.id} className={`rounded-xl border-2 p-3 transition ${isCorrect ? "border-green-400 bg-green-50" : isWrong ? "border-red-400 bg-red-50" : "border-border bg-card"}`}>
+              <p className="text-sm font-medium text-foreground mb-2">{item.text}</p>
+              {!checked ? (
+                <div className="flex gap-1.5">
+                  {SCHOOL_OPTS.map(o => (
+                    <button key={o.id} onClick={() => setAnswers(a => ({ ...a, [item.id]: o.id }))}
+                      className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition ${ans === o.id ? `${o.color} border-current` : "border-border bg-background text-foreground hover:border-primary/40"}`}>
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className={`text-xs font-semibold ${isCorrect ? "text-green-700" : "text-red-700"}`}>
+                  {isCorrect ? "✓ " : "✗ "}{optObj?.label}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {!checked ? (
+        <button disabled={!allAnswered} onClick={() => setChecked(true)}
+          className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+          Check Answers
+        </button>
+      ) : (
+        <div className="space-y-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+            <p className="text-sm font-bold text-blue-800">You got {correctCount} of {SCHOOLS_ITEMS.length} correct!</p>
+          </div>
+          <button onClick={() => onComplete(correctCount, SCHOOLS_ITEMS.length)}
+            className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+            Mark Complete ✓
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 // ─────────────────────────────────────────────
-// Station 2 — AD Components & Volatility
+// Station 2 — AD Components & Volatility Sorter
 // ─────────────────────────────────────────────
-const ADVOLATILITY_QS = [
-  {
-    q: "Your slides identify Investment (I) as the most volatile component of AD. What makes investment uniquely unstable compared to consumption, government spending, or net exports?",
-    options: [
-      "Investment is volatile because it depends entirely on government tax policy, which changes every year",
-      "Investment is volatile because businesses make long-horizon capital decisions based on expected future profits and confidence — which can swing dramatically when 'animal spirits' shift",
-      "Investment is the smallest component of AD, so small changes create large percentage swings",
-      "Investment is volatile because it includes inventory changes, which fluctuate with the seasons",
-    ],
-    correct: 1,
-    exp: "From your slides: Investment = business capital spending (equipment, software, structures, inventories). It is driven by expected profit, interest rates, energy prices, and tax policy — but most importantly by 'animal spirits': business confidence about the future. A factory that seemed profitable last year may seem unwise today if executives fear a recession. This forward-looking, confidence-driven nature makes investment collapse rapidly in downturns (2008–09: business investment fell ~20%) and recover slowly. Consumption is more stable because households smooth spending; G is set by policy; NX depends on slower-moving exchange rates.",
-  },
-  {
-    q: "Your slides explain the 'coordination failure' that prevents automatic wage adjustment in recessions. Workers would accept a wage cut IF everyone else did too — but no mechanism coordinates this. What is the result?",
-    options: [
-      "Each firm that cuts wages alone harms morale and loses its best workers — so no firm cuts wages, wages stay high, and unemployment persists rather than clearing through wage adjustment",
-      "Wages fall quickly in recessions because workers recognize the coordination problem and voluntarily accept cuts",
-      "The government coordinates wage cuts through minimum wage legislation during recessions",
-      "Coordination failure only applies to prices, not wages — wages always adjust freely",
-    ],
-    correct: 0,
-    exp: "Your slides' coordination failure: workers would accept cuts IF everyone did simultaneously (preserving relative wages). But no market mechanism achieves this coordination. A firm that cuts wages alone loses its best workers first (adverse selection) and destroys morale. So every firm waits — wages stay sticky, demand falls, firms lay off workers instead of cutting wages. Result: unemployment persists. This is the core reason Keynes said government must step in — it can do what markets cannot: coordinate aggregate demand restoration without relying on wage deflation.",
-  },
-  {
-    q: "The Keynesian zone of the SRAS curve is flat (far left of SRAS), indicating massive idle capacity. In this zone, when the government launches a stimulus program, what does your slides' framework predict?",
-    options: [
-      "Mainly inflation — any rightward AD shift produces price increases regardless of idle capacity",
-      "No effect — stimulus is always offset by rational agents who anticipate it and save rather than spend",
-      "A permanent shift of LRAS right — stimulus creates productive capacity, not just output",
-      "Large real output and employment gains with minimal inflation — firms hire idle workers at stable wages; the flat SRAS means price pressure is very low",
-    ],
-    correct: 3,
-    exp: "Keynesian zone (flat SRAS, far left): with 25% unemployment (1933) or 10% (2009), firms can hire idle workers at stable wages and restart idle factories. When AD shifts right, equilibrium moves mostly rightward — more output, more employment — with minimal upward price pressure because the SRAS is nearly flat. Your slides: 'AD shift right → large output gain, tiny price rise. Stimulus highly effective here — multiplier is large.' Great Depression 1933–38 and 2009 ARRA are the canonical cases. This is why the same stimulus would be inflationary in 2021–22 (Neoclassical zone) but growth-creating in 2009 (Keynesian zone).",
-  },
+const AD_EVENTS = [
+  { id: 1, text: "A family spends roughly the same amount on groceries this month as last month, despite mild economic uncertainty.", component: "C", label: "Consumption (C)", stability: "stable", reason: "Consumption is the most stable AD component — households smooth spending over time. Even in mild downturns, food, housing, and essential services hold up. ~70% of U.S. GDP." },
+  { id: 2, text: "A tech CEO cancels a planned $500M factory expansion because Q3 demand data came in soft and the board grew nervous.", component: "I", label: "Investment (I)", stability: "volatile", reason: "Investment is the most volatile AD component — driven by confidence about future profits ('animal spirits'). Can collapse rapidly when expectations shift, regardless of interest rates." },
+  { id: 3, text: "Congress passes the annual defense appropriations bill — essentially the same funding as last year.", component: "G", label: "Government (G)", stability: "stable", reason: "Government spending is set by policy and tends to be stable year-to-year. It can be used counter-cyclically — making it the Keynesian stabilization tool." },
+  { id: 4, text: "Business investment across the U.S. economy fell ~20% in a single year as the financial crisis triggered a collapse in business confidence.", component: "I", label: "Investment (I)", stability: "volatile", reason: "2008-09: business investment collapsed ~20% — the sharpest single component drop. Animal spirits failed simultaneously across the entire economy. This is why Keynesians say AD is inherently unstable." },
+  { id: 5, text: "U.S. exports to China fall as the dollar strengthens, while imports rise as consumers buy more foreign goods.", component: "NX", label: "Net Exports (NX)", stability: "moderate", reason: "Net exports fluctuate with exchange rates, trading partner growth, and trade policy — more volatile than C or G, less volatile than I. Currently negative for the U.S. (trade deficit)." },
 ];
 
+const STABILITY_OPTS = [
+  { id: "stable",   label: "Most Stable",      color: "bg-green-100 border-green-400 text-green-800" },
+  { id: "moderate", label: "Moderately Stable", color: "bg-amber-100 border-amber-400 text-amber-800" },
+  { id: "volatile", label: "Most Volatile",     color: "bg-red-100 border-red-400 text-red-800" },
+];
+
+const COORD_Q = {
+  q: "Workers would accept a wage cut in a recession IF everyone else did too. But no market mechanism coordinates this. What is the result according to Keynesian theory?",
+  options: [
+    "A) Wages fall rapidly as rational workers recognize cuts are necessary for the economy",
+    "B) Each firm that cuts wages alone loses its best workers first (adverse selection) and destroys morale — so no firm cuts wages, wages stay sticky, and unemployment persists instead of clearing through wage adjustment",
+    "C) The government coordinates wage cuts through minimum wage legislation during downturns",
+    "D) Coordination failure only applies to prices, not wages — wages always adjust freely in recessions",
+  ],
+  correct: 1,
+  exp: "Keynesian coordination failure: wages are sticky downward not because workers are irrational — but because no firm can cut wages without suffering adverse selection (best workers leave first). The result: firms lay off workers rather than cut wages, unemployment persists, and government must restore aggregate demand because the market cannot self-coordinate.",
+};
+
 function AdVolatilityStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [sortChecked, setSortChecked] = useState(false);
   const [sel, setSel] = useState<number | null>(null);
-  const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
-  const q = ADVOLATILITY_QS[idx];
-  const isLast = idx === ADVOLATILITY_QS.length - 1;
-  function handleCheck() { if (sel === null) return; setScore(s => s + (sel === q.correct ? 1 : 0)); setChecked(true); }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+  const [coordChecked, setCoordChecked] = useState(false);
+  const [coordScore, setCoordScore] = useState(0);
+  const allAnswered = AD_EVENTS.every(e => answers[e.id]);
+  const sortCorrect = sortChecked ? AD_EVENTS.filter(e => answers[e.id] === e.stability).length : 0;
+  const totalScore = sortCorrect + coordScore;
+  const totalQs = AD_EVENTS.length + 1;
+
+  function handleCoordCheck() {
+    if (sel === null) return;
+    setCoordScore(sel === COORD_Q.correct ? 1 : 0);
+    setCoordChecked(true);
+  }
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">AD Components & Keynesian Volatility</p>
-        <div className="grid grid-cols-4 gap-1.5 text-xs text-center mb-2">
-          {[["C","Consumption\n~70% of GDP\nMost stable"],["I","Investment\nMost volatile\nAnimal spirits"],["G","Government\nAutomatic stabilizer\nExcludes transfers"],["NX","Net Exports\nX minus M\nCan be negative"]].map(([label,desc]) => (
-            <div key={label} className="bg-background border border-border rounded-lg p-2">
-              <p className="font-bold text-primary text-base">{label}</p>
-              <p className="text-muted-foreground leading-snug whitespace-pre-line text-xs">{desc}</p>
-            </div>
-          ))}
-        </div>
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 text-xs">
-          <p className="font-semibold text-amber-800">Key Keynesian Insights:</p>
-          <p className="text-amber-900">• AD is volatile — investment collapses when confidence falls ("animal spirits")</p>
-          <p className="text-amber-900">• Coordination failure prevents automatic wage adjustment → unemployment persists</p>
-          <p className="text-amber-900">• In Keynesian zone (flat SRAS): stimulus creates real jobs, not inflation</p>
+        <p className="font-semibold text-foreground mb-1">Station 2 — AD Volatility & Coordination Failure</p>
+        <p className="text-muted-foreground text-xs mb-2">Classify each spending event by stability. Investment (I) is driven by animal spirits — confidence about future profits. When it collapses, AD collapses.</p>
+        <div className="flex gap-1 text-xs">
+          {STABILITY_OPTS.map(o => <span key={o.id} className={`flex-1 px-2 py-1 rounded-lg border font-semibold text-center ${o.color}`}>{o.label}</span>)}
         </div>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={ADVOLATILITY_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-2">
+        {AD_EVENTS.map(ev => {
+          const ans = answers[ev.id];
+          const isCorrect = sortChecked && ans === ev.stability;
+          const isWrong = sortChecked && ans && ans !== ev.stability;
+          const optObj = STABILITY_OPTS.find(o => o.id === ev.stability);
+          return (
+            <div key={ev.id} className={`rounded-xl border-2 p-3 transition ${isCorrect ? "border-green-400 bg-green-50" : isWrong ? "border-red-400 bg-red-50" : "border-border bg-card"}`}>
+              <p className="text-sm font-medium text-foreground mb-2">{ev.text}</p>
+              {!sortChecked ? (
+                <div className="flex gap-1.5">
+                  {STABILITY_OPTS.map(o => (
+                    <button key={o.id} onClick={() => setAnswers(a => ({ ...a, [ev.id]: o.id }))}
+                      className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition ${ans === o.id ? `${o.color} border-current` : "border-border bg-background text-foreground hover:border-primary/40"}`}>
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className={`text-xs font-semibold ${isCorrect ? "text-green-700" : "text-red-700"}`}>
+                  {isCorrect ? "✓ " : "✗ "}{optObj?.label} — {ev.reason}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {!sortChecked ? (
+        <button disabled={!allAnswered} onClick={() => setSortChecked(true)}
+          className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+          Check Stability Ratings
+        </button>
+      ) : (
+        <div className="space-y-3">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+            <p className="text-sm font-bold text-blue-800">Stability ratings: {sortCorrect}/{AD_EVENTS.length} correct</p>
+          </div>
+          <div className="bg-card border-2 border-border rounded-xl p-4 space-y-3">
+            <p className="text-xs font-bold uppercase tracking-widest text-primary">Coordination Failure Question</p>
+            <p className="text-sm font-semibold text-foreground">{COORD_Q.q}</p>
+            <div className="space-y-2">
+              {COORD_Q.options.map((opt, i) => (
+                <button key={i} disabled={coordChecked} onClick={() => setSel(i)}
+                  className={`w-full text-left px-4 py-2.5 rounded-lg border text-sm transition ${
+                    coordChecked
+                      ? i === COORD_Q.correct ? "border-green-500 bg-green-50 text-green-900"
+                        : i === sel && sel !== COORD_Q.correct ? "border-red-400 bg-red-50 text-red-900"
+                        : "border-border text-muted-foreground opacity-60"
+                      : sel === i ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border bg-background text-foreground hover:border-primary"
+                  }`}>{opt}</button>
+              ))}
+            </div>
+            {coordChecked && (
+              <div className={`rounded-lg p-3 text-xs ${sel === COORD_Q.correct ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}>
+                {sel === COORD_Q.correct ? "✓ Correct — " : "✗ Incorrect — "}{COORD_Q.exp}
+              </div>
+            )}
+            {!coordChecked && sel !== null && (
+              <button onClick={handleCoordCheck} className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition">
+                Check Answer
+              </button>
+            )}
+            {coordChecked && (
+              <button onClick={() => onComplete(totalScore, totalQs)}
+                className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+                Mark Complete ✓
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -319,83 +375,88 @@ function MultiplierStation({ onComplete }: { onComplete: (score: number, total: 
 }
 
 // ─────────────────────────────────────────────
-// Station 4 — The Phillips Curve
+// Station 4 — Phillips Curve: Era Classifier
 // ─────────────────────────────────────────────
-const PHILLIPSCURVE_QS = [
-  {
-    q: "The Short-Run Phillips Curve (SRPC) shows a downward-sloping relationship between inflation and unemployment. What is the economic mechanism behind this tradeoff?",
-    options: [
-      "When unemployment rises, workers have more bargaining power and demand higher wages, causing inflation",
-      "The SRPC slopes downward because lower unemployment reduces government spending on unemployment benefits, which lowers the deficit and reduces inflation",
-      "The tradeoff exists only in recessions — in expansions, lower unemployment and lower inflation occur simultaneously",
-      "When the government boosts AD to reduce unemployment, the economy moves up and left along the SRPC — lower unemployment but higher inflation as the tighter labor market bids up wages and prices",
-    ],
-    correct: 3,
-    exp: "SRPC mechanism: boosting AD (stimulus, rate cuts) reduces unemployment — but the tighter labor market bids up wages, which feed into prices — so inflation rises. Moving along the SRPC: lower unemployment ↔ higher inflation. Your slides: 'The 1960s consensus — policy could exploit this tradeoff. It held remarkably well through the late 1960s.' The Vietnam War spending boosted AD, unemployment fell, inflation rose — exactly on the curve. The policy implication: policymakers face a menu, not a goal.",
-  },
-  {
-    q: "In 1973, OPEC quadrupled oil prices. By 1975, U.S. unemployment hit 8.5% AND inflation exceeded 12% simultaneously. Your slides say this 'broke simple Keynesian theory.' Why was stagflation a problem for the Phillips Curve model?",
-    options: [
-      "The Phillips Curve predicted stagflation would occur — Keynesian economists were not surprised by 1973",
-      "Stagflation proved that the Phillips Curve was always wrong — the tradeoff never existed even in the 1960s",
-      "Simple Keynesian theory said inflation and unemployment move in opposite directions — you can't have both high simultaneously. A supply shock shifted the SRPC outward, breaking the stable tradeoff the 1960s policymakers relied on",
-      "Stagflation occurred because the Fed raised rates too aggressively in 1973, creating both inflation and recession simultaneously",
-    ],
-    correct: 2,
-    exp: "Simple Keynesian Phillips Curve: high inflation = low unemployment, low inflation = high unemployment. You can't have both high. But the 1973 OPEC shock shifted SRAS left — a supply shock rather than demand change. The SRPC shifted outward: both inflation AND unemployment rose. Your slides: 'Each supply shock moved the economy off the curve.' Stagflation had no good treatment: fight inflation (tighten → deeper recession) or fight recession (ease → more inflation). Friedman and Phelps had predicted this in 1968 — once expectations adapt, the stable tradeoff disappears.",
-  },
-  {
-    q: "The Long-Run Phillips Curve (LRPC) is vertical at the Natural Rate of Unemployment (NRU). Friedman and Phelps predicted this in 1968 — before stagflation proved them right. What does the vertical LRPC mean for policy?",
-    options: [
-      "In the long run, policymakers can permanently reduce unemployment below the natural rate by accepting slightly higher inflation",
-      "In the long run, the inflation-unemployment tradeoff disappears — trying to permanently hold unemployment below the natural rate only generates ever-rising inflation, not lasting employment gains",
-      "The vertical LRPC means monetary policy is ineffective — only fiscal policy can affect unemployment",
-      "The LRPC is vertical because inflation and unemployment are unrelated in all time periods",
-    ],
-    correct: 1,
-    exp: "Friedman/Phelps insight: workers and firms eventually adapt their expectations. If the government keeps unemployment below the natural rate through stimulus, wages get bid up, firms realize real wages haven't fallen, SRPC shifts up, inflation rises with no lasting output gain. You can buy lower unemployment with inflation — once. Then expectations adjust and the bargain disappears. The LRPC is vertical at the NRU. 'No free lunch from permanently running above the natural rate.' This is why the Fed targets 2% inflation rather than trying to push unemployment below its natural rate indefinitely.",
-  },
-  {
-    q: "Your FRED chart shows UNRATE and CPIAUCSL from 1950–2025. The chart reveals five distinct eras. Which description correctly matches what the data shows?",
-    options: [
-      "1960s: tight inverse relationship; 1970s: both rise (stagflation — SRPC shifted outward); 1980s Volcker: both fall together; post-2008: flat Phillips Curve; 2021–22: sharp move as inflation expectations shifted",
-      "The Phillips Curve relationship has been perfectly stable throughout all five decades — inflation and unemployment always move in exactly opposite directions",
-      "The data shows no relationship between inflation and unemployment at any point — the Phillips Curve is a theoretical fiction not visible in real data",
-      "The 1970s show the SRPC moving down the curve (lower unemployment, higher inflation) while the 1980s show it moving up (higher unemployment, lower inflation)",
-    ],
-    correct: 0,
-    exp: "From your slides' FRED chart analysis: (1) 1960s: tight inverse — boosting AD lowered unemployment and raised inflation, just as SRPC predicts. (2) 1970s: both rose — supply shocks shifted SRPC outward (stagflation). (3) 1980s Volcker: tight monetary policy raised unemployment AND broke inflation simultaneously — both fell. (4) Post-2008: very flat Phillips Curve — near-zero unemployment barely moved inflation (puzzled economists). (5) 2021–22: sharp move as COVID reopening + stimulus shifted expectations rapidly. The data confirms both the SRPC (short-run tradeoff) and the LRPC (no permanent tradeoff).",
-  },
+const PHILLIPS_ERAS = [
+  { id: 1, text: "1960s: Vietnam War spending boosts AD. Unemployment falls from 5.5% to 3.5%. Inflation rises from 1.5% to 5%. The data tracks neatly along a downward-sloping curve.", era: "srpc", label: "Consistent with SRPC", reason: "Classic SRPC movement: AD boost → unemployment falls, inflation rises. Policy could exploit the tradeoff. The 1960s were the Phillips Curve's greatest empirical success." },
+  { id: 2, text: "1973–75: OPEC quadruples oil prices. Unemployment rises to 8.5% AND inflation exceeds 12% simultaneously — stagflation.", era: "breaks", label: "Breaks Simple SRPC", reason: "Supply shock shifted the entire SRPC outward — both inflation and unemployment rose together. This is impossible on a stable, downward-sloping SRPC. Stagflation shattered the 1960s consensus." },
+  { id: 3, text: "1980–82: Fed Chair Volcker raises rates to 20%. Unemployment hits 10.8% — the highest since the Depression. Inflation falls from 13% to 3%.", era: "srpc", label: "Consistent with SRPC", reason: "Volcker moved up-left along the SRPC: tight monetary policy reduced AD → unemployment rose sharply, inflation fell sharply. A painful movement along the curve, not a break from it." },
+  { id: 4, text: "2015–19: Unemployment falls from 5.7% to 3.5% — well below most estimates of the natural rate. Core inflation barely moves, staying near 2%.", era: "breaks", label: "Breaks Simple SRPC", reason: "The SRPC predicted that falling unemployment below the natural rate would accelerate inflation. It didn't — puzzling economists. A very flat Phillips Curve. Possible explanations: well-anchored expectations, globalization dampening price pressure, measurement issues." },
+  { id: 5, text: "2021–22: COVID reopening + massive stimulus + supply chain disruptions. Unemployment falls rapidly from 14.8% to 3.5% while inflation surges to 9%.", era: "lrpc", label: "Long-Run Expectations Shifted", reason: "Inflation expectations unanchored after decades of stability — moving from the flat post-2008 era to a sharp SRPC movement as expectations shifted. The LRPC was tested: did the Fed act quickly enough to prevent a new higher-inflation equilibrium?" },
+];
+
+const ERA_OPTS = [
+  { id: "srpc",   label: "Consistent with SRPC",        color: "bg-green-100 border-green-400 text-green-800" },
+  { id: "breaks", label: "Breaks Simple SRPC",          color: "bg-red-100 border-red-400 text-red-800" },
+  { id: "lrpc",   label: "Long-Run Expectations Shifted",color: "bg-purple-100 border-purple-400 text-purple-800" },
 ];
 
 function PhillipsCurveStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
-  const q = PHILLIPSCURVE_QS[idx];
-  const isLast = idx === PHILLIPSCURVE_QS.length - 1;
-  function handleCheck() { if (sel === null) return; setScore(s => s + (sel === q.correct ? 1 : 0)); setChecked(true); }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+  const allAnswered = PHILLIPS_ERAS.every(e => answers[e.id]);
+  const correctCount = checked ? PHILLIPS_ERAS.filter(e => answers[e.id] === e.era).length : 0;
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">The Phillips Curve — Three Versions</p>
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          {[
-            ["SRPC","Short-run. Downward sloping. Lower unemployment ↔ higher inflation. 1960s: held well. Policymakers thought they could exploit it."],
-            ["Supply Shocks","SRPC shifts outward. Both inflation AND unemployment rise simultaneously. 1973 OPEC — stagflation broke simple Keynesian theory."],
-            ["LRPC","Long-run. Vertical at Natural Rate. Expectations adapt. No permanent tradeoff. Friedman/Phelps predicted this in 1968. FRED: UNRATE + CPIAUCSL"],
-          ].map(([label, desc]) => (
-            <div key={label} className="bg-background border border-border rounded-lg p-2">
-              <p className="font-bold text-primary text-xs mb-1">{label}</p>
-              <p className="text-muted-foreground leading-snug">{desc}</p>
-            </div>
-          ))}
+        <p className="font-semibold text-foreground mb-1">Station 4 — The Phillips Curve Through History</p>
+        <p className="text-muted-foreground text-xs mb-2">Classify each historical episode. Does it move along the SRPC, break it, or reflect long-run expectation shifts?</p>
+        <div className="space-y-1 text-xs">
+          <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-1"><span className="font-semibold text-green-800">SRPC:</span><span className="text-green-700 ml-1">Lower unemployment ↔ higher inflation. Movement along a stable curve.</span></div>
+          <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-1"><span className="font-semibold text-red-800">Breaks SRPC:</span><span className="text-red-700 ml-1">Both high simultaneously (supply shock) or neither moves when expected.</span></div>
+          <div className="bg-purple-50 border border-purple-200 rounded-lg px-3 py-1"><span className="font-semibold text-purple-800">LRPC:</span><span className="text-purple-700 ml-1">Inflation expectations shift — SRPC itself moves to new equilibrium.</span></div>
         </div>
-        <p className="text-xs text-muted-foreground italic mt-2">"You can buy lower unemployment with inflation — once. Then expectations adjust and the bargain disappears."</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={PHILLIPSCURVE_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-3">
+        {PHILLIPS_ERAS.map(era => {
+          const ans = answers[era.id];
+          const isCorrect = checked && ans === era.era;
+          const isWrong = checked && ans && ans !== era.era;
+          const optObj = ERA_OPTS.find(o => o.id === era.era);
+          return (
+            <div key={era.id} className={`rounded-xl border-2 p-3 transition ${isCorrect ? "border-green-400 bg-green-50" : isWrong ? "border-red-400 bg-red-50" : "border-border bg-card"}`}>
+              <p className="text-sm font-medium text-foreground mb-2">{era.text}</p>
+              {!checked ? (
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex gap-1.5">
+                    {ERA_OPTS.slice(0, 2).map(o => (
+                      <button key={o.id} onClick={() => setAnswers(a => ({ ...a, [era.id]: o.id }))}
+                        className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition ${ans === o.id ? `${o.color} border-current` : "border-border bg-background text-foreground hover:border-primary/40"}`}>
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                  <button onClick={() => setAnswers(a => ({ ...a, [era.id]: ERA_OPTS[2].id }))}
+                    className={`w-full py-1.5 rounded-lg border text-xs font-semibold transition ${ans === ERA_OPTS[2].id ? `${ERA_OPTS[2].color} border-current` : "border-border bg-background text-foreground hover:border-primary/40"}`}>
+                    {ERA_OPTS[2].label}
+                  </button>
+                </div>
+              ) : (
+                <p className={`text-xs font-semibold ${isCorrect ? "text-green-700" : "text-red-700"}`}>
+                  {isCorrect ? "✓ " : "✗ "}{optObj?.label} — {era.reason}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {!checked ? (
+        <button disabled={!allAnswered} onClick={() => setChecked(true)}
+          className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+          Check Answers
+        </button>
+      ) : (
+        <div className="space-y-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+            <p className="text-sm font-bold text-blue-800">You got {correctCount} of {PHILLIPS_ERAS.length} correct!</p>
+          </div>
+          <button onClick={() => onComplete(correctCount, PHILLIPS_ERAS.length)}
+            className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+            Mark Complete ✓
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -491,72 +552,88 @@ function NeoclassicalStation({ onComplete }: { onComplete: (score: number, total
 }
 
 // ─────────────────────────────────────────────
-// Station 6 — Personal Finance
+// Station 6 — Personal Finance: Verdict Cards
 // ─────────────────────────────────────────────
-const PERSONALFINANCE_QS = [
+const PF_CARDS_CH1213 = [
   {
-    q: "Your slides say: 'In a recession, expect Keynesian intervention — rate cuts, fiscal stimulus, asset support. Position for cheap borrowing and bargain assets.' It's March 2009. Unemployment is rising toward 10%, AD has collapsed, Congress just passed ARRA. What does the Keynesian playbook suggest for a person with $50,000 in savings?",
-    options: [
-      "Move everything to cash — recessions always deepen before they recover, and cash is safest",
-      "Consider locking in cheap borrowing (mortgage rates fell sharply), look at quality bonds (rate cuts make existing bonds valuable), and position in equities early since AD restoration will eventually drive recovery — recessions overshoot on the downside",
-      "Buy gold — recessions always cause hyperinflation, and gold is the only real store of value",
-      "Invest in commodities — Keynesian stimulus always causes commodity price spikes",
-    ],
-    correct: 1,
-    exp: "Your slides' recession playbook: rate cuts make existing bonds valuable (prices rise when rates fall). Fiscal stimulus will eventually restore AD → equity recovery follows. Mortgage rates near historic lows → lock in if buying a home. Markets typically overshoot to the downside — bargain assets appear. The 2009 case: S&P 500 bottomed in March 2009 and tripled over the next decade. Those who recognized the Keynesian intervention signal and stayed invested (or bought) captured that recovery. 'The 2008–09 and 2020 playbooks were textbook Keynesian — those who recognized it benefited.'",
+    id: "keynesian",
+    icon: "📉",
+    title: "The Keynesian Recession Playbook",
+    tag: "RECESSION",
+    tagColor: "bg-blue-100 border-blue-400 text-blue-800",
+    body: "When the FOMC cuts rates and Congress passes stimulus, recognize the Keynesian intervention signal.\n\nWhat happens next:\n• Rate cuts → existing bonds rise in value (prices move opposite to rates)\n• Cheap borrowing → historically low mortgage rates appear\n• Fiscal stimulus → AD will eventually recover → equities overshoot downward then recover\n• Markets typically overshoot on the downside — the best buying opportunities appear at peak pessimism\n\n2009 case: S&P 500 bottomed March 2009 — then tripled over the next decade. 30-year mortgage rates hit record lows. Those who recognized the Keynesian intervention signal and acted — bought homes, bought equities, locked in fixed debt — captured that recovery.\n\nCounterpoint: not every intervention succeeds, and timing the bottom is impossible. The lesson is positioning — not trading.",
+    takeaway: "In recessions: lock in cheap fixed-rate debt, consider quality bonds (rate cuts boost prices), and resist panic-selling equities. Recessions end. Markets recover. The intervention signal tells you the direction.",
   },
   {
-    q: "Your slides describe the Neoclassical personal lesson: 'Build your own potential GDP through K, H, T, I.' Applied personally, what does investing in Human Capital (H) mean, and why is it the most powerful of the four?",
-    options: [
-      "Human capital means investing in healthcare — staying healthy is the foundation of economic productivity",
-      "Human capital means investing in relationships and social networks — 'who you know' drives earnings more than skills",
-      "Human capital means investing in education, skills, and tech literacy — skills are permanently embedded in you, compound over a career, and raise your personal productive capacity permanently, unlike physical assets that depreciate",
-      "Human capital means working long hours — effort and persistence are the primary drivers of personal income growth",
-    ],
-    correct: 2,
-    exp: "From your slides: Human capital = education and skills. 'Each additional year of schooling raises earnings ~10%.' Skills are permanently embedded — unlike physical capital, they don't depreciate (and with practice they appreciate). College attainment 2.5% (1900) → 33% (2019): massive LRAS boost nationally. Personally: a skill or certification acquired today compounds for decades. The GI Bill sent 2M veterans to college → one of the largest LRAS boosts in U.S. history. Tech literacy (staying current with productive tools and AI) is the modern equivalent. Vocational training and on-the-job learning also count.",
+    id: "neoclassical",
+    icon: "🏗️",
+    title: "Build Your Own Potential GDP",
+    tag: "LONG-TERM",
+    tagColor: "bg-green-100 border-green-400 text-green-800",
+    body: "The Neoclassical personal lesson: your long-run earning power = f(K, H, T, I).\n\nK — Physical Capital (Savings):\nBuilding savings is building your own capital stock. $1 saved and invested compounds for decades. At 7%: $10K → $160K in 40 years. Start early.\n\nH — Human Capital (Education & Skills):\n'Each additional year of schooling raises earnings ~10%.' Skills are permanently embedded — unlike physical capital, they don\'t depreciate. Tech literacy (staying current with AI tools) is the modern equivalent of the GI Bill.\n\nT — Technology (Tools & Processes):\nThe people who adapt to new technology capture its gains; those who resist get displaced. Your \'T\' is staying current with productive tools in your field.\n\nI — Institutions (Network, Habits, Systems):\nYour personal institutions: the network you\'ve built (who can vouch for you?), the routines that compound over time, the professional systems you\'ve created.",
+    takeaway: "Don't just spend time — invest it. Every hour in education, skill-building, and network is K, H, T, I compounding in your personal production function.",
   },
   {
-    q: "Your slides' third personal finance takeaway: 'Don't fight the Fed or the fiscal cycle.' In 2022–23, the Fed raised rates from 0.25% to 5.25% and Congress shifted from massive stimulus to deficit reduction. What does this signal and how should you position?",
-    options: [
-      "Contractionary policy: expect tighter credit, falling bond prices (long-duration bonds lose value when rates rise), equity headwinds from higher discount rates — shift toward defensive positions, short-duration debt, and cash optionality",
-      "Expansionary policy is coming — buy long-duration bonds and growth stocks aggressively",
-      "The policy is neutral — the Fed's actions have no predictable effect on asset markets",
-      "Invest in real estate — rising rates always boost property values",
-    ],
-    correct: 0,
-    exp: "Your slides: 'When monetary and fiscal policy align contractionary (2022–23), be defensive.' Fed raising rates 0.25%→5.25%: (1) Long-duration bonds lose value rapidly (prices fall when rates rise); (2) Equities face higher discount rates → lower valuations; (3) Credit tightens → consumer and business spending slows. Position: short-duration bonds (adjust faster to new rates), cash optionality, defensive equities (staples, utilities). Track the federal funds rate, fiscal deficit trajectory, and output gap to anticipate the regime change. 'The Keynesian-Neoclassical debate is academic — the real-time policy stance is your investment compass.'",
+    id: "fedcycle",
+    icon: "🧭",
+    title: "Don't Fight the Fed or the Fiscal Cycle",
+    tag: "STRATEGY",
+    tagColor: "bg-amber-100 border-amber-400 text-amber-800",
+    body: "Policy stance is your investment compass. Track three signals:\n1. Federal funds rate direction (rising or falling?)\n2. Federal deficit trajectory (expanding or contracting?)\n3. Output gap (above or below potential GDP?)\n\nExpansionary regime (2020–21):\nFed near zero + massive fiscal stimulus → cheap credit, rising asset prices, inflation eventually\nPosition: equities, real assets, fixed-rate debt (lock in low rates)\n\nContractionary regime (2022–23):\nFed 0.25%→5.25% + deficit reduction → rising discount rates, falling bond prices, equity headwinds\nPosition: short-duration bonds (adjust to new rates), cash optionality, defensive equities (staples, utilities)\n\n\'The Keynesian-Neoclassical academic debate is interesting. The real-time policy stance is your actual investment compass.\'",
+    takeaway: "Read the moment. Align with policy direction. When both monetary and fiscal policy point the same way — pay attention. The 2020-21 and 2022-23 pivots rewarded those who recognized the regime change.",
   },
 ];
 
 function PersonalFinanceStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
-  const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
-  const q = PERSONALFINANCE_QS[idx];
-  const isLast = idx === PERSONALFINANCE_QS.length - 1;
-  function handleCheck() { if (sel === null) return; setScore(s => s + (sel === q.correct ? 1 : 0)); setChecked(true); }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState<Set<string>>(new Set());
+  const allRevealed = PF_CARDS_CH1213.every(c => revealed.has(c.id));
+
+  function toggle(id: string) {
+    setRevealed(r => new Set([...r, id]));
+    setExpanded(e => e === id ? null : id);
+  }
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-1">Personal Finance — Read the Moment</p>
-        <p className="text-xs text-muted-foreground italic mb-2">"You don't have to pick a school — but you do have to read the moment."</p>
-        <div className="grid grid-cols-3 gap-1.5 text-xs">
-          {[
-            ["Read the Policy Moment","Keynesian recession: rate cuts + stimulus → cheap borrowing, bond rally, eventual equity recovery. Contractionary: defensive, short-duration, cash."],
-            ["Build Your Own K,H,T,I","Savings (K), Education/skills (H), Tech literacy (T), Network/habits/systems (I). Compound these for permanent personal output growth."],
-            ["Don't Fight the Fed","Track fed funds rate + fiscal deficit + output gap. Align with policy direction. 2022–23: contractionary → be defensive. Both tools aligned matter most."],
-          ].map(([label, desc]) => (
-            <div key={label} className="bg-background border border-border rounded-lg p-2">
-              <p className="font-bold text-primary text-xs mb-1">{label}</p>
-              <p className="text-muted-foreground leading-snug">{desc}</p>
-            </div>
-          ))}
-        </div>
+        <p className="font-semibold text-foreground mb-1">Station 6 — Personal Finance: Read the Moment</p>
+        <p className="text-muted-foreground text-xs">"You don&apos;t have to pick a school — but you do have to read the moment." Open all three cards to complete the station.</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={PERSONALFINANCE_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-3">
+        {PF_CARDS_CH1213.map(card => {
+          const isOpen = expanded === card.id;
+          const seen = revealed.has(card.id);
+          return (
+            <div key={card.id} className={`rounded-2xl border-2 overflow-hidden transition ${seen ? "border-primary/40" : "border-border"} bg-card`}>
+              <button onClick={() => toggle(card.id)}
+                className="w-full flex items-center justify-between p-4 text-left gap-3 hover:bg-muted/40 transition">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{card.icon}</span>
+                  <div>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full border mr-2 ${card.tagColor}`}>{card.tag}</span>
+                    <span className="text-sm font-semibold text-foreground">{card.title}</span>
+                  </div>
+                </div>
+                <span className="text-muted-foreground text-sm">{isOpen ? "▲" : "▼"}</span>
+              </button>
+              {isOpen && (
+                <div className="px-4 pb-4 space-y-3">
+                  <div className="bg-muted/50 rounded-xl p-3 text-xs text-foreground leading-relaxed whitespace-pre-line">{card.body}</div>
+                  <div className="bg-primary/10 border border-primary/20 rounded-xl p-3">
+                    <p className="text-xs font-bold text-primary uppercase tracking-wider mb-1">Key Takeaway</p>
+                    <p className="text-xs text-foreground">{card.takeaway}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <button disabled={!allRevealed} onClick={() => onComplete(PF_CARDS_CH1213.length, PF_CARDS_CH1213.length)}
+        className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+        {allRevealed ? "Mark Complete ✓" : `Open all cards to continue (${revealed.size}/${PF_CARDS_CH1213.length})`}
+      </button>
     </div>
   );
 }

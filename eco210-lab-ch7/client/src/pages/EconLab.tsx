@@ -156,165 +156,167 @@ function EnrichmentStation({ onComplete }: { onComplete: (score: number, total: 
 }
 
 // ─────────────────────────────────────────────
-// Station 2 — Institutions
+// Station 2 — Institutions: Verdict Cards
 // ─────────────────────────────────────────────
-const INSTITUTIONS_QS = [
+const INSTITUTION_CARDS = [
   {
-    q: "Your slides open the institutions section with: 'Would you plant a crop if anyone could harvest it?' What economic concept does this question illustrate?",
-    options: [
-      "The tragedy of the commons — shared resources are always overused",
-      "Why property rights are essential for investment — without enforceable ownership, the incentive to invest disappears",
-      "Why government should control all agricultural production",
-      "The law of diminishing returns applied to farming",
-    ],
-    correct: 1,
-    exp: "This is the core insight about property rights: investment requires patience — giving up consumption today for a future return. But you only do that if you trust the rules will let you keep the return. Without enforceable ownership, why invest? Why plant the crop if anyone can harvest it?",
+    id: "property",
+    icon: "🏠",
+    title: "Property Rights",
+    tag: "PILLAR 1",
+    tagColor: "bg-teal-100 border-teal-400 text-teal-800",
+    body: "Investment = giving up consumption today for a future return. You skip dinner out, delay the new car — in exchange for a business, a home, a degree. But you only do that if you trust the rules will let you KEEP the return.\n\nWeak property rights destroy this patience:\n• Why build a factory if it can be seized?\n• Why save if your bank account can be frozen?\n• Why invent if your patent won't be enforced?\n\nZimbabwe (2000s): government seized white-owned farms without compensation. Agricultural output collapsed 60%+ within a decade. Investors fled. GDP contracted every year for 10 years. 'Would you plant a crop if anyone could harvest it?'",
+    takeaway: "Investment is patience — and patience requires trust. Without enforceable property rights, neither households nor businesses invest, and growth stalls.",
   },
   {
-    q: "Your slides identify four institutional pillars of growth. Which set is correct?",
-    options: [
-      "Free trade, democracy, foreign aid, and central banking",
-      "Property rights, rule of law, contract enforcement, and low corruption / low red tape",
-      "High savings rates, government investment, export orientation, and currency stability",
-      "Education spending, infrastructure, healthcare, and environmental protection",
-    ],
-    correct: 1,
-    exp: "The four institutional pillars from your slides: (1) Property rights — you own what you produce. (2) Rule of law — rules apply equally to everyone, from Magna Carta to modern courts. (3) Contract enforcement — strangers can do business. (4) Low corruption and red tape — bribes and permits slow the engine. Countries weak in all four (Somalia, South Sudan, Zimbabwe) remain among the poorest. Not a coincidence.",
+    id: "law",
+    icon: "⚖️",
+    title: "Rule of Law & Contract Enforcement",
+    tag: "PILLARS 2 & 3",
+    tagColor: "bg-blue-100 border-blue-400 text-blue-800",
+    body: "Rule of Law: Rules apply equally to everyone — from Magna Carta (1215) to modern courts. Predictable, fair, transparent. Not 'who do you know?' but 'what does the law say?'\n\nContract Enforcement: Strangers can do business. A surgeon needs to know you'll pay. A supplier needs to know delivery will happen. Without courts that enforce agreements, every transaction requires personal trust — limiting markets to small, local networks.\n\nSomalia case: among the world's lowest GDP/capita. Near-total collapse of state institutions. No court to enforce contracts → no formal business sector. Transactions limited to clan networks. 'Contract enforcement is what turns a village market into a global economy.'",
+    takeaway: "Rule of law and contract enforcement let strangers cooperate at scale — expanding markets from local to national to global. Without them, growth is trapped at the village level.",
   },
   {
-    q: "Your slides describe 'investment is patience.' Which of the following best captures this framing?",
-    options: [
-      "Investors should wait for stock prices to fall before buying",
-      "You give up consumption today — skip dinner out, delay the new car — in exchange for a future return, but only if you trust the rules will let you keep it. Weak property rights destroy the patience that growth requires.",
-      "Governments should be patient and wait for markets to self-correct before intervening",
-      "Patience means accepting low growth rates rather than pushing for faster development",
-    ],
-    correct: 1,
-    exp: "Investment is patience: you sacrifice present consumption for future return (a business, a home, a college degree). You only make that sacrifice if you trust the institutional rules — that the return won't be seized, taxed away, or rendered worthless. Weak property rights destroy that trust, and therefore destroy investment and growth.",
+    id: "corruption",
+    icon: "🚧",
+    title: "Low Corruption & Low Red Tape",
+    tag: "PILLAR 4",
+    tagColor: "bg-amber-100 border-amber-400 text-amber-800",
+    body: "Corruption and bureaucratic red tape act as taxes on investment and enterprise:\n• Bribes: a business pays 20% of revenue to officials → 20% of the return to investment is confiscated. Investment collapses.\n• Red tape: in some countries, starting a business requires 50+ permits over 12+ months. Each step is an opportunity for graft.\n• Result: formal businesses shrink, informal shadow economy grows, taxes go uncollected, public services deteriorate.\n\nInstitutional comparisons (Transparency International Corruption Perceptions Index):\n• Low corruption: Denmark, New Zealand, Singapore → fast growth, high income\n• High corruption: South Sudan, Somalia, Venezuela → stagnant or declining living standards\n\nSouth Sudan: 11th-largest oil reserves in Africa. GDP/capita among the lowest in the world. Corruption captured the oil revenues before they could fund development.",
+    takeaway: "Corruption is not just unethical — it is an anti-growth tax. Every bribe paid is a return to investment that goes to the wrong pocket, discouraging the next investment.",
   },
 ];
 
 function InstitutionsStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
-  const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
-  const q = INSTITUTIONS_QS[idx];
-  const isLast = idx === INSTITUTIONS_QS.length - 1;
-  function handleCheck() {
-    if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
-    setScore(newScore);
-    setChecked(true);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState<Set<string>>(new Set());
+  const allRevealed = INSTITUTION_CARDS.every(c => revealed.has(c.id));
+
+  function toggle(id: string) {
+    setRevealed(r => new Set([...r, id]));
+    setExpanded(e => e === id ? null : id);
   }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">Institutions — The Soil Where Growth Grows</p>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          {[["Property Rights", "You own what you produce"],
-            ["Rule of Law", "Rules apply equally to everyone"],
-            ["Contract Enforcement", "Strangers can do business"],
-            ["Low Corruption & Red Tape", "Bribes and delays slow the engine"]
-          ].map(([title, desc]) => (
-            <div key={title} className="bg-background border border-border rounded-lg p-2">
-              <p className="font-semibold text-foreground text-xs">{title}</p>
-              <p className="text-muted-foreground text-xs">{desc}</p>
-            </div>
-          ))}
-        </div>
-        <p className="text-xs text-muted-foreground italic mt-2">Countries weak in all four — Somalia, South Sudan, Zimbabwe — remain among the poorest. Not a coincidence.</p>
+        <p className="font-semibold text-foreground mb-1">Station 2 — Institutions: The Soil Where Growth Grows</p>
+        <p className="text-muted-foreground text-xs">Four institutional pillars determine whether a country can sustain economic growth. Open each card to see the mechanism and a real-world case.</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={INSTITUTIONS_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-3">
+        {INSTITUTION_CARDS.map(card => {
+          const isOpen = expanded === card.id;
+          const seen = revealed.has(card.id);
+          return (
+            <div key={card.id} className={`rounded-2xl border-2 overflow-hidden transition ${seen ? "border-primary/40" : "border-border"} bg-card`}>
+              <button onClick={() => toggle(card.id)}
+                className="w-full flex items-center justify-between p-4 text-left gap-3 hover:bg-muted/40 transition">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{card.icon}</span>
+                  <div>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full border mr-2 ${card.tagColor}`}>{card.tag}</span>
+                    <span className="text-sm font-semibold text-foreground">{card.title}</span>
+                  </div>
+                </div>
+                <span className="text-muted-foreground text-sm">{isOpen ? "▲" : "▼"}</span>
+              </button>
+              {isOpen && (
+                <div className="px-4 pb-4 space-y-3">
+                  <div className="bg-muted/50 rounded-xl p-3 text-xs text-foreground leading-relaxed whitespace-pre-line">{card.body}</div>
+                  <div className="bg-primary/10 border border-primary/20 rounded-xl p-3">
+                    <p className="text-xs font-bold text-primary uppercase tracking-wider mb-1">Key Takeaway</p>
+                    <p className="text-xs text-foreground">{card.takeaway}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <button disabled={!allRevealed} onClick={() => onComplete(INSTITUTION_CARDS.length, INSTITUTION_CARDS.length)}
+        className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+        {allRevealed ? "Mark Complete ✓" : `Open all cards to continue (${revealed.size}/${INSTITUTION_CARDS.length})`}
+      </button>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────
-// Station 3 — Productivity & Inputs
+// Station 3 — Productivity & Inputs: Input Classifier
 // ─────────────────────────────────────────────
-const INPUTS_QS = [
-  {
-    q: "Your slides use the 'two bakers' analogy to explain labor productivity. Baker A uses a wood-fired oven and makes 10 loaves/hour. Baker B uses an industrial oven and makes 100 loaves/hour. Same skill, same effort. What does this illustrate?",
-    options: [
-      "Baker B is more talented and works harder than Baker A",
-      "Labor productivity — more output per hour — driven by better tools, not more effort",
-      "Baker A should switch to making a different product where she has comparative advantage",
-      "The diminishing returns to capital — more ovens would eventually reduce productivity",
-    ],
-    correct: 1,
-    exp: "Labor productivity = the value each worker creates per unit of time. Baker B doesn't work harder — she has a better tool (physical capital). That 10× difference in output is a productivity gain. In the long run, productivity per hour is the single most important determinant of average wages.",
-  },
-  {
-    q: "The aggregate production function is GDP = f(Labor, Physical Capital, Human Capital, Technology). Which input does your slides call 'the joker in the deck' and why?",
-    options: [
-      "Labor — because population growth is unpredictable",
-      "Physical capital — because machines depreciate and must be replaced",
-      "Technology (A) — because ideas don't depreciate, can be copied for free, and one idea can spawn a thousand more",
-      "Human capital — because education outcomes are hard to measure",
-    ],
-    correct: 2,
-    exp: "Technology is the joker: it's non-rival (my use doesn't reduce yours — the Pythagorean theorem works for everyone simultaneously), non-depreciating (calculus from 1700 still works; buildings rust, machines break, ideas stay), and combinatorial (steam + iron → railroad; transistor + memory → computer; internet + GPS + smartphone → ride-sharing). U.S. issues 150,000 patents/year.",
-  },
-  {
-    q: "Your slides describe trade as 'Ingredient 5 (bonus)' for growth. What two mechanisms make trade a productivity multiplier?",
-    options: [
-      "Trade lowers wages in rich countries and raises them in poor countries, equalizing global living standards",
-      "Comparative advantage (each does what they do best, raising total output) and economies of scale (bigger markets spread fixed costs, enabling more R&D and steeper learning curves)",
-      "Trade eliminates the need for physical capital investment by allowing imports of finished goods",
-      "Trade creates jobs in export industries that exactly offset jobs lost in import-competing industries",
-    ],
-    correct: 1,
-    exp: "Two mechanisms: (1) Comparative advantage — when countries specialize in what they're relatively best at, total output rises even if one party is 'better at everything.' (2) Economies of scale — a factory selling to 8 billion can spread fixed costs far more than one selling to 8 million, enabling larger production runs, more R&D, and steeper learning curves. McCloskey's Bourgeois Deal: 'Let me have a go — then trade rewards the innovators who serve you best.'",
-  },
-  {
-    q: "U.S. workers today have access to roughly 3× the physical capital of a 1950s worker. Yet your slides note a key limitation of physical capital. What is it?",
-    options: [
-      "Physical capital is taxed heavily, making it less effective than human capital",
-      "Physical capital hits diminishing returns — the first road transforms commerce, the 12th lane barely registers. Each unit adds less than the one before.",
-      "Physical capital only benefits workers in manufacturing, not services",
-      "Physical capital requires human capital to operate, so the two always cancel out",
-    ],
-    correct: 1,
-    exp: "Diminishing returns to physical capital: the first paved road in a region transforms commerce. The 12th lane on a highway barely registers. Each additional unit of physical capital adds LESS than the unit before. This is why capital deepening alone can't sustain long-run growth — you need technology (which doesn't hit diminishing returns) to keep productivity rising.",
-  },
+const INPUT_ITEMS = [
+  { id: 1, text: "A new combine harvester purchased by a wheat farm to replace hand harvesting.", input: "K", label: "Physical Capital (K)" },
+  { id: 2, text: "A factory worker completes a 6-month coding bootcamp, gaining software skills.", input: "H", label: "Human Capital (H)" },
+  { id: 3, text: "The GPS navigation algorithm — once developed, any device in the world can use it at no additional cost.", input: "A", label: "Technology (A)" },
+  { id: 4, text: "A construction company hires 20 additional workers for a new housing project.", input: "L", label: "Labor (L)" },
+  { id: 5, text: "A pharmaceutical company patents a new drug synthesis process that cuts production costs by 40%.", input: "A", label: "Technology (A)" },
+  { id: 6, text: "A country expands its interstate highway network, connecting rural farms to urban markets.", input: "K", label: "Physical Capital (K)" },
+  { id: 7, text: "South Korea's government funds near-universal secondary education and engineering universities.", input: "H", label: "Human Capital (H)" },
+  { id: 8, text: "A bakery adds a second shift of bakers to meet holiday demand.", input: "L", label: "Labor (L)" },
+];
+
+const INPUT_CATS = [
+  { id: "L", label: "Labor (L)",            color: "bg-slate-100 border-slate-300 text-slate-800" },
+  { id: "K", label: "Physical Capital (K)", color: "bg-blue-100 border-blue-300 text-blue-800" },
+  { id: "H", label: "Human Capital (H)",    color: "bg-green-100 border-green-300 text-green-800" },
+  { id: "A", label: "Technology (A)",       color: "bg-amber-100 border-amber-300 text-amber-800" },
 ];
 
 function InputsStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
-  const q = INPUTS_QS[idx];
-  const isLast = idx === INPUTS_QS.length - 1;
-  function handleCheck() {
-    if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
-    setScore(newScore);
-    setChecked(true);
-  }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+  const allAnswered = INPUT_ITEMS.every(i => answers[i.id]);
+  const correctCount = checked ? INPUT_ITEMS.filter(i => answers[i.id] === i.input).length : 0;
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">GDP = f(Labor, Physical Capital, Human Capital, Technology)</p>
-        <div className="grid grid-cols-4 gap-1.5 text-xs text-center">
-          {[["L", "Labor", "Hours of work, by people"],
-            ["K", "Physical Capital", "Machines, factories, infrastructure"],
-            ["H", "Human Capital", "Skills, education, experience"],
-            ["A", "Technology", "Knowledge, ideas, methods"]
-          ].map(([letter, name, desc]) => (
-            <div key={letter} className="bg-background border border-border rounded-lg p-2">
-              <p className="text-primary font-bold text-xl">{letter}</p>
-              <p className="font-semibold text-foreground text-xs">{name}</p>
-              <p className="text-muted-foreground text-xs mt-0.5">{desc}</p>
-            </div>
-          ))}
+        <p className="font-semibold text-foreground mb-1">Station 3 — GDP = f(L, K, H, A): Input Classifier</p>
+        <p className="text-muted-foreground text-xs mb-2">Classify each item into the correct input in the aggregate production function. Remember: Technology (A) is non-rival — one copy serves everyone simultaneously.</p>
+        <div className="grid grid-cols-2 gap-1 text-xs">
+          {INPUT_CATS.map(c => <span key={c.id} className={`px-2 py-1 rounded-lg border font-semibold ${c.color}`}>{c.label}</span>)}
         </div>
-        <p className="text-xs text-muted-foreground italic mt-2">Inputs reinforce each other — but technology is the joker in the deck. Ideas don't depreciate. One idea can spawn a thousand more.</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={INPUTS_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-2">
+        {INPUT_ITEMS.map(item => {
+          const ans = answers[item.id];
+          const isCorrect = checked && ans === item.input;
+          const isWrong = checked && ans && ans !== item.input;
+          const catObj = INPUT_CATS.find(c => c.id === item.input);
+          return (
+            <div key={item.id} className={`rounded-xl border-2 p-3 transition ${isCorrect ? "border-green-400 bg-green-50" : isWrong ? "border-red-400 bg-red-50" : "border-border bg-card"}`}>
+              <p className="text-sm font-medium text-foreground mb-2">{item.text}</p>
+              <select disabled={checked} value={ans || ""} onChange={e => setAnswers(a => ({ ...a, [item.id]: e.target.value }))}
+                className="w-full border border-border rounded-lg px-3 py-1.5 text-xs bg-background text-foreground focus:outline-none focus:border-primary">
+                <option value="">— classify this input —</option>
+                {INPUT_CATS.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+              </select>
+              {checked && (
+                <p className={`text-xs mt-1.5 font-semibold ${isCorrect ? "text-green-700" : "text-red-700"}`}>
+                  {isCorrect ? `✓ Correct — ${catObj?.label}` : `✗ Answer: ${catObj?.label}`}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {!checked ? (
+        <button disabled={!allAnswered} onClick={() => setChecked(true)}
+          className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+          Check Answers
+        </button>
+      ) : (
+        <div className="space-y-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+            <p className="text-sm font-bold text-blue-800">You got {correctCount} of {INPUT_ITEMS.length} correct!</p>
+          </div>
+          <button onClick={() => onComplete(correctCount, INPUT_ITEMS.length)}
+            className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+            Mark Complete ✓
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -396,159 +398,261 @@ function AccountingStation({ onComplete }: { onComplete: (score: number, total: 
 }
 
 // ─────────────────────────────────────────────
-// Station 5 — The Rule of 70
+// Station 5 — The Rule of 70: Stepped Calculation
 // ─────────────────────────────────────────────
-const RULE70_QS = [
+const RULE70_STEPS = [
   {
-    q: "The Rule of 70 states: Years to double ≈ 70 ÷ growth rate (%). An economy growing at 3% per year (the solid U.S. trend) doubles roughly every how many years?",
+    step: 1,
+    title: "The Formula",
+    content: "The Rule of 70 is a shortcut for estimating how long it takes an economy (or investment) to double at a constant growth rate:\n\nYears to double ≈ 70 ÷ growth rate (%)\n\nWhy 70? It comes from the math of continuous compounding — ln(2) ≈ 0.693. We round to 70 for easy mental arithmetic.\n\nThis rule applies to anything that grows at a constant percentage rate: GDP, populations, savings accounts, national debt.",
+    question: "At a 5% annual growth rate, roughly how many years does it take an economy to double?",
     options: [
-      "70 years",
-      "14 years",
-      "23 years",
-      "35 years",
+      "A) 5 years",
+      "B) 14 years",
+      "C) 23 years",
+      "D) 35 years",
     ],
-    correct: 2,
-    exp: "70 ÷ 3% = ~23 years. At 3% growth, the economy doubles every 23 years. Your slide table: 1% → 70 yrs (×1.6 in 50 yrs, slow Europe late 1800s), 3% → 23 yrs (×4.4 in 50 yrs, U.S. trend), 5% → 14 yrs (×11.5 in 50 yrs, fast catch-up), 8% → ~9 yrs (×47 in 50 yrs, South Korea/China boom).",
+    correct: 1,
+    exp: "70 ÷ 5% = 14 years. At 5% growth, the economy doubles every 14 years — fast enough to roughly quadruple in a single generation (28 years). This is the catch-up speed of Vietnam and Poland in recent decades.",
   },
   {
-    q: "South Korea and China both sustained roughly 8% annual growth for extended periods. According to your slide's Rule of 70 table, what does 8% growth mean for a 50-year period?",
+    step: 2,
+    title: "Applying It: U.S. vs. South Korea",
+    content: "U.S. trend growth: ~3%/year → doubles every 23 years → ×4.4 in 50 years\nSouth Korea boom: ~8%/year → doubles every ~9 years → ×47 in 50 years\n\nThat ×47 multiplier is what took South Korea from $854/capita (1950s) to $30,000+ today — in one lifetime. The U.S. went from a solid base to modestly higher. South Korea went from poverty to peer of Italy, New Zealand, and Israel.\n\n'3% vs. 1% doesn't sound like much — but over a lifetime it's the difference between living modestly and living well.'",
+    question: "The U.S. grows at ~3%/year. At this rate, the economy roughly doubles every 23 years. Over a 50-year career, by approximately what multiple does the U.S. economy grow?",
     options: [
-      "The economy doubles once — about ×2 in 50 years",
-      "The economy multiplies roughly ×4.4 in 50 years",
-      "The economy multiplies roughly ×47 in 50 years — nearly 50-fold",
-      "The economy multiplies roughly ×11.5 in 50 years",
+      "A) ×1.6 — barely any growth over 50 years",
+      "B) ×4.4 — about four and a half times larger",
+      "C) ×11.5 — more than ten times larger",
+      "D) ×47 — nearly fifty times larger",
     ],
-    correct: 2,
-    exp: "At 8% growth, doubling time ≈ 70÷8 ≈ 9 years. Over 50 years that's about 5–6 doublings: 2^5.5 ≈ 47. A ×47 multiplier explains how South Korea went from $854/capita to $30,000+ in one lifetime — and why your slide says '3% vs 1% doesn't sound like much, but over a lifetime it's the difference between living modestly and living well.'",
+    correct: 1,
+    exp: "At 3% growth: two doublings in ~46 years ≈ ×4 to ×4.4 over 50 years. This is the U.S. long-run trend. Compare to 8% (South Korea): ~5.5 doublings in 50 years ≈ ×47. The difference in growth rates — just 5 percentage points — creates a ×10 gap in outcomes over one lifetime.",
   },
   {
-    q: "Your slide shows: $5,000/year saved for 40 years at 7% = $1,068,000, of which only $200,000 was contributions. What principle does this personal compounding example illustrate?",
+    step: 3,
+    title: "Personal Compounding — Same Math, Your Money",
+    content: "The same Rule of 70 that lifts nations applies to your savings:\n\n$5,000/year saved for 40 years at 7% annual return = $1,068,000\n• Contributions: 40 × $5,000 = $200,000\n• Pure compounding: $868,000 — more than 4× the contributions\n\nAt 7%: Years to double = 70 ÷ 7 = 10 years\nSo $10,000 today → $20,000 in 10 years → $40,000 in 20 years → $80,000 in 30 years → $160,000 in 40 years\n\nMost wealth is built in the final decade, when the snowball is biggest. Starting at 25 vs. 35 isn't '10 years extra' — it's often half the final balance.",
+    question: "If you save $10,000 today and earn 7% annual return, roughly how much will it be worth in 40 years?",
     options: [
-      "Saving a large lump sum early is better than saving regularly",
-      "Government bonds are the safest investment for retirement savings",
-      "The same compounding math that lifts nations lifts savers — and most of the wealth is built in the final decade when the snowball is biggest. Starting at 25 vs. 35 is often half the final balance.",
-      "Inflation erodes savings, so investing in physical assets is always better",
+      "A) $40,000 — it quadruples",
+      "B) $80,000 — it grows 8×",
+      "C) $160,000 — it grows 16×",
+      "D) $280,000 — it grows 28×",
     ],
     correct: 2,
-    exp: "$5,000/yr × 40 yrs = $200,000 in contributions. But compounding at 7% produces $1,068,000 — $868,000 is pure compounding. Most is built in the final decade, when the snowball is biggest. 'The same force that lifts nations lifts savers — if you give it time.' Starting at 25 vs. 35 isn't 10 years extra — it's often half the final balance.",
+    exp: "At 7%: doubles every 10 years. $10,000 → $20,000 (10 yrs) → $40,000 (20 yrs) → $80,000 (30 yrs) → $160,000 (40 yrs). Four doublings = ×16. 'The same force that lifts nations lifts savers — if you give it time.'",
   },
 ];
 
 function Rule70Station({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
+  const [stepIdx, setStepIdx] = useState(0);
   const [sel, setSel] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const [score, setScore] = useState(0);
-  const q = RULE70_QS[idx];
-  const isLast = idx === RULE70_QS.length - 1;
+  const step = RULE70_STEPS[stepIdx];
+  const isLast = stepIdx === RULE70_STEPS.length - 1;
+
   function handleCheck() {
     if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
-    setScore(newScore);
+    setScore(s => s + (sel === step.correct ? 1 : 0));
     setChecked(true);
   }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+  function handleNext() { setStepIdx(i => i + 1); setSel(null); setChecked(false); }
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">The Rule of 70 — Years to double ≈ 70 ÷ growth rate (%)</p>
-        <div className="rounded-lg overflow-hidden border border-border text-xs">
-          <table className="w-full">
-            <thead><tr className="bg-primary text-primary-foreground"><th className="text-left px-2 py-1.5">Growth</th><th className="text-center px-2 py-1.5">Yrs to double</th><th className="text-center px-2 py-1.5">50-yr multiplier</th><th className="text-left px-2 py-1.5">Example</th></tr></thead>
-            <tbody>
-              {[["1%","70 yrs","×1.6","Slow Europe, late 1800s"],
-                ["3%","23 yrs","×4.4","Solid U.S. trend"],
-                ["5%","14 yrs","×11.5","Fast catch-up"],
-                ["8%","~9 yrs","×47","S. Korea, China boom"]
-              ].map(([g,y,m,ex], i) => (
-                <tr key={g} className={`border-t border-border ${i%2===0?'bg-background':'bg-muted/30'}`}>
-                  <td className="px-2 py-1.5 font-bold text-primary">{g}</td>
-                  <td className="text-center px-2 py-1.5">{y}</td>
-                  <td className="text-center px-2 py-1.5 font-semibold">{m}</td>
-                  <td className="px-2 py-1.5 text-muted-foreground">{ex}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <p className="font-semibold text-foreground mb-1">Station 5 — The Rule of 70</p>
+        <p className="text-muted-foreground text-xs">Walk through the formula, apply it to real economies, then connect it to your own savings. Years to double ≈ 70 ÷ growth rate (%).</p>
+        <div className="flex gap-1 mt-2">
+          {RULE70_STEPS.map((_, i) => (
+            <div key={i} className={`h-1.5 flex-1 rounded-full ${i <= stepIdx ? "bg-primary" : "bg-primary/20"}`} />
+          ))}
         </div>
-        <p className="text-xs text-muted-foreground mt-2"><span className="font-semibold">50-yr multiplier</span> = how many times larger the economy is after 50 years at that growth rate (e.g., ×47 means 47× bigger). Calculated as (1 + rate)<sup>50</sup>.</p>
-        <p className="text-xs text-muted-foreground italic mt-1">3% vs. 1% doesn't sound like much — but over a lifetime it's the difference between living modestly and living well.</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={RULE70_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="bg-card border-2 border-border rounded-xl p-4 space-y-3">
+        <p className="text-xs font-bold uppercase tracking-widest text-primary">Step {step.step} of {RULE70_STEPS.length} — {step.title}</p>
+        <div className="bg-muted/60 rounded-lg p-3 text-xs text-foreground leading-relaxed whitespace-pre-line">{step.content}</div>
+        <p className="text-sm font-semibold text-foreground">{step.question}</p>
+        <div className="space-y-2">
+          {step.options.map((opt, i) => (
+            <button key={i} disabled={checked} onClick={() => setSel(i)}
+              className={`w-full text-left px-4 py-2.5 rounded-lg border text-sm transition ${
+                checked
+                  ? i === step.correct ? "border-green-500 bg-green-50 text-green-900"
+                    : i === sel && sel !== step.correct ? "border-red-400 bg-red-50 text-red-900"
+                    : "border-border text-muted-foreground opacity-60"
+                  : sel === i ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border bg-background text-foreground hover:border-primary"
+              }`}>{opt}</button>
+          ))}
+        </div>
+        {checked && (
+          <div className={`rounded-lg p-3 text-xs ${sel === step.correct ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}>
+            {sel === step.correct ? "✓ Correct — " : "✗ Incorrect — "}{step.exp}
+          </div>
+        )}
+        {!checked && sel !== null && <button onClick={handleCheck} className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition">Check Answer</button>}
+        {checked && !isLast && <button onClick={handleNext} className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition">Next Step →</button>}
+        {checked && isLast && <button onClick={() => onComplete(score, RULE70_STEPS.length)} className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">Mark Complete ✓</button>}
+      </div>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────
-// Station 6 — Catch-Up & Convergence
+// Station 6 — Catch-Up & Convergence: Country Sorter
 // ─────────────────────────────────────────────
-const CONVERGENCE_QS = [
+type ConvergenceItem = {
+  id: number;
+  country: string;
+  story: string;
+  outcome: "converging" | "stalled";
+  factor: string;
+  outcomeLabel: string;
+  factorLabel: string;
+  factorExp: string;
+};
+
+const CONVERGENCE_CASES: ConvergenceItem[] = [
   {
-    q: "Your slides identify the 'Fast Growth Club' of the last 30 years. Which group of countries best matches the slide's data (5–10%/yr)?",
-    options: [
-      "United States, Germany, Japan, and France",
-      "China (~9%), India (~6–7%), South Korea (earlier: ~7–8%), Vietnam (~6–7%), Poland (~4–5%)",
-      "Brazil, Russia, South Africa, and Mexico",
-      "Saudi Arabia, UAE, Norway, and Australia",
-    ],
-    correct: 1,
-    exp: "Fast Growth Club from your slides: China ~9%, India ~6–7%, South Korea (earlier) ~7–8%, Vietnam ~6–7%, Poland ~4–5%. Slow Growth Group: U.S. ~2%, Germany ~1–2%, Japan ~0.5–1%, Italy ~0–1%, many sub-Saharan economies ~0%. Rich, mature economies grow slowly; catching-up economies grow fast — except where institutions fail.",
+    id: 1,
+    country: "South Korea",
+    story: "$854 GDP/capita in the 1950s → $30,000+ today in one lifetime. Sustained 7–8% annual growth for four decades.",
+    outcome: "converging",
+    factor: "institutions",
+    outcomeLabel: "Converging ✓",
+    factorLabel: "Strong institutions",
+    factorExp: "South Korea built property rights, contract enforcement, low corruption, and rule of law alongside heavy investment in education (H) and infrastructure (K). Recipe: open trade + strong institutions + education.",
   },
   {
-    q: "Your slides present three lessons from convergence. Which correctly states Lesson 3?",
-    options: [
-      "East Asia: convergence works — Japan, South Korea, Taiwan, Singapore, and China closed massive gaps",
-      "Africa: convergence stalled — many sub-Saharan economies have the same GDP/capita today as in 1960",
-      "Institutions are the bottleneck — not geography, not natural resources, not aid. Countries that catch up build the rules that let people invest, trade, learn, and innovate.",
-      "Foreign aid is the most reliable path to closing the income gap between rich and poor countries",
-    ],
-    correct: 2,
-    exp: "Lesson 3 from your slides: Institutions are the bottleneck. Not geography. Not natural resources. Not aid. The countries that catch up — East Asia — built property rights, rule of law, contract enforcement, and low corruption. Many sub-Saharan economies didn't, and have roughly the same GDP/capita today as in 1960. 'Catch-up is a recipe, not a guarantee — and the recipe starts with the rules.'",
+    id: 2,
+    country: "Sub-Saharan Africa (broadly)",
+    story: "Many countries had roughly the same GDP/capita in 2000 as in 1960. Despite natural resources, living standards barely changed over 40 years.",
+    outcome: "stalled",
+    factor: "institutions",
+    outcomeLabel: "Stalled ✗",
+    factorLabel: "Weak institutions",
+    factorExp: "Weak property rights, high corruption, and political instability kept capital out and prevented ideas from taking root. Natural resources (oil, minerals) existed but revenues were captured by elites rather than invested in K, H, or A.",
   },
   {
-    q: "Your slides note that convergence is 'possible but not automatic.' What factor most determines whether a poor country actually catches up to rich ones?",
-    options: [
-      "Geographic location and access to seaports",
-      "Natural resource endowments — oil, minerals, and fertile land",
-      "The quality of institutions — property rights, rule of law, and low corruption — that determine whether capital flows in and ideas take root",
-      "The amount of foreign aid received from wealthy nations",
-    ],
-    correct: 2,
-    exp: "Convergence requires good institutions: without property rights, rule of law, and low corruption, capital flees and ideas don't take root. Geography, natural resources, and aid can help at the margin, but they can't substitute for institutional quality. Many resource-rich African countries remain poor; institution-poor countries in sub-Saharan Africa had the same GDP/capita in 2000 as in 1960. 'Convergence is possible — but not guaranteed. Institutions decide.'",
+    id: 3,
+    country: "China",
+    story: "~9% average annual growth 1980–2010. Hundreds of millions lifted from poverty. GDP grew from ~$300/capita to $12,000+.",
+    outcome: "converging",
+    factor: "openness",
+    outcomeLabel: "Converging ✓",
+    factorLabel: "Economic openness + policy reform",
+    factorExp: "Deng Xiaoping's 1978 reforms opened China to trade and foreign investment, created special economic zones with stronger property protections, and allowed markets to allocate resources. Openness enabled technology transfer (A) and economies of scale.",
+  },
+  {
+    id: 4,
+    country: "Venezuela",
+    story: "Despite the world's largest proven oil reserves, GDP/capita has fallen sharply since 2013. Millions have emigrated.",
+    outcome: "stalled",
+    factor: "institutions",
+    outcomeLabel: "Stalled ✗",
+    factorLabel: "Institutional collapse",
+    factorExp: "Property rights were undermined (farm and factory nationalizations). Rule of law collapsed. Corruption captured oil revenues. Price controls caused shortages. Hyperinflation destroyed savings. Natural resources cannot substitute for functioning institutions.",
+  },
+  {
+    id: 5,
+    country: "Poland",
+    story: "~4–5% average growth since joining the EU (2004). GDP/capita tripled from ~$6,000 to ~$18,000+ over two decades.",
+    outcome: "converging",
+    factor: "institutions",
+    outcomeLabel: "Converging ✓",
+    factorLabel: "Institutional reform + EU integration",
+    factorExp: "EU accession required adopting rule of law, contract enforcement, and anti-corruption standards. Access to EU markets (trade/scale) and structural funds (K) combined with strong human capital (H) from Soviet-era education produced sustained catch-up growth.",
   },
 ];
 
+const OUTCOME_OPTS = [
+  { id: "converging", label: "Converging ✓", color: "bg-green-100 border-green-400 text-green-800" },
+  { id: "stalled",    label: "Stalled ✗",    color: "bg-red-100 border-red-400 text-red-800" },
+];
+const FACTOR_OPTS = [
+  { id: "institutions", label: "Institutions (property rights, rule of law, low corruption)" },
+  { id: "openness",     label: "Economic openness & trade policy" },
+  { id: "resources",    label: "Natural resource abundance" },
+  { id: "aid",          label: "Foreign aid and development assistance" },
+];
+
 function ConvergenceStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<Record<number, { outcome: string; factor: string }>>({});
   const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
-  const q = CONVERGENCE_QS[idx];
-  const isLast = idx === CONVERGENCE_QS.length - 1;
-  function handleCheck() {
-    if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
-    setScore(newScore);
-    setChecked(true);
+  const allAnswered = CONVERGENCE_CASES.every(c => answers[c.id]?.outcome && answers[c.id]?.factor);
+  const correctCount = checked ? CONVERGENCE_CASES.filter(c => answers[c.id]?.outcome === c.outcome && answers[c.id]?.factor === c.factor).length : 0;
+
+  function setAns(id: number, field: "outcome" | "factor", val: string) {
+    setAnswers(a => ({ ...a, [id]: { ...a[id], [field]: val } }));
   }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">Catch-Up & Convergence</p>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-2">
-            <p className="font-semibold text-green-800 mb-1">Fast Growth Club (~5–10%/yr)</p>
-            <p className="text-green-700">China ~9% · India ~6–7% · S. Korea ~7–8% · Vietnam ~6–7% · Poland ~4–5%</p>
-          </div>
-          <div className="bg-background border border-border rounded-lg p-2">
-            <p className="font-semibold text-foreground mb-1">Slow Growth Group (~0–2%/yr)</p>
-            <p className="text-muted-foreground">U.S. ~2% · Germany ~1–2% · Japan ~0.5–1% · Italy ~0–1% · Sub-Saharan ~0%</p>
-          </div>
+        <p className="font-semibold text-foreground mb-1">Station 6 — Catch-Up & Convergence: Country Cases</p>
+        <p className="text-muted-foreground text-xs mb-2">For each country, classify the convergence outcome and identify the key factor. Convergence is possible — but not guaranteed. Institutions decide.</p>
+        <div className="flex gap-2 text-xs">
+          <span className="px-2 py-0.5 rounded-full border font-medium bg-green-100 border-green-300 text-green-800">Converging ✓</span>
+          <span className="px-2 py-0.5 rounded-full border font-medium bg-red-100 border-red-300 text-red-800">Stalled ✗</span>
         </div>
-        <p className="text-xs text-muted-foreground italic mt-2">"Catch-up is a recipe, not a guarantee — and the recipe starts with the rules."</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={CONVERGENCE_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-3">
+        {CONVERGENCE_CASES.map(c => {
+          const ans = answers[c.id] || {};
+          const outOk = checked && ans.outcome === c.outcome;
+          const facOk = checked && ans.factor === c.factor;
+          const bothOk = outOk && facOk;
+          const anyWrong = checked && (!outOk || !facOk);
+          return (
+            <div key={c.id} className={`rounded-xl border-2 p-3 transition ${bothOk ? "border-green-400 bg-green-50" : anyWrong ? "border-red-400 bg-red-50" : "border-border bg-card"}`}>
+              <p className="text-xs font-bold text-primary uppercase tracking-wide mb-0.5">{c.country}</p>
+              <p className="text-sm font-medium text-foreground mb-2">{c.story}</p>
+              {!checked ? (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    {OUTCOME_OPTS.map(o => (
+                      <button key={o.id} onClick={() => setAns(c.id, "outcome", o.id)}
+                        className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition ${ans.outcome === o.id ? `${o.color} border-current` : "border-border bg-background text-foreground hover:border-primary/40"}`}>
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                  <select value={ans.factor || ""} onChange={e => setAns(c.id, "factor", e.target.value)}
+                    className="w-full border border-border rounded-lg px-3 py-1.5 text-xs bg-background text-foreground focus:outline-none focus:border-primary">
+                    <option value="">— key factor driving this outcome —</option>
+                    {FACTOR_OPTS.map(f => <option key={f.id} value={f.id}>{f.label}</option>)}
+                  </select>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <p className={`text-xs font-semibold ${outOk ? "text-green-700" : "text-red-700"}`}>{outOk ? "✓ " : "✗ "}{c.outcomeLabel}</p>
+                  <p className={`text-xs font-semibold ${facOk ? "text-green-700" : "text-red-700"}`}>{facOk ? "✓ " : "✗ "}Key factor: {c.factorLabel}</p>
+                  <p className="text-xs text-muted-foreground italic mt-1">{c.factorExp}</p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {!checked ? (
+        <button disabled={!allAnswered} onClick={() => setChecked(true)}
+          className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+          Check Answers
+        </button>
+      ) : (
+        <div className="space-y-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+            <p className="text-sm font-bold text-blue-800">You got {correctCount} of {CONVERGENCE_CASES.length} correct!</p>
+          </div>
+          <button onClick={() => onComplete(correctCount, CONVERGENCE_CASES.length)}
+            className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+            Mark Complete ✓
+          </button>
+        </div>
+      )}
     </div>
   );
 }

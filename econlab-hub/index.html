@@ -27,8 +27,6 @@
     .header-logo { width: 36px; height: 36px; flex-shrink: 0; }
     .header-title { font-size: 15px; font-weight: 700; line-height: 1.2; }
     .header-sub { font-size: 11px; opacity: 0.6; margin-top: 2px; }
-    .header-progress { margin-left: auto; text-align: right; }
-    .header-progress-label { font-size: 11px; opacity: 0.6; margin-bottom: 4px; }
     .header-bar { width: 120px; height: 6px; background: rgba(255,255,255,0.2); border-radius: 99px; overflow: hidden; }
     .header-bar-fill { height: 100%; background: var(--amber-light); border-radius: 99px; transition: width 0.5s ease; }
 
@@ -51,12 +49,8 @@
 
     .lab-card { background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 10px; transition: border-color 0.15s, box-shadow 0.15s; text-decoration: none; color: inherit; }
     .lab-card:hover { border-color: var(--amber); box-shadow: 0 4px 16px rgba(217,119,6,0.12); }
-    .lab-card.completed { border-color: var(--green-border); background: var(--green-bg); }
     .lab-card-top { display: flex; align-items: flex-start; gap: 12px; }
     .lab-chapter-badge { background: var(--navy); color: white; font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 99px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
-    .lab-card.completed .lab-chapter-badge { background: var(--green); }
-    .lab-done-badge { display: none; font-size: 10px; font-weight: 700; color: var(--green); background: var(--green-bg); border: 1.5px solid var(--green-border); border-radius: 99px; padding: 2px 8px; margin-top: 6px; width: fit-content; }
-    .lab-card.completed .lab-done-badge { display: block; }
     .lab-title { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.3; }
     .lab-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
     .lab-stations { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap-: 4px; }
@@ -80,9 +74,6 @@
     <div class="header-title">ECO 210 ECONLAB</div>
     <div class="header-sub">Based on OpenStax Macroeconomics 3e Textbook</div>
   </div>
-  <div class="header-progress">
-    <div class="header-progress-label" id="progress-label">0 of 9 labs complete</div>
-    <div class="header-bar"><div class="header-bar-fill" id="progress-bar" style="width:0%"></div></div>
   </div>
 </header>
 
@@ -106,7 +97,6 @@
         <div>
           <div class="lab-title">Introduction to Economics</div>
           <div class="lab-desc">Scarcity, opportunity cost, micro vs. macro, factors of production, circular flow, and economic systems.</div>
-          <div class="lab-done-badge">✓ Completed</div>
         </div>
       </div></a>
 
@@ -116,7 +106,6 @@
         <div>
           <div class="lab-title">Choice in a World of Scarcity</div>
           <div class="lab-desc">Budget constraints, opportunity cost, thinking at the margin, PPF, comparative advantage, and positive vs. normative analysis.</div>
-          <div class="lab-done-badge">✓ Completed</div>
         </div>
       </div></a>
 
@@ -126,7 +115,6 @@
         <div>
           <div class="lab-title">International Trade</div>
           <div class="lab-desc">Absolute vs. comparative advantage, opportunity cost calculations, gains from specialization, and terms of trade.</div>
-          <div class="lab-done-badge">✓ Completed</div>
         </div>
       </div></a>
 
@@ -136,7 +124,6 @@
         <div>
           <div class="lab-title">Demand and Supply</div>
           <div class="lab-desc">The price mechanism, laws of demand and supply, market equilibrium, curve shifters, four-step analysis, and price controls.</div>
-          <div class="lab-done-badge">✓ Completed</div>
         </div>
       </div></a>
 
@@ -146,7 +133,6 @@
         <div>
           <div class="lab-title">Gross Domestic Product</div>
           <div class="lab-desc">Measuring the economy: expenditure approach, real vs. nominal GDP, and limitations of GDP as a welfare measure.</div>
-          <div class="lab-done-badge">✓ Completed</div>
         </div>
       </div></a>
 
@@ -156,7 +142,6 @@
         <div>
           <div class="lab-title">Economic Growth</div>
           <div class="lab-desc">Sources of long-run growth: capital, labor, technology, and the Rule of 70. Includes Ch6 recap.</div>
-          <div class="lab-done-badge">✓ Completed</div>
         </div>
       </div></a>
 
@@ -166,7 +151,6 @@
         <div>
           <div class="lab-title">Unemployment</div>
           <div class="lab-desc">Who counts, UR &amp; LFPR formulas, U-3 vs U-6, three types, sticky wages, NAIRU, and personal finance.</div>
-          <div class="lab-done-badge">✓ Completed</div>
         </div>
       </div></a>
 
@@ -176,7 +160,6 @@
         <div>
           <div class="lab-title">Inflation</div>
           <div class="lab-desc">What inflation is, the basket &amp; CPI, three biases, core CPI, historical record, redistribution, indexing, and personal finance.</div>
-          <div class="lab-done-badge">✓ Completed</div>
         </div>
       </div></a>
 
@@ -186,7 +169,6 @@
         <div>
           <div class="lab-title">Aggregate Demand &amp; Supply</div>
           <div class="lab-desc">Say's vs. Keynes' Law, three curves, AD shifters, output gaps, SRAS zones, demand-pull vs. cost-push, 1973 OPEC stagflation, COVID cases, personal finance dashboard.</div>
-          <div class="lab-done-badge">✓ Completed</div>
         </div>
       </div></a>
 
@@ -196,7 +178,6 @@
         <div>
           <div class="lab-title">Keynesian &amp; Neoclassical</div>
           <div class="lab-desc">Two schools of thought, sticky wages, the multiplier, the Phillips Curve, and policy debates. Includes Ch11 recap.</div>
-          <div class="lab-done-badge">✓ Completed</div>
         </div>
       </div></a>
 
@@ -206,7 +187,6 @@
         <div>
           <div class="lab-title">Money and Banking</div>
           <div class="lab-desc">Functions of money, M1 vs. M2, bank balance sheets, fractional reserves, and the money multiplier. Includes Ch12+13 recap.</div>
-          <div class="lab-done-badge">✓ Completed</div>
         </div>
       </div></a>
 
@@ -216,7 +196,6 @@
         <div>
           <div class="lab-title">Monetary Policy &amp; Bank Regulation</div>
           <div class="lab-desc">The Fed, FOMC, policy tools (pre- and post-2008), transmission chain, and the federal funds rate. Includes Ch14 recap.</div>
-          <div class="lab-done-badge">✓ Completed</div>
         </div>
       </div></a>
 
@@ -226,7 +205,6 @@
         <div>
           <div class="lab-title">Government Budgets &amp; Fiscal Policy</div>
           <div class="lab-desc">Fiscal tools, automatic stabilizers, deficit vs. debt, tax systems, three lags, and crowding out. Includes Ch15 recap.</div>
-          <div class="lab-done-badge">✓ Completed</div>
         </div>
       </div></a>
 
@@ -236,60 +214,5 @@
 
 
 <footer role="contentinfo">Access course textbook for free at <a href="https://openstax.org/books/principles-macroeconomics-3e/pages/1-introduction" style="color:inherit;text-decoration:underline;">https://openstax.org/books/principles-macroeconomics-3e/pages/1-introduction</a></footer>
-
-<script>
-  // Labs that can be marked complete (in order)
-  const LABS = ['ch1','ch2','ch20','ch3','ch6','ch7','ch8','ch9','ch11','ch1213','ch14','ch15','ch17'];
-  const TOTAL = LABS.length;
-
-  // Labs that store completion as a JSON array of station IDs (Ch1, Ch2, Ch20)
-  const ARRAY_LABS = new Set(['ch1','ch2','ch20','ch3','ch6','ch7']);
-
-  // Key overrides for labs that use a non-standard storage key
-  const KEY_OVERRIDES = { ch6: 'econlab_done_ch6_v2' };
-
-  // Auto-detect completion from lab localStorage flags
-  function getCompleted() {
-    const done = [];
-    LABS.forEach(lab => {
-      try {
-        const storageKey = KEY_OVERRIDES[lab] || `econlab_done_${lab}`;
-        const val = localStorage.getItem(storageKey);
-        if (!val) return;
-        if (ARRAY_LABS.has(lab)) {
-          // These labs store an array of completed station IDs; done when 'quiz' is present
-          const arr = JSON.parse(val);
-          if (Array.isArray(arr) && arr.includes('quiz')) done.push(lab);
-        } else {
-          if (val === 'true') done.push(lab);
-        }
-      } catch(e) {}
-    });
-    return done;
-  }
-
-  function updateUI() {
-    const completed = getCompleted();
-    const count = completed.length;
-
-    // Update header progress
-    document.getElementById('progress-label').textContent = `${count} of ${TOTAL} labs complete`;
-    document.getElementById('progress-bar').style.width = `${(count / TOTAL) * 100}%`;
-    document.getElementById('stat-complete').textContent = count;
-
-    // Update cards
-    LABS.forEach(lab => {
-      const card = document.querySelector(`[data-lab="${lab}"]`);
-      if (!card) return;
-      if (completed.includes(lab)) {
-        card.classList.add('completed');
-      }
-    });
-  }
-
-  // Poll every 3 seconds so Hub updates automatically when student returns
-  updateUI();
-  setInterval(updateUI, 3000);
-</script>
 </body>
 </html>

@@ -80,77 +80,86 @@ function SteppedQuiz({ q, idx, total, sel, setSel, checked, onCheck, onNext, isL
 }
 
 // ─────────────────────────────────────────────
-// Station 1 — What Is Inflation?
+// Station 1 — What Is Inflation? Classifier
 // ─────────────────────────────────────────────
-const WHATISIT_QS = [
-  {
-    q: "Your slides define inflation as 'a general and ongoing rise in the level of prices across an entire economy.' Which of the following is NOT inflation?",
-    options: [
-      "The overall price level rises 4% this year — groceries, rent, gas, and clothing all cost more",
-      "College tuition rises 8% while laptop prices fall 15% — the two prices move in opposite directions",
-      "After a hurricane, gas prices spike 40¢/gallon for two weeks, then return to normal",
-      "Both B and C — a relative price change and a one-time shock are not inflation",
-    ],
-    correct: 3,
-    exp: "Inflation requires two things: it must be general (the whole price level, not just one item) AND ongoing (a persistent trend, not a temporary shock). A relative price change (tuition up, laptops down) means some prices move differently — that's not inflation. A hurricane gas spike is a one-time supply disruption — not ongoing. Inflation is the whole ocean rising, not one wave splashing higher.",
-  },
-  {
-    q: "Your slides use the analogy: 'Think of the ocean tide rising — all boats go up, not just one wave splashing higher.' What does this analogy capture about inflation?",
-    options: [
-      "Inflation is a general rise in the overall price level — the whole economy, not just one sector or item",
-      "Inflation affects everyone equally — no one benefits and no one loses",
-      "Inflation is caused by tidal forces in the global economy that no government can control",
-      "Inflation always arrives suddenly, like a tidal wave, rather than building gradually",
-    ],
-    correct: 0,
-    exp: "The ocean tide analogy captures generality: all boats rise together — that's the overall price level going up. One wave splashing higher (a single price spike) is a relative change, not inflation. The analogy deliberately distinguishes a general phenomenon from a sector-specific one. It says nothing about who wins or loses, or about causes — just what inflation is.",
-  },
-  {
-    q: "Your slides note 'deflation ≠ always good news' and warn it can 'trigger a deflationary spiral.' Why might falling prices be harmful?",
-    options: [
-      "Deflation is always harmful — there is no scenario in which falling prices benefit consumers",
-      "Deflation driven by collapsing demand causes consumers to delay purchases, firms to cut costs and workers, incomes to fall, and spending to drop further — a self-reinforcing spiral",
-      "Deflation is only harmful when caused by falling oil prices, which reduce energy sector employment",
-      "Deflation reduces tax revenues, which forces governments to cut spending and raise taxes simultaneously",
-    ],
-    correct: 1,
-    exp: "Bad deflation is driven by collapsing demand: prices fall because nobody is buying → firms cut costs and workers → incomes fall → less spending → prices fall further. This self-reinforcing spiral made the Great Depression devastating and contributed to Japan's 'Lost Decade.' Good deflation (driven by productivity — flat-screen TVs, solar panels) is fine. The harm comes from the demand-collapse version.",
-  },
+const INFLATION_SCENARIOS = [
+  { id: 1, text: "The overall price level rises 4% this year — groceries, rent, gas, and clothing all cost more across the economy.", category: "inflation", label: "Inflation", reason: "General (economy-wide) AND ongoing — the whole price level rose. This is the textbook definition: all boats rising with the tide." },
+  { id: 2, text: "College tuition rises 8% while laptop prices fall 15% — two prices moving in opposite directions.", category: "relative", label: "Relative Price Change", reason: "Some prices rise, others fall. The overall price level may not have changed at all. Relative price changes are signals from supply and demand, not inflation." },
+  { id: 3, text: "After Hurricane Katrina, gas prices spike 40¢/gallon for two weeks, then return to normal.", category: "shock", label: "One-Time Shock", reason: "Temporary supply disruption — prices spiked then reversed. Not ongoing. Core CPI barely moved. The Fed correctly held rates steady." },
+  { id: 4, text: "For five consecutive years, the CPI rises 3–4% annually as wages, rents, and food prices all trend higher.", category: "inflation", label: "Inflation", reason: "General (economy-wide) AND ongoing (five consecutive years). Persistent, broad-based price level increases = inflation." },
+  { id: 5, text: "Austin apartment rents rose 18% last year while national rents rose only 3% on average.", category: "relative", label: "Relative Price Change", reason: "One city's rents rising faster than the national average is a relative price change — local supply/demand at work. National inflation is 3%, not 18%." },
+  { id: 6, text: "A semiconductor shortage causes used car prices to surge 30% for eight months. Prices then fall as chip supply normalizes.", category: "shock", label: "One-Time Shock", reason: "Supply disruption (chip shortage) caused a temporary spike that reversed when supply normalized. Not a general, ongoing rise in the price level." },
+];
+
+const INFLATION_CATS = [
+  { id: "inflation", label: "Inflation",            color: "bg-red-100 border-red-400 text-red-800",    desc: "General AND ongoing rise" },
+  { id: "relative",  label: "Relative Price Change",color: "bg-blue-100 border-blue-400 text-blue-800",  desc: "One sector vs. another" },
+  { id: "shock",     label: "One-Time Shock",       color: "bg-amber-100 border-amber-400 text-amber-800",desc: "Temporary disruption" },
 ];
 
 function WhatIsItStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
-  const q = WHATISIT_QS[idx];
-  const isLast = idx === WHATISIT_QS.length - 1;
-  function handleCheck() {
-    if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
-    setScore(newScore);
-    setChecked(true);
-  }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+  const allAnswered = INFLATION_SCENARIOS.every(s => answers[s.id]);
+  const correctCount = checked ? INFLATION_SCENARIOS.filter(s => answers[s.id] === s.category).length : 0;
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">What Inflation Is (and Isn't)</p>
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          {[
-            ["✓ Inflation", "General AND ongoing rise in the overall price level — all boats rising with the tide"],
-            ["✗ Relative price change", "Tuition up 8%, laptops down 15% — some prices move differently from others"],
-            ["✗ One-time shock", "Hurricane spikes gas 40¢/gallon for 2 weeks — temporary supply disruption, not a trend"],
-          ].map(([label, desc]) => (
-            <div key={label} className="bg-background border border-border rounded-lg p-2">
-              <p className="font-bold text-primary text-xs mb-1">{label}</p>
-              <p className="text-muted-foreground leading-snug">{desc}</p>
+        <p className="font-semibold text-foreground mb-1">Station 1 — What Is Inflation? (and What Isn&apos;t)</p>
+        <p className="text-muted-foreground text-xs mb-2">Inflation requires TWO conditions: <strong className="text-foreground">general</strong> (economy-wide) AND <strong className="text-foreground">ongoing</strong> (persistent trend). Classify each scenario.</p>
+        <div className="grid grid-cols-3 gap-1 text-xs">
+          {INFLATION_CATS.map(c => (
+            <div key={c.id} className={`px-2 py-1 rounded-lg border font-semibold text-center ${c.color}`}>
+              <div>{c.label}</div>
+              <div className="font-normal opacity-80 text-xs">{c.desc}</div>
             </div>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground italic mt-2">Deflation = price level falls overall. Can signal collapsing demand — not always good news.</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={WHATISIT_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-2">
+        {INFLATION_SCENARIOS.map(s => {
+          const ans = answers[s.id];
+          const isCorrect = checked && ans === s.category;
+          const isWrong = checked && ans && ans !== s.category;
+          const catObj = INFLATION_CATS.find(c => c.id === s.category);
+          return (
+            <div key={s.id} className={`rounded-xl border-2 p-3 transition ${isCorrect ? "border-green-400 bg-green-50" : isWrong ? "border-red-400 bg-red-50" : "border-border bg-card"}`}>
+              <p className="text-sm font-medium text-foreground mb-2">{s.text}</p>
+              {!checked ? (
+                <div className="flex gap-1.5">
+                  {INFLATION_CATS.map(c => (
+                    <button key={c.id} onClick={() => setAnswers(a => ({ ...a, [s.id]: c.id }))}
+                      className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition ${ans === c.id ? `${c.color} border-current` : "border-border bg-background text-foreground hover:border-primary/40"}`}>
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className={`text-xs font-semibold ${isCorrect ? "text-green-700" : "text-red-700"}`}>
+                  {isCorrect ? "✓ " : "✗ "}{catObj?.label} — {s.reason}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {!checked ? (
+        <button disabled={!allAnswered} onClick={() => setChecked(true)}
+          className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+          Check Answers
+        </button>
+      ) : (
+        <div className="space-y-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+            <p className="text-sm font-bold text-blue-800">You got {correctCount} of {INFLATION_SCENARIOS.length} correct!</p>
+          </div>
+          <button onClick={() => onComplete(correctCount, INFLATION_SCENARIOS.length)}
+            className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+            Mark Complete ✓
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -243,81 +252,132 @@ function BasketStation({ onComplete }: { onComplete: (score: number, total: numb
 }
 
 // ─────────────────────────────────────────────
-// Station 3 — Biases & Core CPI
+// Station 3 — CPI Biases Classifier + Core CPI
 // ─────────────────────────────────────────────
-const BIASES_QS = [
-  {
-    q: "The CPI uses a fixed basket, but when beef prices jump 20% consumers switch to buying more chicken. Which CPI bias does this illustrate, and how does it affect measured inflation?",
-    options: [
-      "Quality bias — the CPI misses improvements in product quality over time",
-      "New goods bias — beef is a new product not yet fully captured in the basket",
-      "Substitution bias — the fixed basket overstates actual spending increases because consumers adapt by switching to cheaper alternatives",
-      "Outlet bias — consumers switch to discount stores, but the CPI still surveys full-price retailers",
-    ],
-    correct: 2,
-    exp: "Substitution bias: the CPI assumes you keep buying the same quantities year after year. In reality, if beef rises 20% and chicken stays flat, you buy more chicken. Your actual spending increase is less than what the fixed basket implies. The CPI overstates your true cost-of-living increase because it doesn't allow for this substitution. BLS corrections since the early 2000s have reduced total overstatement to ~0.5%/yr.",
-  },
-  {
-    q: "A 2024 smartphone costs $999 — the same as a 2020 model. But the 2024 version has a dramatically better camera, longer battery, and faster processor. Which CPI bias does this represent?",
-    options: [
-      "Quality bias — the CPI may record this as zero inflation on phones, missing that you get far more value per dollar",
-      "Substitution bias — consumers switched from phones to other devices",
-      "New goods bias — smartphones were not in the original CPI basket",
-      "There is no bias here — same price means zero inflation, by definition",
-    ],
-    correct: 0,
-    exp: "Quality bias: if the 2024 phone costs the same but delivers dramatically more value, the true price of 'a unit of phone quality' has actually fallen — you get more for your money. But the CPI may record this as zero inflation since the sticker price didn't change. The BLS attempts hedonic adjustments (adjusting for quality changes) but doesn't fully capture all improvements, so CPI tends to overstate true cost-of-living increases.",
-  },
-  {
-    q: "In August 2005, Hurricane Katrina caused Gulf Coast refineries to shut down. Gas prices spiked 40¢/gallon in a single day — headline CPI jumped. Core CPI barely moved. The Fed held rates steady. Which statement correctly interprets this episode?",
-    options: [
-      "The Fed made the wrong call — a 40¢ gas spike is serious inflation that required rate hikes",
-      "Core CPI correctly signaled that the gas spike was a temporary supply disruption, not a persistent inflation trend — the Fed's steady hand proved right as headline inflation came back down within weeks",
-      "Core CPI is always more accurate than headline CPI, regardless of the cause of price changes",
-      "The Fed held rates because it only monitors the GDP Deflator, not the CPI",
-    ],
-    correct: 1,
-    exp: "This is the canonical case for core CPI. Core (CPI minus food and energy) barely moved because the underlying trend — driven by too much money chasing too few goods — hadn't changed. The gas spike was a supply disruption: temporary and reversible. Headline inflation came back down within weeks as refineries reopened. The Fed's steady hand was the right call, validated by subsequent data. Core CPI strips the noise to reveal the signal.",
-  },
+const BIAS_EXAMPLES = [
+  { id: 1, text: "Beef prices jump 20%. Instead of buying the same amount of beef as last year, consumers switch to buying more chicken, which stayed the same price.", bias: "substitution", label: "Substitution Bias", reason: "Fixed basket keeps beef quantities constant — it overstates actual spending because it ignores the consumer switch to cheaper chicken." },
+  { id: 2, text: "A 2024 smartphone costs $999 — the same as a 2020 model. But the 2024 version has a dramatically better camera, longer battery, and faster processor.", bias: "quality", label: "Quality Bias", reason: "You get far more value per dollar from the 2024 phone. The real price of 'a unit of phone quality' has fallen — but CPI records this as zero inflation." },
+  { id: 3, text: "Streaming services like Netflix launched at premium prices in 2007, then became affordable as competition grew. They weren't in the CPI basket until years after launch.", bias: "newgoods", label: "New Goods Bias", reason: "New products enter the basket slowly. CPI misses the early high prices AND the subsequent price drops as the market matures." },
+  { id: 4, text: "Egg prices surge 60% due to avian flu. Families that normally buy eggs three times a week start buying them once a week and eating more oatmeal instead.", bias: "substitution", label: "Substitution Bias", reason: "The fixed basket assumes families keep buying the same egg quantities. In reality they substitute — their true cost increase is less than the basket implies." },
+  { id: 5, text: "Electric vehicles entered the consumer market at $70,000+, then fell to $35,000 as battery technology improved and scale increased. CPI added EVs to its basket slowly.", bias: "newgoods", label: "New Goods Bias", reason: "CPI added EVs to the basket after significant price declines had already occurred — missing the large early price drop that benefited early adopters." },
 ];
 
+const BIAS_CATS = [
+  { id: "substitution", label: "Substitution Bias", color: "bg-blue-100 border-blue-400 text-blue-800" },
+  { id: "quality",      label: "Quality Bias",      color: "bg-green-100 border-green-400 text-green-800" },
+  { id: "newgoods",     label: "New Goods Bias",    color: "bg-purple-100 border-purple-400 text-purple-800" },
+];
+
+const CORE_CPI_Q = {
+  q: "Hurricane Katrina (2005) caused gas prices to spike 40¢/gallon in a single day. Headline CPI jumped sharply. Core CPI barely moved. The Fed held rates steady. Which statement correctly interprets this episode?",
+  options: [
+    "A) The Fed made the wrong call — any 40¢ spike is serious inflation requiring rate hikes",
+    "B) Core CPI correctly signaled the gas spike was a temporary supply disruption, not a persistent trend — holding rates steady proved right as headline inflation reversed within weeks",
+    "C) Core CPI is always more accurate than headline CPI regardless of cause",
+    "D) The Fed held rates because it monitors the GDP Deflator, not the CPI",
+  ],
+  correct: 1,
+  exp: "Core CPI (CPI minus food and energy) barely moved because the underlying trend hadn't changed. The spike was a supply disruption — temporary and reversible. Headline came back down within weeks as refineries reopened. The Fed's call was validated. Core strips the noise to reveal the signal — that's its entire purpose.",
+};
+
 function BiasesStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [classifyChecked, setClassifyChecked] = useState(false);
   const [sel, setSel] = useState<number | null>(null);
-  const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
-  const q = BIASES_QS[idx];
-  const isLast = idx === BIASES_QS.length - 1;
-  function handleCheck() {
+  const [coreChecked, setCoreChecked] = useState(false);
+  const [coreScore, setCoreScore] = useState(0);
+  const allAnswered = BIAS_EXAMPLES.every(b => answers[b.id]);
+  const classifyCorrect = classifyChecked ? BIAS_EXAMPLES.filter(b => answers[b.id] === b.bias).length : 0;
+  const totalScore = classifyCorrect + coreScore;
+  const totalQs = BIAS_EXAMPLES.length + 1;
+
+  function handleCoreCheck() {
     if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
-    setScore(newScore);
-    setChecked(true);
+    setCoreScore(sel === CORE_CPI_Q.correct ? 1 : 0);
+    setCoreChecked(true);
   }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">Three Biases — CPI Overstates True Cost-of-Living Change</p>
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          {[
-            ["Substitution Bias","Fixed basket ignores switching. Beef up → buy chicken. CPI overstates your actual spending increase."],
-            ["Quality Bias","Better products cost 'the same.' 2024 phone = $999 same as 2020, but far better. CPI misses real-value gain."],
-            ["New Goods Bias","Streaming/smartwatches entered expensive, then dropped. CPI basket adds them slowly, misses early price falls."],
-          ].map(([type, desc]) => (
-            <div key={type} className="bg-background border border-border rounded-lg p-2">
-              <p className="font-bold text-primary text-xs mb-1">{type}</p>
-              <p className="text-muted-foreground leading-snug">{desc}</p>
-            </div>
-          ))}
+        <p className="font-semibold text-foreground mb-1">Station 3 — CPI Biases & Core Inflation</p>
+        <p className="text-muted-foreground text-xs mb-2">All three biases cause CPI to <strong className="text-foreground">overstate</strong> the true cost-of-living increase. BLS corrections reduced total overstatement to ~0.5%/yr.</p>
+        <div className="grid grid-cols-3 gap-1 text-xs">
+          {BIAS_CATS.map(c => <span key={c.id} className={`px-2 py-1 rounded-lg border font-semibold text-center ${c.color}`}>{c.label}</span>)}
         </div>
-        <div className="mt-2 bg-amber-50 border border-amber-200 rounded-lg p-2 text-xs">
-          <p className="font-semibold text-amber-800">Core CPI = CPI minus food &amp; energy</p>
-          <p className="text-amber-900">Strips volatile categories to reveal the underlying trend. The Fed watches core. Hurricane Katrina (2005): headline spiked, core barely moved → Fed held steady → right call.</p>
-        </div>
-        <p className="text-xs text-muted-foreground italic mt-2">BLS corrections since early 2000s reduced total overstatement to ~0.5%/yr. FRED: CPIAUCSL and CPILFESL</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={BIASES_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-2">
+        {BIAS_EXAMPLES.map(b => {
+          const ans = answers[b.id];
+          const isCorrect = classifyChecked && ans === b.bias;
+          const isWrong = classifyChecked && ans && ans !== b.bias;
+          const catObj = BIAS_CATS.find(c => c.id === b.bias);
+          return (
+            <div key={b.id} className={`rounded-xl border-2 p-3 transition ${isCorrect ? "border-green-400 bg-green-50" : isWrong ? "border-red-400 bg-red-50" : "border-border bg-card"}`}>
+              <p className="text-sm font-medium text-foreground mb-2">{b.text}</p>
+              {!classifyChecked ? (
+                <div className="flex gap-1.5">
+                  {BIAS_CATS.map(c => (
+                    <button key={c.id} onClick={() => setAnswers(a => ({ ...a, [b.id]: c.id }))}
+                      className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition ${ans === c.id ? `${c.color} border-current` : "border-border bg-background text-foreground hover:border-primary/40"}`}>
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className={`text-xs font-semibold ${isCorrect ? "text-green-700" : "text-red-700"}`}>
+                  {isCorrect ? "✓ " : "✗ "}{catObj?.label} — {b.reason}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {!classifyChecked ? (
+        <button disabled={!allAnswered} onClick={() => setClassifyChecked(true)}
+          className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+          Check Classifications
+        </button>
+      ) : (
+        <div className="space-y-3">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+            <p className="text-sm font-bold text-blue-800">Classifications: {classifyCorrect}/{BIAS_EXAMPLES.length} correct</p>
+          </div>
+          <div className="bg-card border-2 border-border rounded-xl p-4 space-y-3">
+            <p className="text-xs font-bold uppercase tracking-widest text-primary">Core CPI Question</p>
+            <p className="text-sm font-semibold text-foreground">{CORE_CPI_Q.q}</p>
+            <div className="space-y-2">
+              {CORE_CPI_Q.options.map((opt, i) => (
+                <button key={i} disabled={coreChecked} onClick={() => setSel(i)}
+                  className={`w-full text-left px-4 py-2.5 rounded-lg border text-sm transition ${
+                    coreChecked
+                      ? i === CORE_CPI_Q.correct ? "border-green-500 bg-green-50 text-green-900"
+                        : i === sel && sel !== CORE_CPI_Q.correct ? "border-red-400 bg-red-50 text-red-900"
+                        : "border-border text-muted-foreground opacity-60"
+                      : sel === i ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border bg-background text-foreground hover:border-primary"
+                  }`}>{opt}</button>
+              ))}
+            </div>
+            {coreChecked && (
+              <div className={`rounded-lg p-3 text-xs ${sel === CORE_CPI_Q.correct ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}>
+                {sel === CORE_CPI_Q.correct ? "✓ Correct — " : "✗ Incorrect — "}{CORE_CPI_Q.exp}
+              </div>
+            )}
+            {!coreChecked && sel !== null && (
+              <button onClick={handleCoreCheck} className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition">
+                Check Answer
+              </button>
+            )}
+            {coreChecked && (
+              <button onClick={() => onComplete(totalScore, totalQs)}
+                className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+                Mark Complete ✓
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -400,173 +460,167 @@ function HistoryStation({ onComplete }: { onComplete: (score: number, total: num
 }
 
 // ─────────────────────────────────────────────
-// Station 5 — Why Inflation Matters
+// Station 5 — Why Inflation Matters: Who Wins / Who Loses
 // ─────────────────────────────────────────────
-const MATTERS_QS = [
-  {
-    q: "A saver earns 2% interest on her bank account, but inflation runs at 6%. What is her real interest rate, and what does it mean for her purchasing power?",
-    options: [
-      "Real rate = −4% — her purchasing power is falling even though her balance is growing in dollar terms",
-      "Real rate = 8% — inflation and nominal interest compound together",
-      "Real rate = +2% — she earns 2% regardless of inflation",
-      "Real rate = 6% — inflation cancels out the nominal rate, leaving her with inflation's rate of return",
-    ],
-    correct: 0,
-    exp: "Real Rate = Nominal Rate − Inflation = 2% − 6% = −4%. Her balance grows in nominal dollars, but each dollar buys less than before. After one year she has more dollars but can buy 4% less with them. This is how inflation redistributes wealth from savers (who lend money) to borrowers (who repay in cheaper dollars). 'Inflation is a tax on cash and on lazy money.'",
-  },
-  {
-    q: "In 1985, Israel had 500% annual inflation. Stores stopped posting prices — they changed every few hours. What economic harm does your slides' 'blurred price signals' category describe?",
-    options: [
-      "Inflation reduces the quantity of goods available because firms reduce production when prices rise",
-      "High inflation destroys the price system's ability to convey information — firms and consumers can't distinguish genuine scarcity signals from general price noise, leading to worse decisions by everyone",
-      "Blurred price signals only affect stock markets, not real-economy decisions by businesses and consumers",
-      "Stores posting prices is a legal requirement, so the real harm was the violation of consumer protection laws",
-    ],
-    correct: 1,
-    exp: "Prices are the economy's GPS: a rising price signals scarcity and attracts resources. But when everything is rising, you can't tell if that $18 burger is expensive because beef is genuinely scarce or because the overall price level is up. Israel 1985 — stores stopped posting prices because they changed every few hours. Shoppers couldn't compare costs; businesses couldn't plan inventory. The economy's GPS was broken — firms and households navigated blind.",
-  },
-  {
-    q: "Your slides note: 'Even 2% inflation compresses fixed pension spending power by ~33% over 20 years.' A retiree's fixed pension is $3,000/month in 2005. Using the Rule of 70, approximately what is the real purchasing power of that same $3,000 in 2025 (20 years later at 2% inflation)?",
-    options: [
-      "About $3,000 — 2% is so low it barely affects purchasing power over 20 years",
-      "About $2,700 — a modest 10% reduction over 20 years",
-      "About $1,500 — purchasing power is cut in half at 2% inflation over 20 years",
-      "About $2,000 — roughly 33% less purchasing power, because at 2% the price level doubles in ~35 years, so in 20 years it rises ~50%",
-    ],
-    correct: 3,
-    exp: "Rule of 70: at 2% inflation, prices double every 35 years. Over 20 years, prices rise by about (1.02)^20 ≈ 1.49 — roughly 50%. So $3,000 in 2005 dollars buys what $3,000 ÷ 1.49 ≈ $2,015 buys in 2025 terms — a ~33% real loss. The pension buys a third less in real goods. This is why your slides say 'even moderate, stable inflation (<3%) can impede long-term planning for fixed-income recipients.'",
-  },
-  {
-    q: "Your slides show that borrowers with fixed-rate loans benefit from unexpected inflation. A homeowner borrows $200,000 at a fixed 4% 30-year mortgage. Inflation unexpectedly surges to 8%. Who gains and who loses?",
-    options: [
-      "The homeowner loses — rising inflation will force the bank to raise the mortgage rate",
-      "Both the homeowner and the bank are harmed equally — inflation hurts everyone the same way",
-      "The homeowner gains — she repays the loan in dollars worth less than when she borrowed, while her home value rises. The bank (lender) loses — it is repaid in cheaper dollars",
-      "The bank gains — it can charge higher interest rates as inflation rises, increasing its revenue",
-    ],
-    correct: 2,
-    exp: "Fixed-rate borrowers win from unexpected inflation: the homeowner's mortgage payment stays at $X/month, but her home's nominal value rises with inflation, and her wages (likely) rise too. She's effectively repaying with cheaper dollars — real rate = 4% − 8% = −4%, meaning she's effectively being paid to borrow. The bank loses: it receives repayments in dollars worth less than anticipated. This is the redistribution mechanism — inflation transfers wealth from lenders to borrowers.",
-  },
+const INFLATION_PEOPLE = [
+  { id: 1, text: "Maria keeps $20,000 cash under her mattress. Inflation runs 6% this year.", outcome: "loses", reason: "Cash holders lose — $20,000 today buys 6% less next year. Real value erodes every year inflation runs above zero." },
+  { id: 2, text: "Carlos borrowed $200,000 at a fixed 4% mortgage rate. Inflation unexpectedly surges to 8%.", outcome: "wins", reason: "Fixed-rate borrowers win — he repays with cheaper dollars. Real rate = 4% − 8% = −4%. He is effectively being paid to borrow." },
+  { id: 3, text: "A bank loaned $200,000 at a fixed 4% rate. Inflation unexpectedly surges to 8%.", outcome: "loses", reason: "Lenders lose — the bank is repaid in dollars worth less than when it lent them. Real return = 4% − 8% = −4%. Inflation transferred wealth from the lender to the borrower." },
+  { id: 4, text: "Susan retired with a fixed pension of $3,000/month. Inflation runs 5% per year.", outcome: "loses", reason: "Fixed-income retirees lose — her $3,000 buys less each year. At 5% inflation, purchasing power falls ~33% over 8 years. No COLA = real pay cut every year." },
+  { id: 5, text: "A homeowner bought a house for $300,000. Inflation pushes home values and construction costs up 6% per year.", outcome: "wins", reason: "Homeowners win — nominal home value rises with inflation while the fixed mortgage payment stays constant. Home equity grows in real terms." },
+  { id: 6, text: "A worker's wage contract gives a 3% raise. Inflation runs at 5% this year.", outcome: "loses", reason: "Workers with nominal raises below inflation lose — real wage = 3% − 5% = −2%. They are effectively getting a pay cut in purchasing power terms, even as their paycheck grows." },
+];
+
+const OUTCOME_OPTS_CH9 = [
+  { id: "wins",  label: "Benefits from Inflation", color: "bg-green-100 border-green-400 text-green-800" },
+  { id: "loses", label: "Hurt by Inflation",       color: "bg-red-100 border-red-400 text-red-800" },
 ];
 
 function MattersStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
-  const q = MATTERS_QS[idx];
-  const isLast = idx === MATTERS_QS.length - 1;
-  function handleCheck() {
-    if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
-    setScore(newScore);
-    setChecked(true);
-  }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+  const allAnswered = INFLATION_PEOPLE.every(p => answers[p.id]);
+  const correctCount = checked ? INFLATION_PEOPLE.filter(p => answers[p.id] === p.outcome).length : 0;
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-1">Why Inflation Matters — Three Real-Economy Harms</p>
-        <p className="text-xs text-muted-foreground mb-2 italic">"If wages and prices rose at the same rate, at the same time, inflation would be harmless. They don't."</p>
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          {[
-            ["1 — Redistribution","Savers/cash-holders/lenders lose. Borrowers with fixed rates gain. Real Rate = Nominal − Inflation."],
-            ["2 — Blurred Signals","Prices carry information. High inflation adds static — can't tell genuine scarcity from general noise. Israel 1985."],
-            ["3 — Planning Problems","Retirement savings, business investment depend on stable price expectations. High inflation crowds out real activity."],
-          ].map(([label, desc]) => (
-            <div key={label} className="bg-background border border-border rounded-lg p-2">
-              <p className="font-bold text-primary text-xs mb-1">{label}</p>
-              <p className="text-muted-foreground leading-snug">{desc}</p>
-            </div>
-          ))}
+        <p className="font-semibold text-foreground mb-1">Station 5 — Who Wins and Who Loses from Inflation?</p>
+        <p className="text-muted-foreground text-xs mb-2">If wages and prices rose at the same rate for everyone simultaneously, inflation would be harmless. They don&apos;t — and the mismatch creates real winners and losers.</p>
+        <div className="bg-muted/50 rounded-lg p-2 text-xs font-mono text-center font-semibold text-foreground">
+          Real Rate = Nominal Rate − Inflation Rate
         </div>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={MATTERS_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-2">
+        {INFLATION_PEOPLE.map(person => {
+          const ans = answers[person.id];
+          const isCorrect = checked && ans === person.outcome;
+          const isWrong = checked && ans && ans !== person.outcome;
+          const optObj = OUTCOME_OPTS_CH9.find(o => o.id === person.outcome);
+          return (
+            <div key={person.id} className={`rounded-xl border-2 p-3 transition ${isCorrect ? "border-green-400 bg-green-50" : isWrong ? "border-red-400 bg-red-50" : "border-border bg-card"}`}>
+              <p className="text-sm font-medium text-foreground mb-2">{person.text}</p>
+              {!checked ? (
+                <div className="flex gap-2">
+                  {OUTCOME_OPTS_CH9.map(o => (
+                    <button key={o.id} onClick={() => setAnswers(a => ({ ...a, [person.id]: o.id }))}
+                      className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition ${ans === o.id ? `${o.color} border-current` : "border-border bg-background text-foreground hover:border-primary/40"}`}>
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className={`text-xs font-semibold ${isCorrect ? "text-green-700" : "text-red-700"}`}>
+                  {isCorrect ? "✓ " : "✗ "}{optObj?.label} — {person.reason}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {!checked ? (
+        <button disabled={!allAnswered} onClick={() => setChecked(true)}
+          className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+          Check Answers
+        </button>
+      ) : (
+        <div className="space-y-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+            <p className="text-sm font-bold text-blue-800">You got {correctCount} of {INFLATION_PEOPLE.length} correct!</p>
+          </div>
+          <button onClick={() => onComplete(correctCount, INFLATION_PEOPLE.length)}
+            className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+            Mark Complete ✓
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 // ─────────────────────────────────────────────
-// Station 6 — Indexing, Deflation & You
+// Station 6 — Indexing, Deflation & You: Verdict Cards
 // ─────────────────────────────────────────────
-const INDEXING_QS = [
+const INFLATION_PF_CARDS = [
   {
-    q: "A union contract includes a COLA clause: base wage + 3%, plus CPI adjustment. If inflation runs at 5%, what is the total raise and what does it protect?",
-    options: [
-      "Total raise = 3% — the CPI adjustment cancels out the base raise",
-      "Total raise = 8% — and it protects the worker's real purchasing power by keeping wages tied to prices",
-      "Total raise = 5% — the COLA replaces the base raise rather than adding to it",
-      "Total raise = 3% — the CPI adjustment only applies to government workers, not union contracts",
-    ],
-    correct: 1,
-    exp: "COLA (Cost-of-Living Adjustment) = base raise + inflation adjustment. If base = 3% and inflation = 5%, total raise = 8%. This keeps the worker's real wage roughly constant — the nominal raise matches inflation, preserving purchasing power. Without a COLA, a 3% raise in a 5% inflation environment is a 2% real pay cut. Your slides note that in 2022–23, Social Security's COLA was 8.7% — the largest in 40 years — because CPI spiked post-COVID.",
+    id: "deflation",
+    icon: "📉",
+    title: "Good vs. Bad Deflation",
+    tag: "CONCEPT",
+    tagColor: "bg-slate-100 border-slate-400 text-slate-800",
+    body: "Not all falling prices are created equal.\n\nGood deflation — driven by productivity and innovation:\n• Flat-screen TVs: $10,000 → $300\n• Solar panels: −90% since 2010\n• Computing power: 1/1,000th the cost of 20 years ago\nPrices fall because supply increases and costs drop. More goods for everyone. McCloskey\'s Bourgeois Deal.\n\nBad deflation — driven by collapsing demand:\n• Consumers delay purchases (\'cheaper tomorrow\')\n• Firms cut revenue → cut workers\n• Workers earn less → spend less → firms cut more\n• Deflationary spiral — made the Great Depression devastating\n• Japan\'s Lost Decade (1990s): property/stock crash → persistent deflation → stagnation",
+    takeaway: "Ask WHY prices are falling. Productivity deflation = good. Demand-collapse deflation = dangerous. The Fed targets 2% inflation partly to stay far away from the deflationary spiral zone.",
   },
   {
-    q: "Your slides distinguish 'good deflation' from 'bad deflation.' Flat-screen TVs dropped from $10,000 to $300; solar panels fell 90% since 2010. These are examples of good deflation. What makes them 'good'?",
-    options: [
-      "Good deflation is driven by productivity and innovation — prices fall because supply increases and costs drop, not because demand collapses",
-      "Good deflation only occurs in luxury goods — essentials like food and housing never experience it",
-      "Good deflation occurs when the government subsidizes industries, reducing prices artificially",
-      "Good deflation is only 'good' if it is accompanied by rising wages — otherwise it is always harmful",
-    ],
-    correct: 0,
-    exp: "Good deflation = driven by productivity and innovation: more output at lower cost through better technology, learning curves, and scale. Flat-screen TVs, computing power (1/1,000th the cost of 20 years ago), solar panels, genome sequencing ($100M in 2001 → ~$500 today). These are McCloskey's 'Bourgeois Deal' — innovation making everyone better off. Bad deflation = collapsing demand → deflationary spiral (Great Depression, Japan's Lost Decade).",
+    id: "indexing",
+    icon: "🔗",
+    title: "Indexing: Inflation Protection Tools",
+    tag: "TOOLS",
+    tagColor: "bg-teal-100 border-teal-400 text-teal-800",
+    body: "Indexing = automatically adjusting a price, wage, or rate for inflation.\n\nPrivate market tools:\n• COLAs (Cost-of-Living Adjustments): wage = base + CPI adjustment. Union contracts, some employment agreements.\n• ARMs (Adjustable-Rate Mortgages): rate adjusts with market — lower initial rate because lender bears less inflation risk.\n\nGovernment programs:\n• Social Security: annual CPI adjustment. 2022–23 COLA = 8.7% — largest in 40 years.\n• Tax brackets: indexed since 1981. Prevents \'bracket creep\' — without indexing, inflation pushes you into higher brackets even when your real income is flat.\n• TIPS bonds: principal adjusts with CPI. Guaranteed real return above inflation.\n\nLimitation: indexing is always partial. Not every employer offers COLAs. As indexing spreads, political pressure to fight inflation may decrease.",
+    takeaway: "The financially savvy protect themselves with indexed instruments. The less sophisticated bear the full brunt of inflation. Know your tools.",
   },
   {
-    q: "Your slides give three personal-finance takeaways for living with inflation. Which correctly states all three?",
-    options: [
-      "Watch nominal raises not real raises; avoid all debt during inflation; hold cash as a hedge",
-      "Move savings into gold; avoid adjustable-rate mortgages; maximize Social Security benefits early",
-      "Spend now rather than saving; borrow at fixed rates only if inflation is already high; avoid stocks during inflation",
-      "Watch real raises not nominal raises; use inflation-indexed savings (TIPS, I-bonds, stocks/real estate); avoid long fixed-income lock-ins when inflation expectations rise",
-    ],
-    correct: 3,
-    exp: "Your slides' three takeaways: (1) Watch real raises, not nominal — a 3% raise with 5% inflation is a 2% real pay cut; always ask 'is my raise above CPI?'; (2) Use inflation-indexed savings — TIPS and I-bonds protect principal, stocks and real estate have historically beaten inflation over long horizons, cash does not; (3) Avoid long fixed-income lock-ins — when inflation expectations rise, long-duration bonds lose value rapidly; short-duration and floating-rate instruments adjust faster. 'Inflation is a tax on cash and on lazy money. Indexing is the simplest defense.'",
+    id: "personalfinance",
+    icon: "💡",
+    title: "Your 3 Personal Finance Moves",
+    tag: "ACTION",
+    tagColor: "bg-amber-100 border-amber-400 text-amber-800",
+    body: "1. Watch REAL raises, not nominal raises.\nA 3% raise with 5% inflation = −2% real pay cut. Always ask: is my raise above CPI? Negotiate with real purchasing power in mind, not dollar amounts.\n\n2. Use inflation-indexed savings.\n• TIPS bonds: principal adjusts with CPI — guaranteed real return.\n• I-bonds: interest rate = fixed rate + CPI. Capped at $10K/yr but excellent inflation hedge.\n• Stocks and real estate: historically beat inflation over long horizons (not guaranteed short-term).\n• Cash: loses to inflation every year. Inflation is a tax on cash and on lazy money.\n\n3. Avoid long fixed-income lock-ins when inflation expectations are rising.\nWhen inflation rises, long-duration bond prices fall sharply. Short-duration bonds and floating-rate instruments adjust faster. In a rising-rate environment, being locked into a 30-year fixed-income instrument is painful.",
+    takeaway: "Indexing is the simplest defense. You don't need to beat inflation — you just need to not lose to it. TIPS, I-bonds, and equities are your three main shields.",
   },
 ];
 
 function IndexingStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
-  const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
-  const q = INDEXING_QS[idx];
-  const isLast = idx === INDEXING_QS.length - 1;
-  function handleCheck() {
-    if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
-    setScore(newScore);
-    setChecked(true);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState<Set<string>>(new Set());
+  const allRevealed = INFLATION_PF_CARDS.every(c => revealed.has(c.id));
+
+  function toggle(id: string) {
+    setRevealed(r => new Set([...r, id]));
+    setExpanded(e => e === id ? null : id);
   }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">Indexing, Deflation & You</p>
-        <div className="grid grid-cols-2 gap-2 text-xs mb-2">
-          <div className="bg-background border border-border rounded-lg p-2">
-            <p className="font-bold text-primary mb-1">Indexing tools</p>
-            <ul className="text-muted-foreground space-y-0.5">
-              <li>• COLAs — wages tied to CPI</li>
-              <li>• ARMs — mortgage rate adjusts</li>
-              <li>• Social Security — CPI adjustment (8.7% in 2022–23)</li>
-              <li>• Tax brackets — since 1981</li>
-              <li>• TIPS bonds — principal adjusts with CPI</li>
-            </ul>
-          </div>
-          <div className="bg-background border border-border rounded-lg p-2">
-            <p className="font-bold text-primary mb-1">Good vs. Bad Deflation</p>
-            <p className="text-green-700 font-semibold text-xs">✓ Good: productivity-driven (TVs $10K→$300, solar −90%)</p>
-            <p className="text-red-700 font-semibold mt-1 text-xs">✗ Bad: demand-collapse → spiral → Great Depression, Japan's Lost Decade</p>
-          </div>
-        </div>
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 text-xs">
-          <p className="font-semibold text-amber-800">Your 3 Personal-Finance Moves:</p>
-          <p className="text-amber-900">① Watch REAL raises (nominal − inflation) &nbsp;② Use indexed savings (TIPS, stocks, real estate) &nbsp;③ Avoid long fixed-income lock-ins when inflation is rising</p>
-          <p className="text-amber-700 italic mt-1">"Inflation is a tax on cash and on lazy money. Indexing is the simplest defense."</p>
-        </div>
+        <p className="font-semibold text-foreground mb-1">Station 6 — Indexing, Deflation & Your Finances</p>
+        <p className="text-muted-foreground text-xs">Open each card to explore good vs. bad deflation, inflation protection tools, and your personal finance action plan.</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={INDEXING_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-3">
+        {INFLATION_PF_CARDS.map(card => {
+          const isOpen = expanded === card.id;
+          const seen = revealed.has(card.id);
+          return (
+            <div key={card.id} className={`rounded-2xl border-2 overflow-hidden transition ${seen ? "border-primary/40" : "border-border"} bg-card`}>
+              <button onClick={() => toggle(card.id)}
+                className="w-full flex items-center justify-between p-4 text-left gap-3 hover:bg-muted/40 transition">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{card.icon}</span>
+                  <div>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full border mr-2 ${card.tagColor}`}>{card.tag}</span>
+                    <span className="text-sm font-semibold text-foreground">{card.title}</span>
+                  </div>
+                </div>
+                <span className="text-muted-foreground text-sm">{isOpen ? "▲" : "▼"}</span>
+              </button>
+              {isOpen && (
+                <div className="px-4 pb-4 space-y-3">
+                  <div className="bg-muted/50 rounded-xl p-3 text-xs text-foreground leading-relaxed whitespace-pre-line">{card.body}</div>
+                  <div className="bg-primary/10 border border-primary/20 rounded-xl p-3">
+                    <p className="text-xs font-bold text-primary uppercase tracking-wider mb-1">Key Takeaway</p>
+                    <p className="text-xs text-foreground">{card.takeaway}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <button disabled={!allRevealed} onClick={() => onComplete(INFLATION_PF_CARDS.length, INFLATION_PF_CARDS.length)}
+        className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+        {allRevealed ? "Mark Complete ✓" : `Open all cards to continue (${revealed.size}/${INFLATION_PF_CARDS.length})`}
+      </button>
     </div>
   );
 }

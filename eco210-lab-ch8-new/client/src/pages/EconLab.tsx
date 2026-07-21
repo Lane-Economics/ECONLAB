@@ -81,88 +81,84 @@ function SteppedQuiz({ q, idx, total, sel, setSel, checked, onCheck, onNext, isL
 }
 
 // ─────────────────────────────────────────────
-// Station 1 — Who Counts?
+// Station 1 — Who Counts? BLS Status Classifier
 // ─────────────────────────────────────────────
-const WHOCOUNTS_QS = [
-  {
-    q: "Maria works 20 hours a week at a coffee shop for pay. How is she classified in the labor market?",
-    options: [
-      "Employed — she is working for pay, regardless of hours",
-      "Unemployed — she is not working full-time",
-      "Not in the labor force — she works fewer than 35 hours",
-      "Underemployed — counted as unemployed in official statistics",
-    ],
-    correct: 0,
-    exp: "Employed means working for pay at any number of hours. Maria earns a wage, so she is employed. The BLS does not require full-time status — even one paid hour qualifies. Part-time and full-time workers are both counted as employed.",
-  },
-  {
-    q: "James lost his job six months ago. He sent out résumés for the first three months, but became discouraged and stopped looking two months ago. How is James classified today?",
-    options: [
-      "Unemployed — he still wants a job",
-      "Not in the labor force — he is not actively looking for work",
-      "Cyclically unemployed — counted in the official U-3 rate",
-      "Structurally unemployed — counted in the official U-3 rate",
-    ],
-    correct: 1,
-    exp: "To be counted as unemployed (U-3), a person must be actively looking for work in the past four weeks. James stopped looking two months ago, so he is classified as Not in the Labor Force — specifically a discouraged worker. He appears only in the broader U-6 measure.",
-  },
-  {
-    q: "Which of the following people is classified as NOT IN THE LABOR FORCE?",
-    options: [
-      "A nurse working night shifts at a hospital",
-      "A factory worker on temporary layoff awaiting recall",
-      "An active-duty member of the U.S. military",
-      "A laid-off worker who applied for jobs last week",
-    ],
-    correct: 2,
-    exp: "Active military are classified as Not in the Labor Force — not as employed. Also NILF: people under 16, retirees, full-time students not working, stay-at-home parents, and discouraged workers. The factory worker on layoff awaiting recall is counted as unemployed.",
-  },
-  {
-    q: "The unemployment rate is calculated by dividing the number of unemployed by:",
-    options: [
-      "The entire adult population (everyone 16 and older)",
-      "Only full-time workers",
-      "All adults who are not in school or the military",
-      "The labor force — employed plus unemployed",
-    ],
-    correct: 3,
-    exp: "Labor Force = Employed + Unemployed. The unemployment rate = Unemployed ÷ Labor Force × 100. The common error is dividing by the adult population (262M in Nov 2021) instead of the labor force (162M). Those not in the labor force — retirees, discouraged workers, military, etc. — are excluded from the denominator.",
-  },
+const BLS_PEOPLE = [
+  { id: 1, text: "Maria works 20 hours a week at a coffee shop for pay.", status: "employed", label: "Employed", reason: "Working for pay at any number of hours = Employed. The BLS does not require full-time status." },
+  { id: 2, text: "James lost his job 5 months ago. He searched for 3 months, then gave up looking 2 months ago.", status: "nilf", label: "Not in Labor Force", reason: "To be Unemployed, you must actively look within the past 4 weeks. James stopped — he is a discouraged worker classified as NILF, appearing only in U-6." },
+  { id: 3, text: "An active-duty U.S. Army soldier stationed at Fort Bragg.", status: "nilf", label: "Not in Labor Force", reason: "Active Military are classified as Not in the Labor Force — not Employed. This is a key exception to know." },
+  { id: 4, text: "A laid-off factory worker who applied to three jobs last week and is available to start immediately.", status: "unemployed", label: "Unemployed", reason: "Not working AND actively searched past 4 weeks AND available = Unemployed. All three conditions are met." },
+  { id: 5, text: "A 68-year-old retiree who left the workforce 3 years ago and has no plans to return.", status: "nilf", label: "Not in Labor Force", reason: "Retirees are Not in the Labor Force. They are not working and not seeking work." },
+  { id: 6, text: "A stay-at-home parent raising two young children, not looking for paid work.", status: "nilf", label: "Not in Labor Force", reason: "Stay-at-home parents performing unpaid household work are Not in the Labor Force." },
+  { id: 7, text: "A nurse on paid parental leave who will return to her hospital job in 6 weeks.", status: "employed", label: "Employed", reason: "Temporarily absent from a job (parental leave, vacation, illness) = still Employed. The job exists and she will return." },
+  { id: 8, text: "A recent college graduate who has been sending out resumes for 3 weeks and is ready to work.", status: "unemployed", label: "Unemployed", reason: "Not working + actively searched past 4 weeks + available = Unemployed. New grads are counted as unemployed while job searching." },
+];
+
+const BLS_OPTS = [
+  { id: "employed",   label: "Employed",             color: "bg-green-100 border-green-400 text-green-800" },
+  { id: "unemployed", label: "Unemployed",            color: "bg-red-100 border-red-400 text-red-800" },
+  { id: "nilf",       label: "Not in Labor Force",    color: "bg-slate-100 border-slate-400 text-slate-800" },
 ];
 
 function WhoCountsStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
-  const q = WHOCOUNTS_QS[idx];
-  const isLast = idx === WHOCOUNTS_QS.length - 1;
-  function handleCheck() {
-    if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
-    setScore(newScore);
-    setChecked(true);
-  }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+  const allAnswered = BLS_PEOPLE.every(p => answers[p.id]);
+  const correctCount = checked ? BLS_PEOPLE.filter(p => answers[p.id] === p.status).length : 0;
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">Sorting the Adult Population — Three Buckets</p>
-        <div className="grid grid-cols-3 gap-2 text-xs text-center">
-          {[
-            ["Employed", "Working for pay (any hours), 15+ hrs unpaid family business, or temporarily absent"],
-            ["Unemployed", "Not working AND actively looked past 4 weeks AND available to work"],
-            ["Not in Labor Force", "Under 16, military, institutionalized, retirees, students, stay-at-home parents, discouraged workers"],
-          ].map(([label, desc]) => (
-            <div key={label} className="bg-background border border-border rounded-lg p-2">
-              <p className="font-bold text-primary text-xs mb-1">{label}</p>
-              <p className="text-muted-foreground leading-snug">{desc}</p>
-            </div>
-          ))}
+        <p className="font-semibold text-foreground mb-1">Station 1 — Who Counts? Sorting the Adult Population</p>
+        <p className="text-muted-foreground text-xs mb-2">Classify each person into the correct BLS category. Remember: Active Military = Not in Labor Force.</p>
+        <div className="grid grid-cols-3 gap-1 text-xs">
+          {BLS_OPTS.map(o => <span key={o.id} className={`px-2 py-1 rounded-lg border font-semibold text-center ${o.color}`}>{o.label}</span>)}
         </div>
-        <p className="text-xs text-muted-foreground italic mt-2">Nov 2021: 155.2M Employed · 6.9M Unemployed · 100.0M Not in Labor Force</p>
+        <p className="text-xs text-muted-foreground mt-1.5 italic">Nov 2021: 155.2M Employed · 6.9M Unemployed · 100.0M Not in Labor Force</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={WHOCOUNTS_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-2">
+        {BLS_PEOPLE.map(person => {
+          const ans = answers[person.id];
+          const isCorrect = checked && ans === person.status;
+          const isWrong = checked && ans && ans !== person.status;
+          const optObj = BLS_OPTS.find(o => o.id === person.status);
+          return (
+            <div key={person.id} className={`rounded-xl border-2 p-3 transition ${isCorrect ? "border-green-400 bg-green-50" : isWrong ? "border-red-400 bg-red-50" : "border-border bg-card"}`}>
+              <p className="text-sm font-medium text-foreground mb-2">{person.text}</p>
+              {!checked ? (
+                <div className="flex gap-1.5">
+                  {BLS_OPTS.map(o => (
+                    <button key={o.id} onClick={() => setAnswers(a => ({ ...a, [person.id]: o.id }))}
+                      className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition ${ans === o.id ? `${o.color} border-current` : "border-border bg-background text-foreground hover:border-primary/40"}`}>
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className={`text-xs font-semibold ${isCorrect ? "text-green-700" : "text-red-700"}`}>
+                  {isCorrect ? "✓ " : "✗ "}{optObj?.label} — {person.reason}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {!checked ? (
+        <button disabled={!allAnswered} onClick={() => setChecked(true)}
+          className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+          Check Answers
+        </button>
+      ) : (
+        <div className="space-y-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+            <p className="text-sm font-bold text-blue-800">You got {correctCount} of {BLS_PEOPLE.length} correct!</p>
+          </div>
+          <button onClick={() => onComplete(correctCount, BLS_PEOPLE.length)}
+            className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+            Mark Complete ✓
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -255,79 +251,82 @@ function MeasuringStation({ onComplete }: { onComplete: (score: number, total: n
 }
 
 // ─────────────────────────────────────────────
-// Station 3 — Beyond the Headline Rate (U-3 vs U-6)
+// Station 3 — Beyond the Headline Rate: U-3 vs U-6 Sorter
 // ─────────────────────────────────────────────
-const ICEBERG_QS = [
-  {
-    q: "Teresa has a master's degree in accounting but can only find work as a barista. She works 35 hours a week. How is she counted in official U-3 unemployment statistics?",
-    options: [
-      "Employed — she has a paying job, regardless of skill match",
-      "Unemployed — her skills are mismatched with her job",
-      "Not in the labor force — she is overqualified and not counted",
-      "Structurally unemployed — captured in U-3",
-    ],
-    correct: 0,
-    exp: "Teresa is employed in U-3 because she is working for pay. Her situation — skills far exceeding her job — makes her underemployed, which only appears in the broader U-6 measure. This is the 'iceberg' insight: official unemployment counts only those not working at all who are actively looking.",
-  },
-  {
-    q: "U-6 is typically about double U-3 in normal times. What three groups does U-6 add that U-3 misses?",
-    options: [
-      "Retirees, students, and stay-at-home parents who want to return to work",
-      "Gig workers, independent contractors, and unpaid family business workers",
-      "Workers on temporary layoff, seasonal workers, and workers on strike",
-      "Underemployed workers, discouraged workers, and involuntary part-time workers",
-    ],
-    correct: 3,
-    exp: "U-6 adds three groups U-3 misses: (1) Underemployed — college grad working at Starbucks using none of their skills; (2) Discouraged workers — gave up looking, not counted in U-3 at all; (3) Involuntary part-time — want full-time work but can only get 20 hours. U-6 ≈ 2× U-3 normally; the gap widens in recessions as all three groups swell.",
-  },
-  {
-    q: "During the Great Recession (2007–09), U-3 peaked around 10%. What would you expect U-6 to have been at the same time?",
-    options: [
-      "About 10.5% — U-6 is always very close to U-3",
-      "About 12–13% — U-6 adds a fixed 2–3 percentage points",
-      "About 17–18% — the gap widens significantly in recessions",
-      "About 25% — U-6 captures nearly all adults not fully employed",
-    ],
-    correct: 2,
-    exp: "U-6 peaked around 17% during the Great Recession, roughly 7 points above the 10% U-3 peak. The gap widens in recessions because all three hidden groups swell simultaneously: more workers get discouraged, more involuntary part-timers appear, and more overqualified workers take survival jobs. In normal times the gap is ~5 points; in downturns it can reach 7–8.",
-  },
+const ICEBERG_WORKERS = [
+  { id: 1, text: "David has been actively applying for jobs for 3 weeks after being laid off from his warehouse job last month.", measure: "u3", label: "Counted in U-3", reason: "Not working + actively searched past 4 weeks + available = officially Unemployed. Counted in both U-3 and U-6." },
+  { id: 2, text: "Teresa holds a master's degree in accounting but can only find work as a barista. She works 35 hours a week.", measure: "u6only", label: "U-6 Only (not in U-3)", reason: "Teresa is employed in U-3 — she works for pay. Her underemployment (skills far exceeding job) appears only in U-6." },
+  { id: 3, text: "James stopped looking for work two months ago after 200 rejections. He is ready to work but gave up.", measure: "u6only", label: "U-6 Only (not in U-3)", reason: "Discouraged worker — not actively searching, so not counted in U-3. Captured in U-6 as a marginally attached worker." },
+  { id: 4, text: "Sandra wants a full-time job but can only find 15 hours a week at a retail store despite asking for more hours.", measure: "u6only", label: "U-6 Only (not in U-3)", reason: "Involuntary part-time worker — working but wants more hours. Not unemployed (she has a job), so U-3 misses her. U-6 captures her." },
+  { id: 5, text: "A software engineer who was laid off last week and immediately started applying to new positions.", measure: "u3", label: "Counted in U-3", reason: "Recently laid off + actively searching + available = officially Unemployed in both U-3 and U-6." },
+  { id: 6, text: "A 72-year-old retiree who fully left the workforce 7 years ago.", measure: "neither", label: "Neither U-3 nor U-6", reason: "Retirees are Not in the Labor Force and are not captured in any unemployment measure. They are not seeking work." },
+];
+
+const MEASURE_OPTS = [
+  { id: "u3",      label: "Counted in U-3",        color: "bg-red-100 border-red-400 text-red-800" },
+  { id: "u6only",  label: "U-6 Only (not in U-3)", color: "bg-amber-100 border-amber-400 text-amber-800" },
+  { id: "neither", label: "Neither",               color: "bg-slate-100 border-slate-400 text-slate-800" },
 ];
 
 function IcebergStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
-  const q = ICEBERG_QS[idx];
-  const isLast = idx === ICEBERG_QS.length - 1;
-  function handleCheck() {
-    if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
-    setScore(newScore);
-    setChecked(true);
-  }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+  const allAnswered = ICEBERG_WORKERS.every(w => answers[w.id]);
+  const correctCount = checked ? ICEBERG_WORKERS.filter(w => answers[w.id] === w.measure).length : 0;
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">The Official Rate Is Just the Tip of the Iceberg</p>
-        <div className="space-y-2 text-xs">
-          <div className="bg-background rounded-lg p-2 border border-border">
-            <span className="font-bold text-primary">U-3 (Official):</span>
-            <span className="text-muted-foreground ml-1">Not working + actively looked past 4 weeks + available</span>
-          </div>
-          <div className="bg-amber-50 rounded-lg p-2 border border-amber-200">
-            <p className="font-bold text-amber-800 mb-1">U-6 adds three hidden groups:</p>
-            <ul className="space-y-0.5 text-amber-900">
-              <li>• <span className="font-semibold">Underemployed</span> — college grad at Starbucks; skills unused</li>
-              <li>• <span className="font-semibold">Discouraged workers</span> — gave up looking; not counted in U-3</li>
-              <li>• <span className="font-semibold">Involuntary part-time</span> — want full-time, can only get 20 hrs</li>
-            </ul>
-          </div>
-          <p className="text-muted-foreground italic">U-6 ≈ 2× U-3 in good times; gap widens in recessions. FRED: UNRATE and U6RATE</p>
+        <p className="font-semibold text-foreground mb-1">Station 3 — The Iceberg: U-3 vs U-6</p>
+        <p className="text-muted-foreground text-xs mb-2">U-3 is the official rate — just the tip. U-6 adds underemployed workers, discouraged workers, and involuntary part-timers. Classify each worker.</p>
+        <div className="space-y-1 text-xs">
+          <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-1.5"><span className="font-semibold text-red-800">U-3:</span><span className="text-red-700 ml-1">Not working + actively searched past 4 weeks + available</span></div>
+          <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5"><span className="font-semibold text-amber-800">U-6 adds:</span><span className="text-amber-700 ml-1">Underemployed · Discouraged workers · Involuntary part-time</span></div>
         </div>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={ICEBERG_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-2">
+        {ICEBERG_WORKERS.map(worker => {
+          const ans = answers[worker.id];
+          const isCorrect = checked && ans === worker.measure;
+          const isWrong = checked && ans && ans !== worker.measure;
+          const optObj = MEASURE_OPTS.find(o => o.id === worker.measure);
+          return (
+            <div key={worker.id} className={`rounded-xl border-2 p-3 transition ${isCorrect ? "border-green-400 bg-green-50" : isWrong ? "border-red-400 bg-red-50" : "border-border bg-card"}`}>
+              <p className="text-sm font-medium text-foreground mb-2">{worker.text}</p>
+              {!checked ? (
+                <div className="flex gap-1.5">
+                  {MEASURE_OPTS.map(o => (
+                    <button key={o.id} onClick={() => setAnswers(a => ({ ...a, [worker.id]: o.id }))}
+                      className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition ${ans === o.id ? `${o.color} border-current` : "border-border bg-background text-foreground hover:border-primary/40"}`}>
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className={`text-xs font-semibold ${isCorrect ? "text-green-700" : "text-red-700"}`}>
+                  {isCorrect ? "✓ " : "✗ "}{optObj?.label} — {worker.reason}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {!checked ? (
+        <button disabled={!allAnswered} onClick={() => setChecked(true)}
+          className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+          Check Answers
+        </button>
+      ) : (
+        <div className="space-y-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+            <p className="text-sm font-bold text-blue-800">You got {correctCount} of {ICEBERG_WORKERS.length} correct!</p>
+          </div>
+          <button onClick={() => onComplete(correctCount, ICEBERG_WORKERS.length)}
+            className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+            Mark Complete ✓
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -410,88 +409,142 @@ function PatternsStation({ onComplete }: { onComplete: (score: number, total: nu
 }
 
 // ─────────────────────────────────────────────
-// Station 5 — Three Types + Sticky Wages
+// Station 5 — Three Types of Unemployment: Classifier + Sticky Wages
 // ─────────────────────────────────────────────
-const TYPES_QS = [
+const TYPE_SCENARIOS = [
+  { id: 1, text: "Meta, Google, and Amazon lay off tens of thousands of workers as rising interest rates slow the economy and ad revenue falls.", utype: "cyclical", label: "Cyclical", reason: "Tied to a business-cycle downturn. Will reverse when the economy recovers — these workers' skills are still in demand." },
+  { id: 2, text: "A recent college graduate spends 6 weeks searching for the right entry-level marketing position.", utype: "frictional", label: "Frictional", reason: "Normal job-search churn — matching takes time even in a healthy economy. Always present at 1–2% of the labor force." },
+  { id: 3, text: "A paralegal loses her job when her firm adopts AI document-review software. Her legal-research skills are not in demand elsewhere.", utype: "structural", label: "Structural", reason: "AI permanently shifted demand away from her skill set. Retraining (not stimulus) is the appropriate policy response." },
+  { id: 4, text: "A coal miner whose mine closed is unable to find work — neighboring counties have no mining jobs, and his skills don't transfer.", utype: "structural", label: "Structural", reason: "Permanent skills mismatch as demand for coal mining has structurally declined. Requires retraining or relocation — not cyclical recovery." },
+  { id: 5, text: "A hotel housekeeper is laid off in March 2020 when COVID-19 shutters all travel. She is rehired the following year as travel resumes.", utype: "cyclical", label: "Cyclical", reason: "Demand collapsed with the business cycle (pandemic recession) and returned as the economy reopened. Textbook cyclical unemployment." },
+  { id: 6, text: "A marketing professional quits her job to move to another city for her partner's career and begins applying to local agencies.", utype: "frictional", label: "Frictional", reason: "Voluntary job transition — her skills are in demand, she just needs time to match with a new employer. Healthy labor market churn." },
+];
+
+const TYPE_OPTS = [
+  { id: "cyclical",    label: "Cyclical",    color: "bg-red-100 border-red-400 text-red-800",    desc: "Rises/falls with business cycle" },
+  { id: "frictional",  label: "Frictional",  color: "bg-green-100 border-green-400 text-green-800", desc: "Normal job-search churn (1–2%)" },
+  { id: "structural",  label: "Structural",  color: "bg-amber-100 border-amber-400 text-amber-800", desc: "Permanent skills mismatch" },
+];
+
+const STICKY_QS = [
   {
-    q: "In 2022–23, Meta, Google, and Amazon laid off tens of thousands of workers as rising interest rates slowed the economy. What type of unemployment is this?",
+    q: "Which of the following is NOT one of the four reasons wages are sticky downward?",
     options: [
-      "Cyclical — it rose with a business-cycle downturn and will fall when the economy recovers",
-      "Frictional — these workers will find new tech jobs quickly",
-      "Structural — technology is replacing software engineers with AI",
-      "Natural — this is the unavoidable baseline level of unemployment",
-    ],
-    correct: 0,
-    exp: "Tech layoffs tied to rising rates and slowing growth are cyclical unemployment — they rise with the business cycle and fall in recoveries. Structural would mean the skills are permanently obsolete. The 2022–23 tech layoffs were cyclical: they followed rate hikes and many workers were quickly rehired as conditions stabilized.",
-  },
-  {
-    q: "Which of the following is NOT one of the reasons your slides give for why wages are 'sticky downward'?",
-    options: [
-      "Efficiency wages — firms pay above-market wages to attract higher productivity",
-      "Tax policy — wage cuts trigger higher payroll tax obligations for the firm",
-      "Adverse selection — cutting wages causes the best workers to leave first",
-      "Morale — a 10% pay cut feels worse than never receiving a 10% raise",
+      "A) Efficiency wages — firms pay above market to keep productivity high and reduce turnover",
+      "B) Tax policy — wage cuts trigger higher payroll tax obligations for the firm",
+      "C) Adverse selection — cutting wages causes the best workers to leave first",
+      "D) Morale — a 10% pay cut feels worse than never receiving a 10% raise",
     ],
     correct: 1,
-    exp: "Tax policy is not one of the four reasons your slides give. The four are: (1) Laws/contracts — minimum wage and union contracts floor wages; (2) Efficiency wages — higher pay drives productivity and loyalty; (3) Adverse selection — wage cuts drive away your best workers first; (4) Morale — loss aversion makes cuts feel worse than foregone raises. Result: firms lay off headcount rather than cut wages.",
-  },
-  {
-    q: "A paralegal loses her job when her firm adopts AI document-review software. Her legal-research skills are not in demand elsewhere. What type of unemployment is this?",
-    options: [
-      "Frictional — she just needs time to find another firm that still uses human paralegals",
-      "Cyclical — when the economy recovers, law firms will need more paralegals",
-      "Structural — AI has permanently shifted demand away from her skill set; retraining is the appropriate response",
-      "Natural — this is expected baseline churn in a healthy labor market",
-    ],
-    correct: 2,
-    exp: "Structural unemployment occurs when demand permanently shifts away from a skill or job type. AI replacing document review is permanent. Policy implication: cyclical tools (stimulus, rate cuts) won't help — she needs retraining. 'Policy targeting one type of unemployment doesn't help the others.'",
-  },
-  {
-    q: "Frictional unemployment is always present at 1–2% of the labor force. Which scenario best illustrates it?",
-    options: [
-      "A coal miner whose mine closed and whose skills don't transfer to available jobs",
-      "An autoworker laid off when the economy enters recession and car demand drops",
-      "A factory worker whose entire plant moved overseas",
-      "A recent college graduate spending two months searching for the right entry-level marketing job",
-    ],
-    correct: 3,
-    exp: "Frictional unemployment is the normal, short-term job-search process — matching workers to jobs takes time even in a healthy economy. A new grad taking 2 months to land a first job is the textbook example. The coal miner and factory worker face structural unemployment. The autoworker laid off in recession faces cyclical. Frictional unemployment is healthy labor market churn.",
+    exp: "Tax policy is not one of the four reasons on your slides. The four are: (1) Laws/contracts, (2) Efficiency wages, (3) Adverse selection, (4) Morale/loss aversion. Result: firms lay off headcount rather than cut wages when demand falls.",
   },
 ];
 
 function TypesStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [classifyChecked, setClassifyChecked] = useState(false);
   const [sel, setSel] = useState<number | null>(null);
-  const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
-  const q = TYPES_QS[idx];
-  const isLast = idx === TYPES_QS.length - 1;
-  function handleCheck() {
+  const [stickyChecked, setStickyChecked] = useState(false);
+  const [stickyScore, setStickyScore] = useState(0);
+  const allAnswered = TYPE_SCENARIOS.every(s => answers[s.id]);
+  const classifyCorrect = classifyChecked ? TYPE_SCENARIOS.filter(s => answers[s.id] === s.utype).length : 0;
+  const q = STICKY_QS[0];
+
+  function handleStickyCheck() {
     if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
-    setScore(newScore);
-    setChecked(true);
+    setStickyScore(sel === q.correct ? 1 : 0);
+    setStickyChecked(true);
   }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+
+  const totalScore = classifyCorrect + stickyScore;
+  const totalQs = TYPE_SCENARIOS.length + STICKY_QS.length;
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">Three Types of Unemployment</p>
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          {[
-            ["Cyclical","Rises/falls with business cycle. Meta/Google layoffs 2022–23."],
-            ["Frictional","Normal job-search churn. Always 1–2%. New grad finding first job."],
-            ["Structural","Skills mismatch. AI replacing data entry, travel agents."],
-          ].map(([type,desc]) => (
-            <div key={type} className="bg-background border border-border rounded-lg p-2">
-              <p className="font-bold text-primary mb-1 text-xs">{type}</p>
-              <p className="text-muted-foreground leading-snug">{desc}</p>
+        <p className="font-semibold text-foreground mb-1">Station 5 — Three Types of Unemployment</p>
+        <p className="text-muted-foreground text-xs mb-2">Classify each scenario, then answer the sticky wages question. Policy targeting one type doesn't help the others.</p>
+        <div className="grid grid-cols-3 gap-1 text-xs">
+          {TYPE_OPTS.map(o => (
+            <div key={o.id} className={`px-2 py-1 rounded-lg border font-semibold text-center ${o.color}`}>
+              <div>{o.label}</div>
+              <div className="font-normal opacity-80 text-xs">{o.desc}</div>
             </div>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground italic mt-2">"Policy targeting one type of unemployment doesn't help the others."</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={TYPES_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-2">
+        {TYPE_SCENARIOS.map(s => {
+          const ans = answers[s.id];
+          const isCorrect = classifyChecked && ans === s.utype;
+          const isWrong = classifyChecked && ans && ans !== s.utype;
+          const optObj = TYPE_OPTS.find(o => o.id === s.utype);
+          return (
+            <div key={s.id} className={`rounded-xl border-2 p-3 transition ${isCorrect ? "border-green-400 bg-green-50" : isWrong ? "border-red-400 bg-red-50" : "border-border bg-card"}`}>
+              <p className="text-sm font-medium text-foreground mb-2">{s.text}</p>
+              {!classifyChecked ? (
+                <div className="flex gap-1.5">
+                  {TYPE_OPTS.map(o => (
+                    <button key={o.id} onClick={() => setAnswers(a => ({ ...a, [s.id]: o.id }))}
+                      className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition ${ans === o.id ? `${o.color} border-current` : "border-border bg-background text-foreground hover:border-primary/40"}`}>
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className={`text-xs font-semibold ${isCorrect ? "text-green-700" : "text-red-700"}`}>
+                  {isCorrect ? "✓ " : "✗ "}{optObj?.label} — {s.reason}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {!classifyChecked ? (
+        <button disabled={!allAnswered} onClick={() => setClassifyChecked(true)}
+          className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+          Check Classifications
+        </button>
+      ) : (
+        <div className="space-y-3">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+            <p className="text-sm font-bold text-blue-800">Classifications: {classifyCorrect}/{TYPE_SCENARIOS.length} correct</p>
+          </div>
+          <div className="bg-card border-2 border-border rounded-xl p-4 space-y-3">
+            <p className="text-xs font-bold uppercase tracking-widest text-primary">Sticky Wages Question</p>
+            <p className="text-sm font-semibold text-foreground">{q.q}</p>
+            <div className="space-y-2">
+              {q.options.map((opt, i) => (
+                <button key={i} disabled={stickyChecked} onClick={() => setSel(i)}
+                  className={`w-full text-left px-4 py-2.5 rounded-lg border text-sm transition ${
+                    stickyChecked
+                      ? i === q.correct ? "border-green-500 bg-green-50 text-green-900"
+                        : i === sel && sel !== q.correct ? "border-red-400 bg-red-50 text-red-900"
+                        : "border-border text-muted-foreground opacity-60"
+                      : sel === i ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border bg-background text-foreground hover:border-primary"
+                  }`}>{opt}</button>
+              ))}
+            </div>
+            {stickyChecked && (
+              <div className={`rounded-lg p-3 text-xs ${sel === q.correct ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}>
+                {sel === q.correct ? "✓ Correct — " : "✗ Incorrect — "}{q.exp}
+              </div>
+            )}
+            {!stickyChecked && sel !== null && (
+              <button onClick={handleStickyCheck} className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition">
+                Check Answer
+              </button>
+            )}
+            {stickyChecked && (
+              <button onClick={() => onComplete(totalScore, totalQs)}
+                className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground rounded-xl font-semibold transition">
+                Mark Complete ✓
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -574,89 +627,88 @@ function NairuStation({ onComplete }: { onComplete: (score: number, total: numbe
 }
 
 // ─────────────────────────────────────────────
-// Station 7 — Personal Finance & Costs
+// Station 7 — Personal Finance & The Human Cost: Verdict Cards
 // ─────────────────────────────────────────────
-const PERSONALFINANCE_QS = [
+const PF_CARDS_CH8 = [
   {
-    q: "The median unemployment spell lasts about 2 months, but many workers remain unemployed for 6 months or more. What does this distribution imply for emergency savings?",
-    options: [
-      "1 month of expenses — the median spell is 2 months so 1 month provides ample cushion",
-      "Exactly 2 months — match the median spell length",
-      "12+ months — any spell could become permanent structural unemployment",
-      "3–6 months of expenses — the median matters less than the tail risk of a long spell",
-    ],
-    correct: 3,
-    exp: "Your slides recommend 3–6 months of living expenses. The median spell of ~2 months is the typical outcome, but averages mask a long tail: recessions lengthen spells, and structural unemployment can stretch over a year. You size insurance for the tail, not the middle — that's why the recommendation exceeds the median.",
+    id: "emergencyfund",
+    icon: "🏦",
+    title: "Build Your Emergency Fund",
+    tag: "ACTION",
+    tagColor: "bg-teal-100 border-teal-400 text-teal-800",
+    body: "The median unemployment spell is ~2 months — but averages mask the tail risk. In recessions, spells stretch to 6, 12, even 18+ months. In the Great Recession, the median spell hit 25 weeks.\n\nYou size insurance for the tail, not the middle. A 2-month fund covers normal times but leaves you exposed exactly when risk is highest — recessions.\n\nRule of thumb: 3–6 months of essential living expenses (rent/mortgage, utilities, food, minimum debt payments). Held in a high-yield savings account — liquid, not invested.",
+    takeaway: "Build the fund before you need it. When the layoff comes, there is no time. The fund buys you negotiating power — you can say no to bad offers and yes to the right one.",
   },
   {
-    q: "'Unemployment is not just an economic statistic — it is a deeply human experience.' Which of the following is listed as a human cost beyond lost income?",
-    options: [
-      "Reduced government tax revenue and lower public investment",
-      "Worse physical and mental health, strained marriages, and loss of identity and social connection",
-      "Lower consumer spending that reduces GDP and delays recovery",
-      "Skills atrophy as workers fall behind on industry practices",
-    ],
-    correct: 1,
-    exp: "The human costs your slides emphasize: worse physical and mental health outcomes, strained marriages and family relationships, children's future earnings reduced by a parent's spell, and loss of identity and social connection that work provides. The other options (tax revenue, GDP drag, skills atrophy) are real economic costs — but the question asks specifically about the human dimension.",
+    id: "education",
+    icon: "🎓",
+    title: "Education Is the Best Unemployment Insurance",
+    tag: "LONG-TERM",
+    tagColor: "bg-blue-100 border-blue-400 text-blue-800",
+    body: "Unemployment rates by education (slides data):\n• College degree: 2.3%\n• Some college: 3.7%\n• High school diploma: 5.2%\n• No diploma: 5.7%\n\nThe gap is persistent across every business cycle. In the Great Recession, college-grad unemployment peaked around 5% while no-diploma unemployment hit 15%+.\n\n'Education is the best unemployment insurance' — not because you'll never be laid off, but because you spend far less time between jobs, and you have more options when you are.",
+    takeaway: "Every credential you earn reduces your expected time unemployed over a career. The degree pays off not just in higher wages — but in shorter, less frequent spells of joblessness.",
   },
   {
-    q: "'Macro happens to all of us — but how prepared you are when it does is mostly micro.' What is the practical personal-finance takeaway?",
-    options: [
-      "Rely on unemployment insurance — it is designed to replace income during job loss",
-      "Avoid industries vulnerable to cyclical downturns",
-      "Diversify income streams so no single employer accounts for more than 50% of income",
-      "Build an emergency fund, invest in education as the best unemployment insurance, and maintain your network before you need it",
-    ],
-    correct: 3,
-    exp: "The three micro-level tools your slides recommend: (1) 3–6 month emergency fund — build before you need it; (2) Education is the best unemployment insurance — the degree/no-diploma gap (2.3% vs. 5.7%) is persistent; (3) Maintain your professional network always — connections built before a layoff are far more valuable than those built after.",
+    id: "network",
+    icon: "🤝",
+    title: "Maintain Your Network Before You Need It",
+    tag: "STRATEGY",
+    tagColor: "bg-amber-100 border-amber-400 text-amber-800",
+    body: "Most jobs are filled through networks, not job boards. The connections you build while employed are far more valuable than the ones you try to build after a layoff.\n\nMacro happens to all of us — but how prepared you are when it does is mostly micro.\n\nThree habits:\n1. Stay active in your professional community even when employed\n2. Help others in your network before you need help — reciprocity matters\n3. Know your worth: track your wins, update your resume annually, know your market rate\n\nWhen cyclical unemployment hits your sector, the people who find jobs fastest are not always the most skilled — they are the most connected.",
+    takeaway: "Your network is your personal automatic stabilizer. Build it in the expansion so it cushions you in the recession.",
   },
 ];
 
 function PersonalFinanceStation({ onComplete }: { onComplete: (score: number, total: number) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
-  const [checked, setChecked] = useState(false);
-  const [score, setScore] = useState(0);
-  const q = PERSONALFINANCE_QS[idx];
-  const isLast = idx === PERSONALFINANCE_QS.length - 1;
-  function handleCheck() {
-    if (sel === null) return;
-    const newScore = score + (sel === q.correct ? 1 : 0);
-    setScore(newScore);
-    setChecked(true);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState<Set<string>>(new Set());
+  const allRevealed = PF_CARDS_CH8.every(c => revealed.has(c.id));
+
+  function toggle(id: string) {
+    setRevealed(r => new Set([...r, id]));
+    setExpanded(e => e === id ? null : id);
   }
-  function handleNext() { setSel(null); setChecked(false); setIdx(i => i + 1); }
+
   return (
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-sm">
-        <p className="font-semibold text-foreground mb-2">Unemployment Is Personal — Economic + Human Costs</p>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="bg-background rounded-lg p-2 border border-border">
-            <p className="font-bold text-primary mb-1">Economic Costs</p>
-            <ul className="text-muted-foreground space-y-0.5">
-              <li>• Lost output never recovered</li>
-              <li>• Skills atrophy over time</li>
-              <li>• Lower tax revenue</li>
-              <li>• Reduced future investment</li>
-            </ul>
-          </div>
-          <div className="bg-background rounded-lg p-2 border border-border">
-            <p className="font-bold text-primary mb-1">Human Costs</p>
-            <ul className="text-muted-foreground space-y-0.5">
-              <li>• Worse physical &amp; mental health</li>
-              <li>• Strained marriages</li>
-              <li>• Children's future earnings affected</li>
-              <li>• Loss of identity &amp; social connection</li>
-            </ul>
-          </div>
-        </div>
-        <div className="mt-2 bg-amber-50 border border-amber-200 rounded-lg p-2 text-xs">
-          <p className="font-semibold text-amber-800">Your 3 Personal-Finance Tools:</p>
-          <p className="text-amber-900">① 3–6 month emergency fund &nbsp;② Education = best insurance &nbsp;③ Maintain network before you need it</p>
-          <p className="text-amber-700 italic mt-1">"Macro happens to all of us — but how prepared you are is mostly micro."</p>
-        </div>
+        <p className="font-semibold text-foreground mb-1">Station 7 — Unemployment & Your Personal Finances</p>
+        <p className="text-muted-foreground text-xs">"Macro happens to all of us — but how prepared you are when it does is mostly micro." Open all three cards to complete the station.</p>
       </div>
-      <SteppedQuiz q={q} idx={idx} total={PERSONALFINANCE_QS.length} sel={sel} setSel={setSel} checked={checked} onCheck={handleCheck} onNext={handleNext} isLast={isLast} score={score} onComplete={onComplete} />
+      <div className="space-y-3">
+        {PF_CARDS_CH8.map(card => {
+          const isOpen = expanded === card.id;
+          const seen = revealed.has(card.id);
+          return (
+            <div key={card.id} className={`rounded-2xl border-2 overflow-hidden transition ${seen ? "border-primary/40" : "border-border"} bg-card`}>
+              <button onClick={() => toggle(card.id)}
+                className="w-full flex items-center justify-between p-4 text-left gap-3 hover:bg-muted/40 transition">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{card.icon}</span>
+                  <div>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full border mr-2 ${card.tagColor}`}>{card.tag}</span>
+                    <span className="text-sm font-semibold text-foreground">{card.title}</span>
+                  </div>
+                </div>
+                <span className="text-muted-foreground text-sm">{isOpen ? "▲" : "▼"}</span>
+              </button>
+              {isOpen && (
+                <div className="px-4 pb-4 space-y-3">
+                  <div className="bg-muted/50 rounded-xl p-3 text-xs text-foreground leading-relaxed whitespace-pre-line">{card.body}</div>
+                  <div className="bg-primary/10 border border-primary/20 rounded-xl p-3">
+                    <p className="text-xs font-bold text-primary uppercase tracking-wider mb-1">Key Takeaway</p>
+                    <p className="text-xs text-foreground">{card.takeaway}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <button disabled={!allRevealed} onClick={() => onComplete(PF_CARDS_CH8.length, PF_CARDS_CH8.length)}
+        className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition disabled:opacity-40">
+        {allRevealed ? "Mark Complete ✓" : `Open all cards to continue (${revealed.size}/${PF_CARDS_CH8.length})`}
+      </button>
     </div>
   );
 }

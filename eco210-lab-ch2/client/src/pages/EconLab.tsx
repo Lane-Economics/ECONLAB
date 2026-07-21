@@ -2281,6 +2281,8 @@ function Header({
   const allStationsDone = STATIONS_LIST.every((s) => completed.has(s.id));
 
   return (
+    <>
+    <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:font-semibold">Skip to main content</a>
     <header
       role="banner"
       className="bg-secondary text-secondary-foreground shadow-md sticky top-0 z-50"
@@ -2354,6 +2356,7 @@ function Header({
         </div>
       </div>
     </header>
+    </>
   );
 }
 
@@ -2414,7 +2417,7 @@ export default function EconLab({
             courseSubtitle={courseSubtitle}
             hubUrl={hubUrl}
           />
-          <main className="max-w-2xl mx-auto px-4 py-6">
+          <main id="main-content" className="max-w-2xl mx-auto px-4 py-6">
             {station === "intro" && (
               <Dashboard
                 completed={completed}

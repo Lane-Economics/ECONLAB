@@ -1066,7 +1066,9 @@ function Header({ station, completed, onNav, courseTitle, courseSubtitle, hubUrl
   const allStationsDone = STATIONS.every(s => completed.has(s.id));
 
   return (
-    <header role="banner" className="bg-secondary text-secondary-foreground shadow-md sticky top-0 z-50">
+    <>
+    <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:font-semibold">Skip to main content</a>
+      <header role="banner" className="bg-secondary text-secondary-foreground shadow-md sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         {/* Logo */}
         <div className="flex items-center gap-2 shrink-0">
@@ -1116,6 +1118,7 @@ function Header({ station, completed, onNav, courseTitle, courseSubtitle, hubUrl
 
       </div>
     </header>
+    </>
   );
 }
 
@@ -1154,7 +1157,7 @@ export default function EconLab({ courseTitle, courseSubtitle, hubUrl }: {
       {showSummary && <SummaryModal onClose={() => setShowSummary(false)} />}
       <Header station={station} completed={completed} onNav={setStation}
         courseTitle={courseTitle} courseSubtitle={courseSubtitle} hubUrl={hubUrl} />
-      <main className="max-w-2xl mx-auto px-4 py-6">
+      <main id="main-content" className="max-w-2xl mx-auto px-4 py-6">
         {station === "intro" && <Dashboard completed={completed} onSelect={setStation} quizUnlocked={quizUnlocked} onStartQuiz={() => setStation("quiz")} onSummary={() => setShowSummary(true)} />}
         {station === "oppcost" && station !== "not-yet" && station !== "results" && <OppCostStation onComplete={(sc, t) => markDone("oppcost", sc, t)} />}
         {station === "factors" && station !== "not-yet" && station !== "results" && <FactorsStation onComplete={(sc, t) => markDone("factors", sc, t)} />}

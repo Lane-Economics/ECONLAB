@@ -158,6 +158,7 @@ function LawsStation({ onComplete }: { onComplete: (score: number, total: number
                   <div className="flex flex-wrap gap-1">
                     {CURVE_OPTS.map(c => (
                       <button key={c.id} onClick={() => setAns(s.id, "curve", c.id)}
+                      aria-pressed={false}
                         className={`px-3 py-1 rounded-lg border text-xs font-semibold transition ${ans.curve === c.id ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/40"}`}>
                         {c.label}
                       </button>
@@ -166,6 +167,7 @@ function LawsStation({ onComplete }: { onComplete: (score: number, total: number
                   <div className="flex gap-2">
                     {DIR_OPTS.map(d => (
                       <button key={d.id} onClick={() => setAns(s.id, "dir", d.id)}
+                      aria-pressed={false}
                         className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition ${ans.dir === d.id ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/40"}`}>
                         {d.label}
                       </button>
@@ -259,6 +261,7 @@ function EquilibriumStation({ onComplete }: { onComplete: (score: number, total:
                   <div className="flex flex-wrap gap-1">
                     {STATUS_OPTS.map(o => (
                       <button key={o.id} onClick={() => setAns(s.id, "status", o.id)}
+                      aria-pressed={false}
                         className={`px-3 py-1 rounded-lg border text-xs font-semibold transition ${ans.status === o.id ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/40"}`}>
                         {o.label}
                       </button>
@@ -267,6 +270,7 @@ function EquilibriumStation({ onComplete }: { onComplete: (score: number, total:
                   <div className="flex gap-2">
                     {MOVE_OPTS.map(m => (
                       <button key={m.id} onClick={() => setAns(s.id, "movement", m.id)}
+                      aria-pressed={false}
                         className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition ${ans.movement === m.id ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/40"}`}>
                         {m.label}
                       </button>
@@ -549,6 +553,7 @@ function FourStepStation({ onComplete }: { onComplete: (score: number, total: nu
         <div className="space-y-2">
           {step.options.map((opt, i) => (
             <button key={i} disabled={checked} onClick={() => setSel(i)}
+            aria-pressed={sel === i}
               className={`w-full text-left px-4 py-2.5 rounded-lg border text-sm transition ${
                 checked
                   ? i === step.correct ? "border-green-500 bg-green-50 text-green-900"
@@ -707,6 +712,7 @@ function SteppedQuiz({ q, idx, total, sel, setSel, checked, onCheck, onNext, isL
       <div className="space-y-2">
         {q.options.map((opt, i) => (
           <button key={i} disabled={checked} onClick={() => setSel(i)}
+            aria-pressed={sel === i}
             className={`w-full text-left px-4 py-2.5 rounded-lg border text-sm transition ${
               checked
                 ? i === q.correct ? "border-green-500 bg-green-50 text-green-900"
@@ -783,11 +789,12 @@ function FlashcardStation({ onComplete }: { onComplete: (score: number, total: n
         <p className="font-semibold text-foreground mb-1">Flashcard Review — Chapter 3 Key Terms</p>
         <p className="text-muted-foreground text-xs">Review all {cards.length} terms. Click each card to reveal the definition. You must view all cards before the Quiz unlocks.</p>
         <div className="mt-2 h-1.5 bg-primary/20 rounded-full overflow-hidden">
-          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(seen.size / cards.length) * 100}%` }} />
+          <div className="h-full bg-primary rounded-full transition-all" role="progressbar" aria-valuenow={seen.size} aria-valuemin={0} aria-valuemax={cards.length} style={{ width: `${(seen.size / cards.length) * 100}%` }} />
         </div>
         <p className="text-xs text-muted-foreground mt-1">{seen.size}/{cards.length} cards reviewed</p>
       </div>
-      <div onClick={handleFlip} className="cursor-pointer select-none bg-card border-2 border-border rounded-2xl p-6 min-h-[160px] flex flex-col items-center justify-center text-center shadow-sm hover:border-primary transition">
+      <div onClick={handleFlip} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleFlip(); }}} role="button" tabIndex={0} aria-label={flipped ? "Card showing definition. Press to see term." : "Card showing term. Press to reveal definition."} className="cursor-pointer select-none bg-card border-2 border-border rounded-2xl p-6 min-h-[160px] flex flex-col items-center justify-center text-center shadow-sm hover:border-primary transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+        <span aria-live="polite" aria-atomic="true" className="sr-only">{flipped ? cards[idx].back : cards[idx].front}</span>
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">{flipped ? "Definition" : "Term"} — {idx + 1} / {cards.length}</p>
         <p className={`font-semibold leading-relaxed ${flipped ? "text-sm text-muted-foreground" : "text-base text-foreground"}`}>
           {flipped ? cards[idx].back : cards[idx].front}
@@ -1008,6 +1015,7 @@ function QuizStation({ onPass, onFail }: { onPass: (score: number, results: { co
         <div className="space-y-2">
           {q.options.map((opt, i) => (
             <button key={`q${idx}-opt${i}`} disabled={checked} onClick={() => setSel(i)}
+              aria-pressed={sel === i}
               className={`w-full text-left px-4 py-2.5 rounded-lg border text-sm transition ${
                 checked
                   ? i === q.correct ? "border-green-500 bg-green-50 text-green-900"
@@ -1230,7 +1238,7 @@ function Dashboard({ completed, onSelect, quizUnlocked, onStartQuiz, onSummary }
         <p className="font-semibold mb-1">Chapter 3 — Demand and Supply</p>
         <p className="text-muted-foreground text-xs">Complete all stations and the Flashcard review to unlock the Quiz. Your progress is saved automatically.</p>
         <div className="mt-3 h-2 bg-primary/20 rounded-full overflow-hidden">
-          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(progress / STATIONS.length) * 100}%` }} />
+          <div className="h-full bg-primary rounded-full transition-all" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={STATIONS.length} style={{ width: `${(progress / STATIONS.length) * 100}%` }} />
         </div>
         <p className="text-xs text-muted-foreground mt-1">{progress}/{STATIONS.length} stations complete</p>
       </div>
@@ -1271,7 +1279,9 @@ function Header({ station, completed, onNav, courseTitle, courseSubtitle, hubUrl
   const currentIdx = STATION_ORDER.indexOf(station);
   const allStationsDone = STATIONS.every(s => completed.has(s.id));
   return (
-    <header role="banner" className="bg-secondary text-secondary-foreground shadow-md sticky top-0 z-50">
+    <>
+    <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:font-semibold">Skip to main content</a>
+      <header role="banner" className="bg-secondary text-secondary-foreground shadow-md sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2 shrink-0">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-label="Econ Lab logo">
@@ -1309,6 +1319,7 @@ function Header({ station, completed, onNav, courseTitle, courseSubtitle, hubUrl
         <div className="sm:hidden text-sm font-medium text-sidebar-foreground/80">{currentIdx + 1} / {NAV_STATIONS.length}</div>
       </div>
     </header>
+    </>
   );
 }
 
@@ -1344,7 +1355,7 @@ export default function EconLab({ courseTitle, courseSubtitle, hubUrl }: {
     <div className="min-h-screen bg-background text-foreground">
       {showSummary && <SummaryModal onClose={() => setShowSummary(false)} courseTitle={courseTitle} />}
       <Header station={station} completed={completed} onNav={setStation} courseTitle={courseTitle} courseSubtitle={courseSubtitle} hubUrl={hubUrl} />
-      <main className="max-w-2xl mx-auto px-4 py-6">
+      <main id="main-content" className="max-w-2xl mx-auto px-4 py-6">
         {station === "intro"       && <Dashboard completed={completed} onSelect={setStation} quizUnlocked={quizUnlocked} onStartQuiz={() => setStation("quiz")} onSummary={() => setShowSummary(true)} />}
         {station === "pricemech"   && <PriceMechStation   onComplete={(sc, t) => markDone("pricemech",   sc, t)} />}
         {station === "laws"        && <LawsStation        onComplete={(sc, t) => markDone("laws",        sc, t)} />}

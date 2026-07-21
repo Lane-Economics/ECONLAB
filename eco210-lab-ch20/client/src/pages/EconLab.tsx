@@ -233,6 +233,7 @@ function OCCalcStation({ onComplete }: { onComplete: (score: number, total: numb
               key={i}
               disabled={checked}
               onClick={() => setSel(i)}
+            aria-pressed={sel === i}
               className={`w-full text-left px-4 py-2.5 rounded-lg border text-sm transition ${
                 checked
                   ? i === step.correct
@@ -393,6 +394,7 @@ function USMexicoStation({ onComplete }: { onComplete: (score: number, total: nu
               key={i}
               disabled={checked}
               onClick={() => setSel(i)}
+            aria-pressed={sel === i}
               className={`w-full text-left px-4 py-2.5 rounded-lg border text-sm transition ${
                 checked
                   ? i === step.correct
@@ -537,6 +539,7 @@ function GainsStation({ onComplete }: { onComplete: (score: number, total: numbe
               key={i}
               disabled={checked}
               onClick={() => setSel(i)}
+            aria-pressed={sel === i}
               className={`w-full text-left px-4 py-2.5 rounded-lg border text-sm transition ${
                 checked
                   ? i === step.correct
@@ -680,6 +683,7 @@ function TermsStation({ onComplete }: { onComplete: (score: number, total: numbe
               key={i}
               disabled={checked}
               onClick={() => setSel(i)}
+            aria-pressed={sel === i}
               className={`w-full text-left px-4 py-2.5 rounded-lg border text-sm transition ${
                 checked
                   ? i === step.correct
@@ -1134,6 +1138,7 @@ function QuizStation({
               key={`q${idx}-opt${i}`}
               disabled={checked}
               onClick={() => setSel(i)}
+              aria-pressed={sel === i}
               className={`w-full text-left px-4 py-2.5 rounded-lg border text-sm transition ${
                 checked
                   ? i === q.correct
@@ -1494,7 +1499,9 @@ function Header({ station, completed, onNav, courseTitle, courseSubtitle, hubUrl
   const allStationsDone = STATIONS.every(s => completed.has(s.id));
 
   return (
-    <header role="banner" className="bg-secondary text-secondary-foreground shadow-md sticky top-0 z-50">
+    <>
+    <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:font-semibold">Skip to main content</a>
+      <header role="banner" className="bg-secondary text-secondary-foreground shadow-md sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         {/* Logo */}
         <div className="flex items-center gap-2 shrink-0">
@@ -1544,6 +1551,7 @@ function Header({ station, completed, onNav, courseTitle, courseSubtitle, hubUrl
 
       </div>
     </header>
+    </>
   );
 }
 
@@ -1582,7 +1590,7 @@ export default function EconLab({ courseTitle, courseSubtitle, hubUrl }: {
       {showSummary && <SummaryModal onClose={() => setShowSummary(false)} courseTitle={courseTitle} />}
       <Header station={station} completed={completed} onNav={setStation}
         courseTitle={courseTitle} courseSubtitle={courseSubtitle} hubUrl={hubUrl} />
-      <main className="max-w-2xl mx-auto px-4 py-6">
+      <main id="main-content" className="max-w-2xl mx-auto px-4 py-6">
         {station === "intro" && <Dashboard completed={completed} onSelect={setStation} quizUnlocked={quizUnlocked} onStartQuiz={() => setStation("quiz")} onSummary={() => setShowSummary(true)} courseTitle={courseTitle} />}
         {station === "abscomp"  && <AbsCompStation  onComplete={(sc, t) => markDone("abscomp",  sc, t)} />}
         {station === "occalc"   && <OCCalcStation   onComplete={(sc, t) => markDone("occalc",   sc, t)} />}
